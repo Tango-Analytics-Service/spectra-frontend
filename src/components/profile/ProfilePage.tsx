@@ -67,7 +67,7 @@ const ProfilePage: React.FC = () => {
             О приложении
           </h3>
           <p className="text-sm text-slate-400">
-            TANGO v1.0.0 - Аналитика и управление телеграм-каналами
+            SPECTRA beta - Аналитика и управление телеграм-каналами
           </p>
         </div>
       </div>
