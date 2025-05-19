@@ -107,33 +107,11 @@ const Home = () => {
 
   return (
     <div className="flex flex-col w-full min-h-screen bg-gradient-to-br from-[#0F172A] to-[#131c2e] text-white">
-      {/* Subtle background pattern */}
-      <div className="absolute inset-0 overflow-hidden opacity-5 pointer-events-none">
-        <svg width="100%" height="100%">
-          <defs>
-            <pattern
-              id="grid"
-              width="40"
-              height="40"
-              patternUnits="userSpaceOnUse"
-            >
-              <path
-                d="M 40 0 L 0 0 0 40"
-                fill="none"
-                stroke="#FFFFFF"
-                strokeWidth="0.5"
-              />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#grid)" />
-        </svg>
-      </div>
-
       {/* Header */}
       <header className="px-4 sm:px-6 py-3 sm:py-4 flex items-center relative z-10">
         <div className="text-xl font-semibold tracking-tight">
           <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-blue-300">
-            TANGO
+            SPECTRA
           </span>
         </div>
         <Badge

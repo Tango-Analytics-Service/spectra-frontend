@@ -9,6 +9,14 @@ TempoDevtools.init();
 
 const basename = import.meta.env.BASE_URL;
 
+if (window.visualViewport) {
+  window.visualViewport.addEventListener("resize", () => {
+    if (window.visualViewport) {
+      document.body.style.height = window.visualViewport.height + "px";
+    }
+  });
+}
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter basename={basename}>
