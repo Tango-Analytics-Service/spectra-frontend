@@ -1,35 +1,24 @@
-// src/components/home.tsx
 import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { Search, Filter, LayoutGrid, List, Plus, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import {
-  Search,
-  PlusCircle,
-  Filter,
-  LayoutGrid,
-  List,
-  Loader2,
-  Eye,
-  ArrowRight,
-} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Toggle } from "@/components/ui/toggle";
+import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "@/components/ui/use-toast";
+import { useChannelSets } from "@/contexts/ChannelSetsContext";
 import ChannelSetsList from "./ChannelSetsList";
 import ChannelSetDetails from "./ChannelSetDetails";
-import { useChannelSets } from "@/contexts/ChannelSetsContext";
-import { CreateChannelSetRequest } from "@/types/channel-sets";
 
 const ChannelSetPage = () => {
   const navigate = useNavigate();
@@ -45,12 +34,14 @@ const ChannelSetPage = () => {
   } = useChannelSets();
 
   // Local state
-  const [selectedSetId, setSelectedSetId] = useState<string>("");
+  const [selectedSetId, setSelectedSetId] = useState("");
   const [currentSet, setCurrentSet] = useState(undefined);
   const [detailsLoading, setDetailsLoading] = useState(false);
   const [createLoading, setCreateLoading] = useState(false);
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [viewMode, setViewMode] = useState("grid"); // grid or list
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredSets, setFilteredSets] = useState([]);
 
   // Form state for creating a new set
   const [newSetName, setNewSetName] = useState("");
@@ -76,7 +67,23 @@ const ChannelSetPage = () => {
     }
   }, [selectedSetId]);
 
-  const loadChannelSetDetails = async (id: string) => {
+  // Filter channel sets based on search query
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setFilteredSets(channelSets);
+      return;
+    }
+
+    const query = searchQuery.toLowerCase();
+    const filtered = channelSets.filter(
+      (set) =>
+        set.name.toLowerCase().includes(query) ||
+        set.description.toLowerCase().includes(query),
+    );
+    setFilteredSets(filtered);
+  }, [searchQuery, channelSets]);
+
+  const loadChannelSetDetails = async (id) => {
     setDetailsLoading(true);
     try {
       const set = await getChannelSet(id);
@@ -98,7 +105,7 @@ const ChannelSetPage = () => {
 
     setCreateLoading(true);
     try {
-      const data: CreateChannelSetRequest = {
+      const data = {
         name: newSetName,
         description: newSetDescription,
         is_public: newSetIsPublic,
@@ -123,63 +130,27 @@ const ChannelSetPage = () => {
     }
   };
 
-  const handleViewSet = (setId: string) => {
+  const handleViewDetails = (setId) => {
     navigate(`/channel-sets/${setId}`);
   };
 
-  const handleShareSet = (setId: string) => {
+  const handleShareSet = (setId) => {
     // Implement share functionality
     console.log("Share set:", setId);
   };
 
-  const handleEditSet = (setId: string) => {
+  const handleEditSet = (setId) => {
     // Navigate to edit page
     navigate(`/channel-sets/${setId}`);
   };
 
-  const handleAnalyzeSet = async (setId: string) => {
+  const handleAnalyzeSet = async (setId) => {
     // Navigate to analysis page or show analysis modal
     console.log("Analyze set:", setId);
   };
 
-  const handleAnalyticsClick = () => {
-    // Navigate to analytics page or open analytics modal
-    console.log("Analytics clicked");
-  };
-
   return (
     <div className="flex flex-col w-full min-h-screen bg-gradient-to-br from-[#0F172A] to-[#131c2e] text-white">
-      {/* Header */}
-      <header className="px-4 sm:px-6 py-3 sm:py-4 flex items-center relative z-10">
-        <div className="text-xl font-semibold tracking-tight">
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-blue-300">
-            SPECTRA
-          </span>
-        </div>
-        <Badge
-          className="ml-2 bg-gradient-to-r from-[#358ee4] to-[#3b82f6] shadow-[0_0_8px_rgba(53,142,228,0.3)]"
-          variant="default"
-        >
-          BETA
-        </Badge>
-        <div className="ml-auto flex gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-blue-400 hover:bg-white/10 h-8 w-8"
-          >
-            <Filter size={16} />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-blue-400 hover:bg-white/10 h-8 w-8"
-          >
-            <Search size={16} />
-          </Button>
-        </div>
-      </header>
-
       {/* Main content */}
       <main className="flex-1 px-4 sm:px-6 pb-4 sm:pb-6 overflow-hidden flex flex-col">
         {/* Title */}
@@ -192,62 +163,69 @@ const ChannelSetPage = () => {
           </p>
         </div>
 
-        {/* View toggle and label */}
-        <div className="mt-4 sm:mt-6 flex justify-between items-center">
-          <div className="text-xs sm:text-sm font-medium text-blue-200">
-            ВАШИ НАБОРЫ
+        {/* Search and View Controls */}
+        <div className="mt-4 flex flex-col sm:flex-row gap-3 items-center">
+          <div className="relative flex-1">
+            <Search
+              size={16}
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+            />
+            <Input
+              placeholder="Поиск по наборам..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 bg-slate-900/70 border-blue-500/20 w-full"
+            />
           </div>
-          <div className="flex p-0.5 rounded-lg bg-gray-800">
-            <Toggle
-              pressed={viewMode === "grid"}
-              onPressedChange={() => setViewMode("grid")}
-              className={`p-1.5 rounded-md ${viewMode === "grid" ? "bg-blue-500 text-white" : "text-gray-400"}`}
+          <div className="flex gap-2 ml-auto">
+            <div className="flex p-0.5 rounded-lg bg-slate-800">
+              <Toggle
+                pressed={viewMode === "grid"}
+                onPressedChange={() => setViewMode("grid")}
+                className={`p-1.5 rounded-md ${viewMode === "grid" ? "bg-blue-500 text-white" : "text-gray-400"}`}
+              >
+                <LayoutGrid size={16} />
+              </Toggle>
+              <Toggle
+                pressed={viewMode === "list"}
+                onPressedChange={() => setViewMode("list")}
+                className={`p-1.5 rounded-md ${viewMode === "list" ? "bg-blue-500 text-white" : "text-gray-400"}`}
+              >
+                <List size={16} />
+              </Toggle>
+            </div>
+            <Button
+              variant="outline"
+              size="icon"
+              className="text-blue-400 hover:bg-white/10 border-blue-500/20"
             >
-              <LayoutGrid size={16} />
-            </Toggle>
-            <Toggle
-              pressed={viewMode === "list"}
-              onPressedChange={() => setViewMode("list")}
-              className={`p-1.5 rounded-md ${viewMode === "list" ? "bg-blue-500 text-white" : "text-gray-400"}`}
-            >
-              <List size={16} />
-            </Toggle>
+              <Filter size={16} />
+            </Button>
           </div>
         </div>
 
         {/* Create New Set Button */}
-        <Button
-          className="mt-3 sm:mt-4 w-full py-4 sm:py-6 bg-gradient-to-r from-[#358ee4] to-[#3b82f6] shadow-[0_4px_12px_rgba(53,142,228,0.25)] hover:shadow-[0_6px_16px_rgba(53,142,228,0.35)] transition-all duration-200"
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
           onClick={() => setIsCreateModalOpen(true)}
+          className="mt-4 w-full py-4 sm:py-6 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 rounded-xl flex items-center justify-center text-white font-medium shadow-lg shadow-blue-600/20 hover:shadow-blue-600/30 transition-all duration-200"
         >
-          <PlusCircle size={16} className="mr-2" />
+          <Plus size={18} className="mr-2" />
           <span>Создать новый набор</span>
-        </Button>
+        </motion.button>
 
         {/* Channel Sets List */}
-        {isLoading ? (
-          <div className="mt-4 flex-1 flex items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin text-blue-400" />
-          </div>
-        ) : channelSets.length > 0 ? (
-          <div className="mt-4 overflow-auto flex-1">
-            <ChannelSetsList
-              sets={channelSets}
-              selectedSetId={selectedSetId}
-              onSelectSet={setSelectedSetId}
-              viewMode={viewMode}
-            />
-          </div>
-        ) : (
-          <div className="mt-4 flex-1 flex items-center justify-center text-center text-gray-400">
-            <div>
-              <p>У вас пока нет наборов каналов</p>
-              <p className="text-sm mt-2">
-                Нажмите "Создать новый набор", чтобы начать
-              </p>
-            </div>
-          </div>
-        )}
+        <div className="mt-6 overflow-auto flex-1">
+          <ChannelSetsList
+            channelSets={filteredSets}
+            isLoading={isLoading}
+            selectedSetId={selectedSetId}
+            onSelectSet={setSelectedSetId}
+            onViewDetails={handleViewDetails}
+            viewMode={viewMode}
+          />
+        </div>
 
         {/* Selected Set Details */}
         {selectedSetId && (
@@ -257,23 +235,12 @@ const ChannelSetPage = () => {
                 <Loader2 className="h-8 w-8 animate-spin text-blue-400" />
               </div>
             ) : currentSet ? (
-              <div className="relative">
-                <ChannelSetDetails
-                  selectedSet={currentSet}
-                  onShare={handleShareSet}
-                  onEdit={handleEditSet}
-                  onAnalyze={handleAnalyzeSet}
-                />
-                <Button
-                  className="absolute right-4 bottom-4 flex items-center text-xs bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600"
-                  size="sm"
-                  onClick={() => handleViewSet(currentSet.id)}
-                >
-                  <Eye size={14} className="mr-1" />
-                  Детальный просмотр
-                  <ArrowRight size={14} className="ml-1" />
-                </Button>
-              </div>
+              <ChannelSetDetails
+                selectedSet={currentSet}
+                onShare={handleShareSet}
+                onEdit={handleEditSet}
+                onAnalyze={handleAnalyzeSet}
+              />
             ) : (
               <div className="bg-slate-800/50 border border-blue-500/20 text-white p-6 rounded-xl text-center">
                 Выберите набор для просмотра деталей

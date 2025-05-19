@@ -1,208 +1,210 @@
-import React from "react";
-import { Users, Globe, Star, Lock } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import {
+  Users,
+  Calendar,
+  CheckCircle,
+  AlertCircle,
+  ArrowRight,
+  Loader2,
+  Globe,
+  Lock,
+  Star,
+} from "lucide-react";
 
-interface Channel {
-  username: string;
-  channel_id: number;
-  is_parsed: boolean;
-  added_at: string;
-}
-
-interface ChannelSet {
-  id: string;
-  name: string;
-  description: string;
-  is_public: boolean;
-  is_predefined: boolean;
-  created_at: string;
-  updated_at: string;
-  channel_count: number;
-  channels: Channel[];
-  all_parsed: boolean;
-}
-
-interface ChannelSetsListProps {
-  sets?: ChannelSet[];
-  selectedSetId?: string;
-  onSelectSet?: (id: string) => void;
-  viewMode: "grid" | "list";
-}
-
+// Компонент только для отображения списка наборов каналов
 const ChannelSetsList = ({
-  sets = [
-    {
-      id: "24083538-67db-4339-b9fd-93d293c31458",
-      name: "Тестовый набор",
-      description: "Мой персональный набор каналов",
-      is_public: false,
-      is_predefined: false,
-      created_at: "2025-05-03T16:07:19.378096",
-      updated_at: "2025-05-04T13:51:16.708570",
-      channel_count: 3,
-      channels: [],
-      all_parsed: true,
-    },
-    {
-      id: "predefined-tech-news",
-      name: "Технологические новости",
-      description: "Популярные каналы о технологиях",
-      is_public: true,
-      is_predefined: true,
-      created_at: "2025-04-15T10:00:00.000000",
-      updated_at: "2025-05-01T12:00:00.000000",
-      channel_count: 5,
-      channels: [],
-      all_parsed: true,
-    },
-    {
-      id: "public-finance",
-      name: "Финансовые каналы",
-      description: "Публичный набор о финансах и инвестициях",
-      is_public: true,
-      is_predefined: false,
-      created_at: "2025-04-20T14:30:00.000000",
-      updated_at: "2025-05-02T09:15:00.000000",
-      channel_count: 7,
-      channels: [],
-      all_parsed: true,
-    },
-  ],
-  selectedSetId = "24083538-67db-4339-b9fd-93d293c31458",
-  onSelectSet = () => {},
+  channelSets,
+  isLoading,
+  selectedSetId,
+  onSelectSet,
+  onViewDetails,
   viewMode = "grid",
-}: ChannelSetsListProps) => {
+}) => {
   // Format date to DD.MM.YYYY
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleString("ru-RU", {
+    return date.toLocaleDateString("ru-RU", {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
     });
   };
 
-  return (
-    <div className="px-6 mt-4 overflow-auto flex-1">
-      {viewMode === "grid" ? (
-        <div className="grid grid-cols-2 gap-3">
-          {sets.map((set) => (
-            <div
-              key={set.id}
-              className="p-4 rounded-lg cursor-pointer transition-all duration-200 border border-transparent hover:border-blue-500"
-              style={{
-                background:
-                  set.id === selectedSetId
-                    ? "linear-gradient(135deg, rgba(53, 142, 228, 0.2) 0%, rgba(59, 130, 246, 0.1) 100%)"
-                    : "rgba(30, 41, 59, 0.5)",
-                boxShadow:
-                  set.id === selectedSetId
-                    ? "0 4px 12px rgba(53, 142, 228, 0.15)"
-                    : "none",
-              }}
-              onClick={() => onSelectSet(set.id)}
-            >
+  // Render loading state
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-400" />
+      </div>
+    );
+  }
+
+  // Render empty state
+  if (channelSets.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center bg-slate-800/40 backdrop-blur-sm border border-slate-700/50 rounded-xl p-12 text-center">
+        <Users size={48} className="text-blue-400/50 mb-4" />
+        <h3 className="text-lg font-medium mb-2">
+          У вас пока нет наборов каналов
+        </h3>
+        <p className="text-sm text-gray-400 mb-4">
+          Нажмите 'Создать новый набор', чтобы начать
+        </p>
+      </div>
+    );
+  }
+
+  // Render grid view
+  if (viewMode === "grid") {
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {channelSets.map((set, index) => (
+          <motion.div
+            key={set.id}
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.3, delay: index * 0.05 }}
+            className={`bg-slate-800/40 backdrop-blur-sm rounded-xl border ${
+              selectedSetId === set.id
+                ? "border-blue-500/50"
+                : "border-slate-700/50"
+            } overflow-hidden shadow-lg shadow-slate-900/10 hover:border-blue-500/30 transition-all duration-300 cursor-pointer`}
+            onClick={() => onSelectSet(set.id)}
+          >
+            <div className="p-4">
               <div className="flex justify-between items-start mb-3">
-                <div
-                  className="font-medium truncate"
-                  style={{ maxWidth: "80%" }}
-                >
-                  {set.name}
-                </div>
-                <div className="flex">
-                  {set.is_predefined && (
-                    <span className="ml-1" title="Предустановленный набор">
+                <div>
+                  <div className="flex items-center">
+                    <h3 className="font-medium text-white mr-2">{set.name}</h3>
+                    {set.is_predefined && (
                       <Star size={14} className="text-yellow-400" />
-                    </span>
-                  )}
-                  {set.is_public ? (
-                    <span className="ml-1" title="Публичный набор">
-                      <Globe size={14} className="text-blue-400" />
-                    </span>
-                  ) : (
-                    <span className="ml-1" title="Приватный набор">
-                      <Lock size={14} className="text-gray-400" />
-                    </span>
-                  )}
-                </div>
-              </div>
-              <div className="mb-3 text-xs text-gray-400 truncate">
-                {set.description}
-              </div>
-              <div className="flex items-center text-xs text-blue-300">
-                <Users size={12} className="mr-1" />
-                <span>{set.channel_count} каналов</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {sets.map((set) => (
-            <div
-              key={set.id}
-              className="p-3 rounded-lg cursor-pointer transition-all duration-200 border border-transparent hover:border-blue-500 flex items-center"
-              style={{
-                background:
-                  set.id === selectedSetId
-                    ? "linear-gradient(135deg, rgba(53, 142, 228, 0.2) 0%, rgba(59, 130, 246, 0.1) 100%)"
-                    : "rgba(30, 41, 59, 0.5)",
-                boxShadow:
-                  set.id === selectedSetId
-                    ? "0 4px 12px rgba(53, 142, 228, 0.15)"
-                    : "none",
-              }}
-              onClick={() => onSelectSet(set.id)}
-            >
-              <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center mr-3"
-                style={{
-                  background:
-                    "linear-gradient(135deg, #358ee4 0%, #3b82f6 100%)",
-                }}
-              >
-                {set.is_predefined ? (
-                  <Star size={18} className="text-white" />
-                ) : (
-                  <span className="text-lg font-bold">
-                    {set.name.charAt(0).toUpperCase()}
-                  </span>
-                )}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center">
-                  <div
-                    className="font-medium truncate"
-                    style={{ maxWidth: "80%" }}
-                  >
-                    {set.name}
+                    )}
+                    {set.is_public ? (
+                      <Globe size={14} className="ml-1 text-blue-400" />
+                    ) : (
+                      <Lock size={14} className="ml-1 text-gray-400" />
+                    )}
                   </div>
-                  {set.is_public ? (
-                    <span className="ml-1" title="Публичный набор">
-                      <Globe size={14} className="text-blue-400" />
+                  <p className="text-sm text-blue-300/70 mt-0.5 line-clamp-1">
+                    {set.description}
+                  </p>
+                </div>
+
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500/20 text-blue-400">
+                  <Users size={16} />
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center justify-between gap-2 text-xs mt-3">
+                <div className="flex items-center text-blue-300/70">
+                  <Calendar size={12} className="mr-1" />
+                  <span>Обновлен: {formatDate(set.updated_at)}</span>
+                </div>
+
+                <div className="flex items-center">
+                  {set.all_parsed ? (
+                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px]">
+                      <CheckCircle size={10} />
+                      <span>Готов</span>
                     </span>
                   ) : (
-                    <span className="ml-1" title="Приватный набор">
-                      <Lock size={14} className="text-gray-400" />
+                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[10px]">
+                      <AlertCircle size={10} />
+                      <span>Обработка</span>
                     </span>
                   )}
                 </div>
-                <div className="flex items-center text-xs text-gray-400">
-                  <span className="truncate mr-2" style={{ maxWidth: "60%" }}>
-                    {set.description}
-                  </span>
-                  <Users size={12} className="mr-1" />
-                  <span>{set.channel_count}</span>
-                </div>
               </div>
-              <div className="text-xs text-blue-300 whitespace-nowrap">
-                {formatDate(set.updated_at)}
+
+              <div className="flex items-center justify-between mt-4">
+                <div className="flex items-center">
+                  <span className="text-sm text-blue-300/70">Каналов:</span>
+                  <span className="ml-1 font-semibold text-white">
+                    {set.channel_count}
+                  </span>
+                </div>
+
+                <motion.button
+                  whileHover={{ scale: 1.05, x: 2 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-2.5 py-1 text-xs rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 transition-colors flex items-center"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onViewDetails(set.id);
+                  }}
+                >
+                  <span>Подробнее</span>
+                  <ArrowRight size={14} className="ml-1" />
+                </motion.button>
               </div>
             </div>
-          ))}
-        </div>
-      )}
+          </motion.div>
+        ))}
+      </div>
+    );
+  }
+
+  // Render list view
+  return (
+    <div className="space-y-3">
+      {channelSets.map((set, index) => (
+        <motion.div
+          key={set.id}
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.3, delay: index * 0.05 }}
+          className={`p-3 rounded-lg flex items-center ${
+            selectedSetId === set.id
+              ? "bg-gradient-to-r from-blue-600/10 to-blue-500/5 border border-blue-500/30"
+              : "bg-slate-800/40 border border-slate-700/50"
+          } hover:border-blue-500/30 transition-all duration-200 cursor-pointer`}
+          onClick={() => onSelectSet(set.id)}
+        >
+          <div className="w-12 h-12 rounded-full flex items-center justify-center mr-3 bg-gradient-to-br from-blue-400 to-blue-600 text-white font-semibold shadow-lg shadow-blue-500/20">
+            {set.name.charAt(0).toUpperCase()}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center">
+              <div className="font-medium text-white truncate max-w-[80%]">
+                {set.name}
+              </div>
+              {set.is_predefined && (
+                <Star size={12} className="ml-2 text-yellow-400" />
+              )}
+              {set.is_public ? (
+                <div className="ml-2 flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[10px]">
+                  <Globe size={8} />
+                  <span>Публичный</span>
+                </div>
+              ) : null}
+            </div>
+            <div className="flex items-center text-xs text-gray-400">
+              <span className="truncate mr-2 max-w-[60%]">
+                {set.description}
+              </span>
+              <Users size={12} className="mr-1" />
+              <span>{set.channel_count}</span>
+            </div>
+          </div>
+          <div className="flex items-center space-x-2">
+            <div className="text-xs text-blue-300 whitespace-nowrap">
+              {formatDate(set.updated_at)}
+            </div>
+            <motion.button
+              whileHover={{ scale: 1.05, x: 2 }}
+              whileTap={{ scale: 0.95 }}
+              className="p-1.5 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 transition-colors"
+              onClick={(e) => {
+                e.stopPropagation();
+                onViewDetails(set.id);
+              }}
+            >
+              <ArrowRight size={16} />
+            </motion.button>
+          </div>
+        </motion.div>
+      ))}
     </div>
   );
 };
