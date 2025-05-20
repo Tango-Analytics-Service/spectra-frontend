@@ -1,5 +1,6 @@
 // src/services/analysisService.ts
 import { httpClient } from "./httpClient";
+import { mockAnalysisService } from "./analysisService.mock";
 import {
   AnalysisOptions,
   ChannelAnalysisRequest,
@@ -10,6 +11,9 @@ import {
 import { Filter } from "@/contexts/FilterContext";
 
 const API_ENDPOINT = "/analysis";
+
+// Check if we're running in Tempo
+const isTempoEnvironment = import.meta.env.VITE_TEMPO === "true";
 
 // If in Tempo environment, use mock service
 export const analysisService = isTempoEnvironment

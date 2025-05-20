@@ -482,11 +482,7 @@ const ChannelSetDetailsPage: React.FC = () => {
         </TabsList>
 
         <TabsContent value="analysis" className="mt-4">
-          {import.meta.env.VITE_TEMPO === "true" ? (
-            <AnalysisTabMock channelSet={channelSet} />
-          ) : (
-            <AnalysisTab channelSet={channelSet} />
-          )}
+          <AnalysisTab channelSet={channelSet} />
         </TabsContent>
 
         <TabsContent value="channels" className="mt-4">

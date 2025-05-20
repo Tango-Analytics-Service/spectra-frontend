@@ -5,9 +5,16 @@ import React, {
   useState,
   ReactNode,
   useCallback,
+  useEffect,
 } from "react";
 import { channelSetService } from "@/services/channelSetService";
 import { toast } from "@/components/ui/use-toast";
+import {
+  mockChannelSets,
+  mockChannelDetails,
+  searchChannelsResults,
+} from "@/mocks/channelSetsMock";
+import { AnalysisOptions, ChannelAnalysisResponse } from "@/types/analysis";
 import {
   ChannelSet,
   CreateChannelSetRequest,
@@ -45,6 +52,9 @@ const ChannelSetsContext = createContext<ChannelSetsContextType | undefined>(
 export const ChannelSetsProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
+  // Check if we're running in Tempo
+  const isTempoEnvironment = import.meta.env.VITE_TEMPO === "true";
+
   const [channelSets, setChannelSets] = useState<ChannelSet[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [totalSets, setTotalSets] = useState<number>(0);
@@ -57,6 +67,19 @@ export const ChannelSetsProvider: React.FC<{ children: ReactNode }> = ({
 
   const fetchChannelSets = useCallback(
     async (forceRefresh = false) => {
+      // If in Tempo environment, use mock data
+      if (isTempoEnvironment) {
+        setChannelSets(mockChannelSets);
+        setTotalSets(mockChannelSets.length);
+        const total = mockChannelSets.reduce(
+          (acc, set) => acc + set.channel_count,
+          0,
+        );
+        setTotalChannels(total);
+        setIsLoading(false);
+        return;
+      }
+
       // If data was fetched less than 1 minute ago and no force refresh is requested, use cached data
       const now = Date.now();
       if (
@@ -91,11 +114,23 @@ export const ChannelSetsProvider: React.FC<{ children: ReactNode }> = ({
         setIsLoading(false);
       }
     },
-    [channelSets.length, lastFetched],
+    [channelSets.length, lastFetched, isTempoEnvironment],
   );
 
   const getChannelSet = useCallback(
     async (id: string): Promise<ChannelSet | undefined> => {
+      // If in Tempo environment, use mock data
+      if (isTempoEnvironment) {
+        const set = mockChannelSets.find((set) => set.id === id);
+        if (set) {
+          setChannelSetsCache((prevCache) => ({
+            ...prevCache,
+            [id]: { data: set, timestamp: Date.now() },
+          }));
+        }
+        return set;
+      }
+
       // Check if we have a fresh cached version (less than 30 seconds old)
       const now = Date.now();
       const cached = channelSetsCache[id];
@@ -121,11 +156,23 @@ export const ChannelSetsProvider: React.FC<{ children: ReactNode }> = ({
         return undefined;
       }
     },
-    [channelSetsCache],
+    [channelSetsCache, isTempoEnvironment],
   );
 
   const refreshChannelSet = useCallback(
     async (id: string): Promise<ChannelSet | undefined> => {
+      // If in Tempo environment, use mock data
+      if (isTempoEnvironment) {
+        const set = mockChannelSets.find((set) => set.id === id);
+        if (set) {
+          setChannelSetsCache((prevCache) => ({
+            ...prevCache,
+            [id]: { data: set, timestamp: Date.now() },
+          }));
+        }
+        return set;
+      }
+
       try {
         const set = await channelSetService.getChannelSet(id);
         // Update cache
@@ -150,11 +197,37 @@ export const ChannelSetsProvider: React.FC<{ children: ReactNode }> = ({
         return undefined;
       }
     },
-    [],
+    [isTempoEnvironment],
   );
 
   const createChannelSet = useCallback(
     async (data: CreateChannelSetRequest): Promise<ChannelSet | undefined> => {
+      // If in Tempo environment, create mock channel set
+      if (isTempoEnvironment) {
+        const newSet: ChannelSet = {
+          id: `mock-${Date.now()}`,
+          name: data.name,
+          description: data.description,
+          is_public: data.is_public,
+          is_predefined: false,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          channel_count: 0,
+          channels: [],
+          all_parsed: true,
+        };
+
+        setChannelSets((prevSets) => [newSet, ...prevSets]);
+        setTotalSets((prev) => prev + 1);
+
+        toast({
+          title: "Успешно",
+          description: `Набор "${newSet.name}" создан`,
+        });
+
+        return newSet;
+      }
+
       try {
         const newSet = await channelSetService.createChannelSet(data);
 
@@ -178,7 +251,7 @@ export const ChannelSetsProvider: React.FC<{ children: ReactNode }> = ({
         return undefined;
       }
     },
-    [],
+    [isTempoEnvironment],
   );
 
   const updateChannelSet = useCallback(
@@ -186,6 +259,35 @@ export const ChannelSetsProvider: React.FC<{ children: ReactNode }> = ({
       id: string,
       data: UpdateChannelSetRequest,
     ): Promise<ChannelSet | undefined> => {
+      // If in Tempo environment, update mock channel set
+      if (isTempoEnvironment) {
+        const setIndex = mockChannelSets.findIndex((set) => set.id === id);
+        if (setIndex !== -1) {
+          const updatedSet = {
+            ...mockChannelSets[setIndex],
+            ...data,
+            updated_at: new Date().toISOString(),
+          };
+
+          setChannelSets((prevSets) =>
+            prevSets.map((set) => (set.id === id ? updatedSet : set)),
+          );
+
+          setChannelSetsCache((prevCache) => ({
+            ...prevCache,
+            [id]: { data: updatedSet, timestamp: Date.now() },
+          }));
+
+          toast({
+            title: "Успешно",
+            description: `Набор "${updatedSet.name}" обновлен`,
+          });
+
+          return updatedSet;
+        }
+        return undefined;
+      }
+
       try {
         const updatedSet = await channelSetService.updateChannelSet(id, data);
 
@@ -216,43 +318,101 @@ export const ChannelSetsProvider: React.FC<{ children: ReactNode }> = ({
         return undefined;
       }
     },
-    [],
+    [isTempoEnvironment],
   );
 
-  const deleteChannelSet = useCallback(async (id: string): Promise<boolean> => {
-    try {
-      await channelSetService.deleteChannelSet(id);
+  const deleteChannelSet = useCallback(
+    async (id: string): Promise<boolean> => {
+      // If in Tempo environment, delete mock channel set
+      if (isTempoEnvironment) {
+        setChannelSets((prevSets) => prevSets.filter((set) => set.id !== id));
+        setTotalSets((prev) => prev - 1);
 
-      // Update local state
-      setChannelSets((prevSets) => prevSets.filter((set) => set.id !== id));
-      setTotalSets((prev) => prev - 1);
+        setChannelSetsCache((prevCache) => {
+          const newCache = { ...prevCache };
+          delete newCache[id];
+          return newCache;
+        });
 
-      // Remove from cache
-      setChannelSetsCache((prevCache) => {
-        const newCache = { ...prevCache };
-        delete newCache[id];
-        return newCache;
-      });
+        toast({
+          title: "Успешно",
+          description: "Набор каналов удален",
+        });
 
-      toast({
-        title: "Успешно",
-        description: "Набор каналов удален",
-      });
+        return true;
+      }
 
-      return true;
-    } catch (error) {
-      console.error(`Error deleting channel set ${id}:`, error);
-      toast({
-        title: "Ошибка",
-        description: "Не удалось удалить набор каналов",
-        variant: "destructive",
-      });
-      return false;
-    }
-  }, []);
+      try {
+        await channelSetService.deleteChannelSet(id);
+
+        // Update local state
+        setChannelSets((prevSets) => prevSets.filter((set) => set.id !== id));
+        setTotalSets((prev) => prev - 1);
+
+        // Remove from cache
+        setChannelSetsCache((prevCache) => {
+          const newCache = { ...prevCache };
+          delete newCache[id];
+          return newCache;
+        });
+
+        toast({
+          title: "Успешно",
+          description: "Набор каналов удален",
+        });
+
+        return true;
+      } catch (error) {
+        console.error(`Error deleting channel set ${id}:`, error);
+        toast({
+          title: "Ошибка",
+          description: "Не удалось удалить набор каналов",
+          variant: "destructive",
+        });
+        return false;
+      }
+    },
+    [isTempoEnvironment],
+  );
 
   const addChannelsToSet = useCallback(
     async (setId: string, usernames: string[]): Promise<any> => {
+      // If in Tempo environment, add channels to mock set
+      if (isTempoEnvironment) {
+        const setIndex = mockChannelSets.findIndex((set) => set.id === setId);
+        if (setIndex !== -1) {
+          const set = { ...mockChannelSets[setIndex] };
+          const newChannels = usernames.map((username) => ({
+            username,
+            channel_id: Math.floor(Math.random() * 10000),
+            is_parsed: Math.random() > 0.3, // 70% chance to be parsed
+            added_at: new Date().toISOString(),
+          }));
+
+          set.channels = [...set.channels, ...newChannels];
+          set.channel_count = set.channels.length;
+          set.all_parsed = set.channels.every((channel) => channel.is_parsed);
+          set.updated_at = new Date().toISOString();
+
+          setChannelSets((prevSets) =>
+            prevSets.map((prevSet) => (prevSet.id === setId ? set : prevSet)),
+          );
+
+          setChannelSetsCache((prevCache) => ({
+            ...prevCache,
+            [setId]: { data: set, timestamp: Date.now() },
+          }));
+
+          toast({
+            title: "Успешно",
+            description: `Каналы добавлены в набор`,
+          });
+
+          return { success: true };
+        }
+        return { success: false, message: "Набор не найден" };
+      }
+
       try {
         const result = await channelSetService.addChannelsToSet(setId, {
           usernames,
@@ -279,11 +439,42 @@ export const ChannelSetsProvider: React.FC<{ children: ReactNode }> = ({
         return { success: false, message: "Ошибка добавления каналов" };
       }
     },
-    [refreshChannelSet],
+    [refreshChannelSet, isTempoEnvironment],
   );
 
   const removeChannelsFromSet = useCallback(
     async (setId: string, usernames: string[]): Promise<any> => {
+      // If in Tempo environment, remove channels from mock set
+      if (isTempoEnvironment) {
+        const setIndex = mockChannelSets.findIndex((set) => set.id === setId);
+        if (setIndex !== -1) {
+          const set = { ...mockChannelSets[setIndex] };
+          set.channels = set.channels.filter(
+            (channel) => !usernames.includes(channel.username),
+          );
+          set.channel_count = set.channels.length;
+          set.all_parsed = set.channels.every((channel) => channel.is_parsed);
+          set.updated_at = new Date().toISOString();
+
+          setChannelSets((prevSets) =>
+            prevSets.map((prevSet) => (prevSet.id === setId ? set : prevSet)),
+          );
+
+          setChannelSetsCache((prevCache) => ({
+            ...prevCache,
+            [setId]: { data: set, timestamp: Date.now() },
+          }));
+
+          toast({
+            title: "Успешно",
+            description: `Каналы удалены из набора`,
+          });
+
+          return { success: true };
+        }
+        return { success: false, message: "Набор не найден" };
+      }
+
       try {
         const result = await channelSetService.removeChannelsFromSet(setId, {
           usernames,
@@ -310,7 +501,7 @@ export const ChannelSetsProvider: React.FC<{ children: ReactNode }> = ({
         return { success: false, message: "Ошибка удаления каналов" };
       }
     },
-    [refreshChannelSet],
+    [refreshChannelSet, isTempoEnvironment],
   );
 
   const analyzeChannelSet = useCallback(
@@ -319,6 +510,20 @@ export const ChannelSetsProvider: React.FC<{ children: ReactNode }> = ({
       filterIds: string[],
       options?: AnalysisOptions,
     ): Promise<ChannelAnalysisResponse | null> => {
+      // If in Tempo environment, return mock analysis response
+      if (isTempoEnvironment) {
+        toast({
+          title: "Анализ запущен",
+          description: "Результаты анализа будут доступны в скором времени",
+        });
+
+        return {
+          success: true,
+          task_id: "mock-task-" + Date.now(),
+          message: "Анализ запущен успешно",
+        };
+      }
+
       try {
         // First get the channel set to get the channels
         const set = await channelSetService.getChannelSet(setId);
@@ -366,7 +571,7 @@ export const ChannelSetsProvider: React.FC<{ children: ReactNode }> = ({
         return null;
       }
     },
-    [channelSetService.getChannelSet, channelSetService.analyzeChannelSet],
+    [isTempoEnvironment],
   );
 
   const searchChannels = useCallback(
@@ -385,6 +590,7 @@ export const ChannelSetsProvider: React.FC<{ children: ReactNode }> = ({
               channel.title.toLowerCase().includes(query.toLowerCase())),
         );
       }
+
       if (!query || query.trim().length < 2) {
         return [];
       }
@@ -401,7 +607,7 @@ export const ChannelSetsProvider: React.FC<{ children: ReactNode }> = ({
         return [];
       }
     },
-    [],
+    [isTempoEnvironment],
   );
 
   const value = {
