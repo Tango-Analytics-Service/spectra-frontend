@@ -5,11 +5,9 @@ import React, {
   useState,
   ReactNode,
   useCallback,
-  useEffect,
 } from "react";
 import { httpClient } from "@/services/httpClient";
 import { toast } from "@/components/ui/use-toast";
-import { mockSystemFilters, mockUserFilters } from "@/mocks/filtersMock";
 
 export interface Filter {
   id: string;
@@ -54,9 +52,6 @@ const FilterContext = createContext<FilterContextType | undefined>(undefined);
 export const FilterProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  // Check if we're running in Tempo
-  const isTempoEnvironment = import.meta.env.VITE_TEMPO === "true";
-
   // State
   const [systemFilters, setSystemFilters] = useState<Filter[]>([]);
   const [userFilters, setUserFilters] = useState<Filter[]>([]);
@@ -66,13 +61,6 @@ export const FilterProvider: React.FC<{ children: ReactNode }> = ({
 
   // Fetch system filters (predefined by the system)
   const fetchSystemFilters = useCallback(async () => {
-    // If in Tempo environment, use mock data
-    if (isTempoEnvironment) {
-      setSystemFilters(mockSystemFilters);
-      setIsSystemFiltersLoading(false);
-      return;
-    }
-
     setIsSystemFiltersLoading(true);
     try {
       const filters = await httpClient.get<Filter[]>(
@@ -89,17 +77,10 @@ export const FilterProvider: React.FC<{ children: ReactNode }> = ({
     } finally {
       setIsSystemFiltersLoading(false);
     }
-  }, [isTempoEnvironment]);
+  }, []);
 
   // Fetch all filters available to the user (system + custom)
   const fetchUserFilters = useCallback(async () => {
-    // If in Tempo environment, use mock data
-    if (isTempoEnvironment) {
-      setUserFilters(mockUserFilters);
-      setIsUserFiltersLoading(false);
-      return;
-    }
-
     setIsUserFiltersLoading(true);
     try {
       const filters = await httpClient.get<Filter[]>("/analysis/filters");
@@ -114,34 +95,11 @@ export const FilterProvider: React.FC<{ children: ReactNode }> = ({
     } finally {
       setIsUserFiltersLoading(false);
     }
-  }, [isTempoEnvironment]);
+  }, []);
 
   // Create a custom filter
   const createCustomFilter = useCallback(
     async (data: FilterCreateRequest): Promise<Filter | null> => {
-      // If in Tempo environment, create mock filter
-      if (isTempoEnvironment) {
-        const newFilter: Filter = {
-          id: `custom-${Date.now()}`,
-          name: data.name,
-          criteria: data.criteria,
-          threshold: data.threshold,
-          strictness: data.strictness,
-          category: data.category || "Другое",
-          created_at: new Date().toISOString(),
-          is_custom: true,
-        };
-
-        setUserFilters((prev) => [...prev, newFilter]);
-
-        toast({
-          title: "Успешно",
-          description: `Фильтр "${newFilter.name}" создан`,
-        });
-
-        return newFilter;
-      }
-
       try {
         const newFilter = await httpClient.post<Filter>(
           "/analysis/custom-filters",
@@ -167,29 +125,12 @@ export const FilterProvider: React.FC<{ children: ReactNode }> = ({
         return null;
       }
     },
-    [isTempoEnvironment],
+    [],
   );
 
   // Delete a custom filter
   const deleteCustomFilter = useCallback(
     async (id: string): Promise<boolean> => {
-      // If in Tempo environment, delete mock filter
-      if (isTempoEnvironment) {
-        setUserFilters((prev) => prev.filter((filter) => filter.id !== id));
-
-        // Remove from selected filters if it was selected
-        setSelectedFilters((prev) =>
-          prev.filter((filterId) => filterId !== id),
-        );
-
-        toast({
-          title: "Успешно",
-          description: "Фильтр удален",
-        });
-
-        return true;
-      }
-
       try {
         await httpClient.delete(`/analysis/custom-filters/${id}`);
 
@@ -217,7 +158,7 @@ export const FilterProvider: React.FC<{ children: ReactNode }> = ({
         return false;
       }
     },
-    [isTempoEnvironment],
+    [],
   );
 
   // Toggle filter selection (add/remove from selected)

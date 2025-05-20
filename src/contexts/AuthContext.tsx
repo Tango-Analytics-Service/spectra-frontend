@@ -18,7 +18,6 @@ import {
   isTelegramWebApp,
   notifyAppReady,
 } from "../utils/telegramWebApp";
-import { mockUser } from "@/mocks/authMock";
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -35,9 +34,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  // Check if we're running in Tempo
-  const isTempoEnvironment = import.meta.env.VITE_TEMPO === "true";
-
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [user, setUser] = useState<WebAppUser | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -49,14 +45,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       setIsLoading(true);
 
       try {
-        // If in Tempo environment, use mock user
-        if (isTempoEnvironment) {
-          setUser(mockUser);
-          setIsAuthenticated(true);
-          setIsLoading(false);
-          return;
-        }
-
         // Если находимся в Telegram WebApp и есть данные пользователя
         if (isTelegram) {
           const telegramUser = getUserFromTelegram();
