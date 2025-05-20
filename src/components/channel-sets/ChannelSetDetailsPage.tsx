@@ -30,6 +30,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge as UIBadge, badgeVariants } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import AnalysisTab from "../analysis/AnalysisTab";
 import {
   Tooltip,
   TooltipContent,
@@ -479,6 +480,14 @@ const ChannelSetDetailsPage: React.FC = () => {
             Настройки
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="analysis" className="mt-4">
+          {import.meta.env.VITE_TEMPO === "true" ? (
+            <AnalysisTabMock channelSet={channelSet} />
+          ) : (
+            <AnalysisTab channelSet={channelSet} />
+          )}
+        </TabsContent>
 
         <TabsContent value="channels" className="mt-4">
           <div className="flex justify-between items-center mb-4">

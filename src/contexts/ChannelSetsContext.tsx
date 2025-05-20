@@ -314,28 +314,77 @@ export const ChannelSetsProvider: React.FC<{ children: ReactNode }> = ({
   );
 
   const analyzeChannelSet = useCallback(
-    async (setId: string, filterIds: string[]): Promise<any> => {
+    async (
+      setId: string,
+      filterIds: string[],
+      options?: AnalysisOptions,
+    ): Promise<ChannelAnalysisResponse | null> => {
       try {
-        const result = await channelSetService.analyzeChannelSet(setId, {
+        // First get the channel set to get the channels
+        const set = await channelSetService.getChannelSet(setId);
+        if (!set) {
+          toast({
+            title: "Ошибка",
+            description: "Набор каналов не найден",
+            variant: "destructive",
+          });
+          return null;
+        }
+
+        // Extract usernames from the channels
+        const channelUsernames = set.channels.map(
+          (channel) => channel.username,
+        );
+
+        // Perform analysis
+        const response = await channelSetService.analyzeChannelSet(setId, {
           filter_ids: filterIds,
+          options: options,
         });
 
-        return result;
+        if (response.success) {
+          toast({
+            title: "Анализ запущен",
+            description: "Результаты анализа будут доступны в скором времени",
+          });
+        } else {
+          toast({
+            title: "Ошибка",
+            description: response.message || "Не удалось запустить анализ",
+            variant: "destructive",
+          });
+        }
+
+        return response;
       } catch (error) {
         console.error(`Error analyzing channel set ${setId}:`, error);
         toast({
           title: "Ошибка",
-          description: "Не удалось выполнить анализ набора каналов",
+          description: "Не удалось запустить анализ набора каналов",
           variant: "destructive",
         });
-        return { success: false, message: "Ошибка анализа набора" };
+        return null;
       }
     },
-    [],
+    [channelSetService.getChannelSet, channelSetService.analyzeChannelSet],
   );
 
   const searchChannels = useCallback(
     async (query: string): Promise<ChannelDetails[]> => {
+      // If in Tempo environment, return mock search results
+      if (isTempoEnvironment) {
+        if (!query || query.trim().length < 2) {
+          return [];
+        }
+
+        // Filter mock results based on query
+        return searchChannelsResults.filter(
+          (channel) =>
+            channel.username.toLowerCase().includes(query.toLowerCase()) ||
+            (channel.title &&
+              channel.title.toLowerCase().includes(query.toLowerCase())),
+        );
+      }
       if (!query || query.trim().length < 2) {
         return [];
       }
