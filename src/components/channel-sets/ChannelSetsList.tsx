@@ -11,6 +11,19 @@ import {
   Lock,
   Star,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import {
+  components,
+  gradients,
+  typography,
+  spacing,
+  animations,
+  createCardStyle,
+  createBadgeStyle,
+  colors,
+  radius,
+  shadows,
+} from "@/lib/design-system";
 
 // Компонент только для отображения списка наборов каналов
 const ChannelSetsList = ({
@@ -43,12 +56,19 @@ const ChannelSetsList = ({
   // Render empty state
   if (channelSets.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center bg-slate-800/40 backdrop-blur-sm border border-slate-700/50 rounded-xl p-12 text-center">
+      <div
+        className={cn(
+          createCardStyle(),
+          "flex flex-col items-center justify-center text-center",
+          `p-${spacing.xl}`,
+          animations.fadeIn,
+        )}
+      >
         <Users size={48} className="text-blue-400/50 mb-4" />
-        <h3 className="text-lg font-medium mb-2">
+        <h3 className={cn(typography.h3, "mb-2")}>
           У вас пока нет наборов каналов
         </h3>
-        <p className="text-sm text-gray-400 mb-4">
+        <p className={cn(typography.small, "text-gray-400 mb-4")}>
           Нажмите 'Создать новый набор', чтобы начать
         </p>
       </div>
@@ -58,25 +78,36 @@ const ChannelSetsList = ({
   // Render grid view
   if (viewMode === "grid") {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div
+        className={cn(
+          "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
+          `gap-${spacing.md}`,
+          animations.fadeIn,
+        )}
+      >
         {channelSets.map((set, index) => (
           <motion.div
             key={set.id}
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.3, delay: index * 0.05 }}
-            className={`bg-slate-800/40 backdrop-blur-sm rounded-xl border ${
+            className={cn(
+              createCardStyle(),
+              components.card.hover,
+              "overflow-hidden cursor-pointer",
               selectedSetId === set.id
                 ? "border-blue-500/50"
-                : "border-slate-700/50"
-            } overflow-hidden shadow-lg shadow-slate-900/10 hover:border-blue-500/30 transition-all duration-300 cursor-pointer`}
+                : "border-slate-700/50",
+            )}
             onClick={() => onSelectSet(set.id)}
           >
-            <div className="p-4">
+            <div className={`p-${spacing.md}`}>
               <div className="flex justify-between items-start mb-3">
                 <div>
                   <div className="flex items-center">
-                    <h3 className="font-medium text-white mr-2">{set.name}</h3>
+                    <h3 className={cn(typography.h4, "text-white mr-2")}>
+                      {set.name}
+                    </h3>
                     {set.is_predefined && (
                       <Star size={14} className="text-yellow-400" />
                     )}
@@ -86,7 +117,12 @@ const ChannelSetsList = ({
                       <Lock size={14} className="ml-1 text-gray-400" />
                     )}
                   </div>
-                  <p className="text-sm text-blue-300/70 mt-0.5 line-clamp-1">
+                  <p
+                    className={cn(
+                      typography.small,
+                      "text-blue-300/70 mt-0.5 line-clamp-1",
+                    )}
+                  >
                     {set.description}
                   </p>
                 </div>
@@ -104,12 +140,22 @@ const ChannelSetsList = ({
 
                 <div className="flex items-center">
                   {set.all_parsed ? (
-                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px]">
+                    <span
+                      className={cn(
+                        createBadgeStyle("success"),
+                        "flex items-center gap-1 text-[10px]",
+                      )}
+                    >
                       <CheckCircle size={10} />
                       <span>Готов</span>
                     </span>
                   ) : (
-                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[10px]">
+                    <span
+                      className={cn(
+                        createBadgeStyle("warning"),
+                        "flex items-center gap-1 text-[10px]",
+                      )}
+                    >
                       <AlertCircle size={10} />
                       <span>Обработка</span>
                     </span>
@@ -128,7 +174,10 @@ const ChannelSetsList = ({
                 <motion.button
                   whileHover={{ scale: 1.05, x: 2 }}
                   whileTap={{ scale: 0.95 }}
-                  className="px-2.5 py-1 text-xs rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 transition-colors flex items-center"
+                  className={cn(
+                    components.button.secondary,
+                    "px-2.5 py-1 text-xs rounded-lg flex items-center",
+                  )}
                   onClick={(e) => {
                     e.stopPropagation();
                     onViewDetails(set.id);
@@ -147,39 +196,58 @@ const ChannelSetsList = ({
 
   // Render list view
   return (
-    <div className="space-y-3">
+    <div className={cn(`space-y-${spacing.sm}`, animations.fadeIn)}>
       {channelSets.map((set, index) => (
         <motion.div
           key={set.id}
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.3, delay: index * 0.05 }}
-          className={`p-3 rounded-lg flex items-center ${
+          className={cn(
+            "p-3 rounded-lg flex items-center cursor-pointer transition-all duration-200",
             selectedSetId === set.id
               ? "bg-gradient-to-r from-blue-600/10 to-blue-500/5 border border-blue-500/30"
-              : "bg-slate-800/40 border border-slate-700/50"
-          } hover:border-blue-500/30 transition-all duration-200 cursor-pointer`}
+              : cn(createCardStyle(), "border-slate-700/50"),
+            "hover:border-blue-500/30",
+          )}
           onClick={() => onSelectSet(set.id)}
         >
-          <div className="w-12 h-12 rounded-full flex items-center justify-center mr-3 bg-gradient-to-br from-blue-400 to-blue-600 text-white font-semibold shadow-lg shadow-blue-500/20">
+          <div
+            className={cn(
+              "w-12 h-12 rounded-full flex items-center justify-center mr-3 text-white font-semibold shadow-lg shadow-blue-500/20",
+              gradients.primary,
+            )}
+          >
             {set.name.charAt(0).toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center">
-              <div className="font-medium text-white truncate max-w-[80%]">
+              <div
+                className={cn(
+                  typography.weight.medium,
+                  "text-white truncate max-w-[80%]",
+                )}
+              >
                 {set.name}
               </div>
               {set.is_predefined && (
                 <Star size={12} className="ml-2 text-yellow-400" />
               )}
               {set.is_public ? (
-                <div className="ml-2 flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[10px]">
+                <div
+                  className={cn(
+                    createBadgeStyle("primary"),
+                    "ml-2 flex items-center gap-1 text-[10px]",
+                  )}
+                >
                   <Globe size={8} />
                   <span>Публичный</span>
                 </div>
               ) : null}
             </div>
-            <div className="flex items-center text-xs text-gray-400">
+            <div
+              className={cn("flex items-center text-gray-400", typography.tiny)}
+            >
               <span className="truncate mr-2 max-w-[60%]">
                 {set.description}
               </span>
@@ -188,13 +256,15 @@ const ChannelSetsList = ({
             </div>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="text-xs text-blue-300 whitespace-nowrap">
+            <div
+              className={cn(typography.tiny, "text-blue-300 whitespace-nowrap")}
+            >
               {formatDate(set.updated_at)}
             </div>
             <motion.button
               whileHover={{ scale: 1.05, x: 2 }}
               whileTap={{ scale: 0.95 }}
-              className="p-1.5 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 transition-colors"
+              className={cn(components.button.secondary, "p-1.5 rounded-lg")}
               onClick={(e) => {
                 e.stopPropagation();
                 onViewDetails(set.id);

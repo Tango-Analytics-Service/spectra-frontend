@@ -4,6 +4,20 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { BarChart, Filter, Play, RefreshCw, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { cn } from "@/lib/utils";
+import {
+  components,
+  gradients,
+  typography,
+  spacing,
+  createCardStyle,
+  createButtonStyle,
+  colors,
+  radius,
+  shadows,
+  animations,
+  createBadgeStyle,
+} from "@/lib/design-system";
 import { FilterProvider, useFilters } from "@/contexts/FilterContext";
 import { analysisService } from "@/services/analysisService";
 import {
@@ -120,18 +134,18 @@ const AnalysisTab: React.FC<AnalysisTabProps> = ({ channelSet }) => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className={cn("space-y-4", animations.fadeIn)}>
       {/* Header with action buttons */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-medium">Анализ каналов</h3>
-          <p className="text-sm text-blue-300">
+          <h3 className={typography.h3}>Анализ каналов</h3>
+          <p className={cn(typography.small, "text-blue-300")}>
             Проанализируйте каналы с помощью фильтров
           </p>
         </div>
         <Button
           onClick={() => setShowAnalysisDialog(true)}
-          className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600"
+          className={createButtonStyle("primary")}
         >
           <Play size={16} className="mr-2" />
           Запустить анализ
@@ -142,8 +156,10 @@ const AnalysisTab: React.FC<AnalysisTabProps> = ({ channelSet }) => {
       <div>
         {isLoading ? (
           // Loading state
-          <Card className="bg-slate-800/50 border border-blue-500/20 text-white">
-            <CardContent className="p-8 flex justify-center">
+          <Card className={createCardStyle()}>
+            <CardContent
+              className={cn("p-8", "flex justify-center", animations.fadeIn)}
+            >
               <RefreshCw className="h-8 w-8 animate-spin text-blue-400" />
             </CardContent>
           </Card>
@@ -158,12 +174,12 @@ const AnalysisTab: React.FC<AnalysisTabProps> = ({ channelSet }) => {
           />
         ) : latestTask && latestTask.status !== "completed" ? (
           // Task in progress
-          <Card className="bg-slate-800/50 border border-blue-500/20 text-white">
+          <Card className={createCardStyle()}>
             <CardContent className="p-6">
               <div className="flex flex-col items-center justify-center py-8">
                 <RefreshCw className="h-12 w-12 animate-spin text-blue-400 mb-4" />
-                <h3 className="text-lg font-medium mb-2">Анализ в процессе</h3>
-                <p className="text-sm text-blue-300 mb-4">
+                <h3 className={cn(typography.h3, "mb-2")}>Анализ в процессе</h3>
+                <p className={cn(typography.small, "text-blue-300 mb-4")}>
                   Мы анализируем каналы согласно выбранным фильтрам. Это может
                   занять некоторое время.
                 </p>
@@ -171,7 +187,7 @@ const AnalysisTab: React.FC<AnalysisTabProps> = ({ channelSet }) => {
                   variant="outline"
                   onClick={handleRefreshTask}
                   disabled={isRefreshing}
-                  className="border-blue-500/20 text-blue-300"
+                  className={components.button.secondary}
                 >
                   {isRefreshing ? (
                     <RefreshCw size={16} className="mr-2 animate-spin" />
@@ -185,17 +201,19 @@ const AnalysisTab: React.FC<AnalysisTabProps> = ({ channelSet }) => {
           </Card>
         ) : (
           // No analysis yet
-          <Card className="bg-slate-800/50 border border-blue-500/20 text-white">
+          <Card className={createCardStyle()}>
             <CardContent className="p-6">
               <div className="flex flex-col items-center justify-center py-8">
                 <BarChart className="h-12 w-12 text-blue-400/50 mb-4" />
-                <h3 className="text-lg font-medium mb-2">Нет данных анализа</h3>
-                <p className="text-sm text-blue-300 mb-4">
+                <h3 className={cn(typography.h3, "mb-2")}>
+                  Нет данных анализа
+                </h3>
+                <p className={cn(typography.small, "text-blue-300 mb-4")}>
                   Запустите анализ, чтобы оценить каналы по выбранным фильтрам
                 </p>
                 <Button
                   onClick={() => setShowAnalysisDialog(true)}
-                  className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600"
+                  className={createButtonStyle("primary")}
                 >
                   <Play size={16} className="mr-2" />
                   Запустить анализ

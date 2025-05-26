@@ -1,6 +1,7 @@
+// src/components/channel-sets/ChannelSetPage.tsx
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Search, Filter, LayoutGrid, List, Plus, Loader2 } from "lucide-react";
+import { Search, Filter, LayoutGrid, List, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
@@ -19,10 +20,24 @@ import { toast } from "@/components/ui/use-toast";
 import { useChannelSets } from "@/contexts/ChannelSetsContext";
 import ChannelSetsList from "./ChannelSetsList";
 import ChannelSetDetails from "./ChannelSetDetails";
+import { LoadingCard, LoadingSpinner } from "@/components/ui/loading";
+import {
+  createButtonStyle,
+  spacing,
+  typography,
+  gradients,
+  components,
+  createCardStyle,
+  colors,
+  radius,
+  shadows,
+  animations,
+  createBadgeStyle,
+} from "@/lib/design-system";
+import { cn } from "@/lib/utils";
 
 const ChannelSetPage = () => {
   const navigate = useNavigate();
-  // Get data and methods from context
   const {
     channelSets,
     isLoading,
@@ -38,36 +53,33 @@ const ChannelSetPage = () => {
   const [currentSet, setCurrentSet] = useState(undefined);
   const [detailsLoading, setDetailsLoading] = useState(false);
   const [createLoading, setCreateLoading] = useState(false);
-  const [viewMode, setViewMode] = useState("grid"); // grid or list
+  const [viewMode, setViewMode] = useState("grid");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredSets, setFilteredSets] = useState([]);
 
-  // Form state for creating a new set
+  // Form state
   const [newSetName, setNewSetName] = useState("");
   const [newSetDescription, setNewSetDescription] = useState("");
   const [newSetIsPublic, setNewSetIsPublic] = useState(false);
 
-  // Load channel sets on component mount
+  // Effects
   useEffect(() => {
     fetchChannelSets();
   }, [fetchChannelSets]);
 
-  // Update selectedSetId when channel sets load
   useEffect(() => {
     if (channelSets.length > 0 && !selectedSetId) {
       setSelectedSetId(channelSets[0].id);
     }
   }, [channelSets, selectedSetId]);
 
-  // Load selected set details when selected ID changes
   useEffect(() => {
     if (selectedSetId) {
       loadChannelSetDetails(selectedSetId);
     }
   }, [selectedSetId]);
 
-  // Filter channel sets based on search query
   useEffect(() => {
     if (!searchQuery.trim()) {
       setFilteredSets(channelSets);
@@ -114,15 +126,10 @@ const ChannelSetPage = () => {
       const newSet = await createChannelSet(data);
 
       if (newSet) {
-        // Select the new set
         setSelectedSetId(newSet.id);
-
-        // Reset form
         setNewSetName("");
         setNewSetDescription("");
         setNewSetIsPublic(false);
-
-        // Close modal
         setIsCreateModalOpen(false);
       }
     } finally {
@@ -135,36 +142,68 @@ const ChannelSetPage = () => {
   };
 
   const handleShareSet = (setId) => {
-    // Implement share functionality
     console.log("Share set:", setId);
   };
 
   const handleEditSet = (setId) => {
-    // Navigate to edit page
     navigate(`/channel-sets/${setId}`);
   };
 
   const handleAnalyzeSet = async (setId) => {
-    // Navigate to analysis page or show analysis modal
     console.log("Analyze set:", setId);
   };
 
   return (
-    <div className="flex flex-col w-full min-h-screen bg-gradient-to-br from-[#0F172A] to-[#131c2e] text-white">
-      {/* Main content */}
-      <main className="flex-1 px-4 sm:px-6 pb-4 sm:pb-6 overflow-hidden flex flex-col">
+    <div
+      className={cn(
+        "flex flex-col w-full min-h-screen",
+        gradients.background,
+        "text-white",
+      )}
+    >
+      {/* Header */}
+      <header
+        className={cn(
+          "flex items-center relative z-10",
+          `px-${spacing.md} sm:px-${spacing.lg}`,
+          `py-${spacing.sm} sm:py-${spacing.md}`,
+        )}
+      >
+        <div className="text-xl font-semibold tracking-tight">
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-blue-300">
+            SPECTRA
+          </span>
+          <Badge
+            className="ml-2 bg-gradient-to-r from-[#358ee4] to-[#3b82f6] shadow-[0_0_8px_rgba(53,142,228,0.3)]"
+            variant="default"
+          >
+            BETA
+          </Badge>
+        </div>
+      </header>
+
+      <main
+        className={cn(
+          "flex-1 overflow-hidden flex flex-col",
+          `px-${spacing.md} sm:px-${spacing.lg}`,
+          `pb-${spacing.md} sm:pb-${spacing.lg}`,
+        )}
+      >
         {/* Title */}
-        <div className="mt-3 sm:mt-4">
-          <h1 className="text-xl sm:text-2xl font-semibold text-white">
-            Наборы каналов
-          </h1>
-          <p className="text-xs sm:text-sm text-blue-300 mt-1">
+        <div className={`mt-${spacing.sm} sm:mt-${spacing.md}`}>
+          <h1 className={typography.h1}>Наборы каналов</h1>
+          <p className={cn(typography.small, "text-blue-300 mt-1")}>
             Управляйте группами каналов для аналитики
           </p>
         </div>
 
         {/* Search and View Controls */}
-        <div className="mt-4 flex flex-col sm:flex-row gap-3 items-center">
+        <div
+          className={cn(
+            "flex flex-col sm:flex-row gap-3 items-center",
+            `mt-${spacing.md}`,
+          )}
+        >
           <div className="relative flex-1">
             <Search
               size={16}
@@ -174,22 +213,37 @@ const ChannelSetPage = () => {
               placeholder="Поиск по наборам..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 bg-slate-900/70 border-blue-500/20 w-full"
+              className={cn(components.input.base, "pl-9")}
             />
           </div>
           <div className="flex gap-2 ml-auto">
-            <div className="flex p-0.5 rounded-lg bg-slate-800">
+            <div
+              className={cn(
+                "flex p-0.5 rounded-lg",
+                "bg-slate-800/70 border border-blue-500/20",
+              )}
+            >
               <Toggle
                 pressed={viewMode === "grid"}
                 onPressedChange={() => setViewMode("grid")}
-                className={`p-1.5 rounded-md ${viewMode === "grid" ? "bg-blue-500 text-white" : "text-gray-400"}`}
+                className={cn(
+                  "p-1.5 rounded-md transition-colors",
+                  viewMode === "grid"
+                    ? "bg-blue-500 text-white"
+                    : "text-gray-400 hover:text-white",
+                )}
               >
                 <LayoutGrid size={16} />
               </Toggle>
               <Toggle
                 pressed={viewMode === "list"}
                 onPressedChange={() => setViewMode("list")}
-                className={`p-1.5 rounded-md ${viewMode === "list" ? "bg-blue-500 text-white" : "text-gray-400"}`}
+                className={cn(
+                  "p-1.5 rounded-md transition-colors",
+                  viewMode === "list"
+                    ? "bg-blue-500 text-white"
+                    : "text-gray-400 hover:text-white",
+                )}
               >
                 <List size={16} />
               </Toggle>
@@ -197,7 +251,7 @@ const ChannelSetPage = () => {
             <Button
               variant="outline"
               size="icon"
-              className="text-blue-400 hover:bg-white/10 border-blue-500/20"
+              className={components.button.secondary}
             >
               <Filter size={16} />
             </Button>
@@ -209,14 +263,25 @@ const ChannelSetPage = () => {
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={() => setIsCreateModalOpen(true)}
-          className="mt-4 w-full py-4 sm:py-6 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 rounded-xl flex items-center justify-center text-white font-medium shadow-lg shadow-blue-600/20 hover:shadow-blue-600/30 transition-all duration-200"
+          className={cn(
+            `mt-${spacing.md}`,
+            `w-full py-${spacing.md} sm:py-${spacing.lg}`,
+            `rounded-${radius.xl}`,
+            "flex items-center justify-center",
+            "font-medium transition-all duration-200",
+            gradients.primary,
+            "hover:" + gradients.primaryHover,
+            "shadow-lg",
+            "shadow-blue-600/20 hover:shadow-blue-600/30",
+            animations.scaleIn,
+          )}
         >
           <Plus size={18} className="mr-2" />
           <span>Создать новый набор</span>
         </motion.button>
 
         {/* Channel Sets List */}
-        <div className="mt-6 overflow-auto flex-1">
+        <div className={`mt-${spacing.lg} overflow-auto flex-1`}>
           <ChannelSetsList
             channelSets={filteredSets}
             isLoading={isLoading}
@@ -229,11 +294,9 @@ const ChannelSetPage = () => {
 
         {/* Selected Set Details */}
         {selectedSetId && (
-          <div className="mt-4">
+          <div className={`mt-${spacing.md}`}>
             {detailsLoading ? (
-              <div className="bg-slate-800/50 border border-blue-500/20 text-white p-6 rounded-xl flex justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-blue-400" />
-              </div>
+              <LoadingCard text="Загрузка информации о наборе..." />
             ) : currentSet ? (
               <ChannelSetDetails
                 selectedSet={currentSet}
@@ -242,7 +305,7 @@ const ChannelSetPage = () => {
                 onAnalyze={handleAnalyzeSet}
               />
             ) : (
-              <div className="bg-slate-800/50 border border-blue-500/20 text-white p-6 rounded-xl text-center">
+              <div className={cn(createCardStyle(), "p-6 text-center")}>
                 Выберите набор для просмотра деталей
               </div>
             )}
@@ -254,13 +317,15 @@ const ChannelSetPage = () => {
       <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
         <DialogContent className="bg-slate-800 border border-blue-500/20 text-white">
           <DialogHeader>
-            <DialogTitle>Создать новый набор</DialogTitle>
+            <DialogTitle className={typography.h3}>
+              Создать новый набор
+            </DialogTitle>
             <DialogDescription className="text-blue-300">
               Создайте набор каналов для анализа и мониторинга
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 py-2">
+          <div className={`space-y-${spacing.md} py-2`}>
             <div className="space-y-2">
               <Label htmlFor="name">Название</Label>
               <Input
@@ -268,7 +333,7 @@ const ChannelSetPage = () => {
                 placeholder="Название набора"
                 value={newSetName}
                 onChange={(e) => setNewSetName(e.target.value)}
-                className="bg-slate-900 border-blue-500/20 text-white"
+                className={components.input.base}
               />
             </div>
 
@@ -279,7 +344,7 @@ const ChannelSetPage = () => {
                 placeholder="Краткое описание набора"
                 value={newSetDescription}
                 onChange={(e) => setNewSetDescription(e.target.value)}
-                className="bg-slate-900 border-blue-500/20 text-white"
+                className={components.input.base}
               />
             </div>
 
@@ -297,19 +362,19 @@ const ChannelSetPage = () => {
             <Button
               variant="outline"
               onClick={() => setIsCreateModalOpen(false)}
-              className="border-blue-500/20 text-blue-300 hover:bg-blue-500/10"
+              className={components.button.secondary}
               disabled={createLoading}
             >
               Отмена
             </Button>
             <Button
               onClick={handleCreateNewSet}
-              className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600"
+              className={createButtonStyle("primary")}
               disabled={createLoading}
             >
               {createLoading ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <LoadingSpinner size="sm" className="mr-2" />
                   Создание...
                 </>
               ) : (

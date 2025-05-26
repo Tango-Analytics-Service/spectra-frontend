@@ -4,6 +4,18 @@ import BottomNavigation from "../navigation/BottomNavigation";
 import { useTelegramNavigation } from "../../hooks/useTelegramNavigation";
 import PageTransition from "./PageTransition";
 import { useAuth } from "../../contexts/AuthContext";
+import { cn } from "@/lib/utils";
+import {
+  gradients,
+  typography,
+  spacing,
+  colors,
+  radius,
+  shadows,
+  animations,
+  components,
+  createCardStyle,
+} from "@/lib/design-system";
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -15,7 +27,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   useTelegramNavigation();
 
   return (
-    <div className="flex flex-col w-full min-h-screen bg-gradient-to-br from-[#0F172A] to-[#131c2e] text-white">
+    <div
+      className={cn(
+        "flex flex-col w-full min-h-screen text-white",
+        gradients.background,
+      )}
+    >
       {/* Subtle background pattern */}
       <div className="absolute inset-0 overflow-hidden opacity-5 pointer-events-none">
         <svg width="100%" height="100%">
@@ -39,7 +56,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       </div>
 
       {/* Основной контент */}
-      <div className="flex-1 pb-16">
+      <div className={cn("flex-1", `pb-${spacing.xl}`, animations.fadeIn)}>
         <PageTransition>{children}</PageTransition>
       </div>
 
@@ -48,7 +65,13 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
       {/* Если не в Telegram, можно показать футер или другой элемент */}
       {!isTelegram && (
-        <div className="w-full border-t border-gray-800 p-4 text-center text-sm text-gray-500">
+        <div
+          className={cn(
+            "w-full border-t border-gray-800 text-center text-gray-500",
+            `p-${spacing.md}`,
+            typography.small,
+          )}
+        >
           SPECTRA © 2025 - Аналитика и управление телеграм-каналами
         </div>
       )}

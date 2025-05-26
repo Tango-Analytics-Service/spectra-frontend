@@ -17,6 +17,20 @@ import {
   BarChart2,
   Share2,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import {
+  components,
+  gradients,
+  typography,
+  spacing,
+  createCardStyle,
+  createButtonStyle,
+  colors,
+  radius,
+  shadows,
+  animations,
+  createBadgeStyle,
+} from "@/lib/design-system";
 import {
   Table,
   TableBody,
@@ -181,17 +195,21 @@ const ChannelsList: React.FC<ChannelsListProps> = ({ channels, setId }) => {
   // Empty state
   if (channels.length === 0) {
     return (
-      <div className="text-center py-10 border border-blue-500/20 rounded-lg bg-slate-800/50">
+      <div
+        className={cn(
+          createCardStyle(),
+          "text-center",
+          `py-${spacing.xl}`,
+          animations.fadeIn,
+        )}
+      >
         <div className="flex flex-col items-center justify-center">
           <Users size={48} className="text-blue-400/50 mb-4" />
-          <h3 className="text-lg font-medium mb-2">Нет каналов в наборе</h3>
-          <p className="text-sm text-gray-400 mb-4">
+          <h3 className={cn(typography.h3, "mb-2")}>Нет каналов в наборе</h3>
+          <p className={cn(typography.small, "text-gray-400 mb-4")}>
             Добавьте каналы в этот набор, чтобы начать работу
           </p>
-          <Button
-            onClick={() => {}}
-            className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600"
-          >
+          <Button onClick={() => {}} className={createButtonStyle("primary")}>
             Добавить каналы
           </Button>
         </div>
@@ -202,7 +220,12 @@ const ChannelsList: React.FC<ChannelsListProps> = ({ channels, setId }) => {
   return (
     <>
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-4">
+      <div
+        className={cn(
+          "flex flex-col sm:flex-row",
+          `gap-${spacing.md} mb-${spacing.md}`,
+        )}
+      >
         <div className="relative flex-1">
           <SearchIcon
             size={16}
@@ -210,7 +233,7 @@ const ChannelsList: React.FC<ChannelsListProps> = ({ channels, setId }) => {
           />
           <Input
             placeholder="Поиск по @username"
-            className="pl-9 bg-slate-900/70 border-blue-500/20"
+            className={cn(components.input.base, "pl-9")}
             value={filters.search}
             onChange={(e) =>
               setFilters((prev) => ({ ...prev, search: e.target.value }))
@@ -225,8 +248,8 @@ const ChannelsList: React.FC<ChannelsListProps> = ({ channels, setId }) => {
             onClick={() => setFilters((prev) => ({ ...prev, status: "all" }))}
             className={
               filters.status === "all"
-                ? "bg-blue-600 hover:bg-blue-700"
-                : "border-blue-500/20 text-gray-300"
+                ? createButtonStyle("primary")
+                : components.button.secondary
             }
           >
             Все
@@ -240,7 +263,7 @@ const ChannelsList: React.FC<ChannelsListProps> = ({ channels, setId }) => {
             className={
               filters.status === "parsed"
                 ? "bg-green-600 hover:bg-green-700"
-                : "border-blue-500/20 text-gray-300"
+                : components.button.secondary
             }
           >
             <CheckCircle2 size={14} className="mr-1" />
@@ -255,7 +278,7 @@ const ChannelsList: React.FC<ChannelsListProps> = ({ channels, setId }) => {
             className={
               filters.status === "unparsed"
                 ? "bg-amber-600 hover:bg-amber-700"
-                : "border-blue-500/20 text-gray-300"
+                : components.button.secondary
             }
           >
             <HourglassIcon size={14} className="mr-1" />В процессе
@@ -264,7 +287,12 @@ const ChannelsList: React.FC<ChannelsListProps> = ({ channels, setId }) => {
       </div>
 
       {/* Results summary */}
-      <div className="flex justify-between items-center mb-3 text-sm text-gray-400">
+      <div
+        className={cn(
+          "flex justify-between items-center mb-3 text-gray-400",
+          typography.small,
+        )}
+      >
         <div>
           Показано {filteredAndSortedChannels.length} из {channels.length}{" "}
           каналов
@@ -272,7 +300,12 @@ const ChannelsList: React.FC<ChannelsListProps> = ({ channels, setId }) => {
       </div>
 
       {/* Channels table */}
-      <div className="border border-blue-500/20 rounded-lg overflow-hidden">
+      <div
+        className={cn(
+          "border border-blue-500/20 rounded-lg overflow-hidden",
+          createCardStyle(),
+        )}
+      >
         <ScrollArea className="h-[600px]">
           <Table>
             <TableHeader className="bg-slate-800/70 sticky top-0 z-10">
@@ -362,7 +395,7 @@ const ChannelsList: React.FC<ChannelsListProps> = ({ channels, setId }) => {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent
                         align="end"
-                        className="bg-slate-800 border-blue-500/20"
+                        className={cn(createCardStyle(), "bg-slate-800")}
                       >
                         <DropdownMenuLabel>Действия</DropdownMenuLabel>
                         <DropdownMenuSeparator className="bg-slate-700" />
@@ -405,7 +438,7 @@ const ChannelsList: React.FC<ChannelsListProps> = ({ channels, setId }) => {
 
       {/* No results after filtering */}
       {filteredAndSortedChannels.length === 0 && (
-        <Alert className="mt-4 bg-slate-800/50 border border-blue-500/20">
+        <Alert className={cn("mt-4", createCardStyle())}>
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Ничего не найдено</AlertTitle>
           <AlertDescription>
@@ -417,7 +450,7 @@ const ChannelsList: React.FC<ChannelsListProps> = ({ channels, setId }) => {
 
       {/* Delete channel confirmation dialog */}
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <DialogContent className="bg-slate-800 border border-blue-500/20 text-white">
+        <DialogContent className={cn(createCardStyle(), "bg-slate-800")}>
           <DialogHeader>
             <DialogTitle>Удаление канала</DialogTitle>
             <DialogDescription className="text-blue-300">
@@ -430,7 +463,7 @@ const ChannelsList: React.FC<ChannelsListProps> = ({ channels, setId }) => {
             <Button
               variant="outline"
               onClick={() => setShowDeleteDialog(false)}
-              className="border-blue-500/20 text-blue-300"
+              className={components.button.secondary}
               disabled={isDeleting}
             >
               Отмена

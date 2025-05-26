@@ -9,6 +9,19 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2 } from "lucide-react";
 import { useCredits } from "@/contexts/CreditsContext";
 import { CreditPackage } from "@/services/creditService";
+import { cn } from "@/lib/utils";
+import {
+  components,
+  gradients,
+  typography,
+  spacing,
+  createCardStyle,
+  colors,
+  radius,
+  shadows,
+  animations,
+  createBadgeStyle,
+} from "@/lib/design-system";
 
 const CreditsPage = () => {
   // Get data and methods from context
@@ -69,9 +82,20 @@ const CreditsPage = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-br from-[#0F172A] to-[#131c2e] text-white">
+    <div
+      className={cn(
+        "flex flex-col min-h-screen text-white",
+        gradients.background,
+      )}
+    >
       {/* Header */}
-      <header className="px-4 sm:px-6 py-3 sm:py-4 flex items-center relative z-10">
+      <header
+        className={cn(
+          "flex items-center relative z-10",
+          `px-${spacing.md} sm:px-${spacing.lg}`,
+          `py-${spacing.sm} sm:py-${spacing.md}`,
+        )}
+      >
         <div className="text-xl font-semibold tracking-tight">
           <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-blue-300">
             SPECTRA
@@ -86,36 +110,42 @@ const CreditsPage = () => {
       </header>
 
       {/* Main content */}
-      <main className="flex-1 px-4 sm:px-6 pb-4 sm:pb-6 overflow-hidden flex flex-col">
+      <main
+        className={cn(
+          "flex-1 overflow-hidden flex flex-col",
+          `px-${spacing.md} sm:px-${spacing.lg}`,
+          `pb-${spacing.md} sm:pb-${spacing.lg}`,
+        )}
+      >
         {/* Title */}
-        <div className="mt-3 sm:mt-4">
-          <h1 className="text-xl sm:text-2xl font-semibold text-white">
+        <div className={`mt-${spacing.sm} sm:mt-${spacing.md}`}>
+          <h1 className={cn(typography.h1, "text-white")}>
             Управление кредитами
           </h1>
-          <p className="text-xs sm:text-sm text-blue-300 mt-1">
+          <p className={cn(typography.small, "text-blue-300 mt-1")}>
             Просматривайте баланс, пополняйте кредиты и следите за расходами
           </p>
         </div>
 
         {/* Credit balance */}
-        <div className="mt-4">
+        <div className={`mt-${spacing.md}`}>
           {isBalanceLoading ? (
-            <div className="bg-slate-800/50 border border-blue-500/20 text-white p-6 rounded-xl flex justify-center">
+            <div className={cn(createCardStyle(), "p-6 flex justify-center")}>
               <Loader2 className="h-8 w-8 animate-spin text-blue-400" />
             </div>
           ) : balance ? (
             <CreditBalanceCard balance={balance} />
           ) : (
-            <div className="bg-slate-800/50 border border-blue-500/20 text-white p-6 rounded-xl text-center">
+            <div className={cn(createCardStyle(), "p-6 text-center")}>
               Не удалось загрузить баланс
             </div>
           )}
         </div>
 
         {/* Credit packages */}
-        <div className="mt-6">
+        <div className={`mt-${spacing.lg}`}>
           {isPackagesLoading ? (
-            <div className="bg-slate-800/50 border border-blue-500/20 text-white p-6 rounded-xl flex justify-center">
+            <div className={cn(createCardStyle(), "p-6 flex justify-center")}>
               <Loader2 className="h-8 w-8 animate-spin text-blue-400" />
             </div>
           ) : packages.length > 0 ? (
@@ -124,36 +154,42 @@ const CreditsPage = () => {
               onPurchase={handlePurchaseClick}
             />
           ) : (
-            <div className="bg-slate-800/50 border border-blue-500/20 text-white p-6 rounded-xl text-center">
+            <div className={cn(createCardStyle(), "p-6 text-center")}>
               Нет доступных пакетов кредитов
             </div>
           )}
         </div>
 
         {/* Two columns layout on larger screens */}
-        <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div
+          className={cn(
+            "grid grid-cols-1 lg:grid-cols-2",
+            `mt-${spacing.lg} gap-${spacing.lg}`,
+            animations.slideIn,
+          )}
+        >
           {/* Transactions */}
           {isTransactionsLoading ? (
-            <div className="bg-slate-800/50 border border-blue-500/20 text-white p-6 rounded-xl flex justify-center">
+            <div className={cn(createCardStyle(), "p-6 flex justify-center")}>
               <Loader2 className="h-8 w-8 animate-spin text-blue-400" />
             </div>
           ) : transactions.length > 0 ? (
             <CreditTransactionsList transactions={transactions} />
           ) : (
-            <div className="bg-slate-800/50 border border-blue-500/20 text-white p-6 rounded-xl text-center">
+            <div className={cn(createCardStyle(), "p-6 text-center")}>
               Нет истории транзакций
             </div>
           )}
 
           {/* Costs */}
           {isCostsLoading ? (
-            <div className="bg-slate-800/50 border border-blue-500/20 text-white p-6 rounded-xl flex justify-center">
+            <div className={cn(createCardStyle(), "p-6 flex justify-center")}>
               <Loader2 className="h-8 w-8 animate-spin text-blue-400" />
             </div>
           ) : costs.length > 0 ? (
             <CreditCostsList costs={costs} />
           ) : (
-            <div className="bg-slate-800/50 border border-blue-500/20 text-white p-6 rounded-xl text-center">
+            <div className={cn(createCardStyle(), "p-6 text-center")}>
               Не удалось загрузить стоимость действий
             </div>
           )}

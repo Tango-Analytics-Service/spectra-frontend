@@ -9,6 +9,20 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import {
+  components,
+  gradients,
+  typography,
+  spacing,
+  createCardStyle,
+  createBadgeStyle,
+  createButtonStyle,
+  colors,
+  radius,
+  shadows,
+  animations,
+} from "@/lib/design-system";
 
 interface Channel {
   username: string;
@@ -70,10 +84,10 @@ const ChannelSetDetails = ({
   };
 
   return (
-    <Card className="bg-slate-800/50 border border-blue-500/20 text-white">
-      <CardContent className="p-3 sm:p-4">
+    <Card className={createCardStyle()}>
+      <CardContent className={`p-${spacing.sm} sm:p-${spacing.md}`}>
         <div className="flex justify-between items-center mb-2 sm:mb-3">
-          <div className="text-xs sm:text-sm text-blue-300">
+          <div className={cn(typography.small, "text-blue-300")}>
             Выбранный набор
           </div>
           <div className="flex space-x-1">
@@ -100,12 +114,17 @@ const ChannelSetDetails = ({
           </div>
         </div>
 
-        <div className="text-base sm:text-lg font-medium mb-1">{set.name}</div>
-        <div className="text-xs sm:text-sm text-gray-400 mb-2 sm:mb-3">
+        <div className={cn(typography.h4, "mb-1")}>{set.name}</div>
+        <div className={cn(typography.small, "text-gray-400 mb-2 sm:mb-3")}>
           {set.description}
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-2 text-xs mt-2">
+        <div
+          className={cn(
+            "flex flex-wrap items-center justify-between gap-2 mt-2",
+            typography.tiny,
+          )}
+        >
           <div className="flex items-center text-blue-300">
             <Calendar size={10} className="mr-1" />
             <span>Обновлен: {formatDate(set.updated_at)}</span>
@@ -115,7 +134,10 @@ const ChannelSetDetails = ({
             {set.all_parsed ? (
               <Badge
                 variant="outline"
-                className="flex items-center gap-1 bg-green-500/10 text-green-400 border-green-500/20 text-[10px] sm:text-xs py-0 h-5 sm:h-6"
+                className={cn(
+                  createBadgeStyle("success"),
+                  "flex items-center gap-1 text-[10px] sm:text-xs py-0 h-5 sm:h-6",
+                )}
               >
                 <CheckCircle size={10} />
                 <span>Готов к анализу</span>
@@ -123,7 +145,10 @@ const ChannelSetDetails = ({
             ) : (
               <Badge
                 variant="outline"
-                className="flex items-center gap-1 bg-amber-500/10 text-amber-400 border-amber-500/20 text-[10px] sm:text-xs py-0 h-5 sm:h-6"
+                className={cn(
+                  createBadgeStyle("warning"),
+                  "flex items-center gap-1 text-[10px] sm:text-xs py-0 h-5 sm:h-6",
+                )}
               >
                 <AlertCircle size={10} />
                 <span>Обработка данных</span>
@@ -134,7 +159,10 @@ const ChannelSetDetails = ({
 
         <div className="mt-3 sm:mt-4 flex justify-end">
           <Button
-            className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white text-xs sm:text-sm py-1 h-8 sm:h-9"
+            className={cn(
+              createButtonStyle("primary"),
+              "text-xs sm:text-sm py-1 h-8 sm:h-9",
+            )}
             onClick={() => onAnalyze(set.id)}
           >
             Анализировать
