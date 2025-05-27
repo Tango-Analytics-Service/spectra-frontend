@@ -92,7 +92,7 @@ export const shadows = {
   glow: "0 0 20px rgba(22, 119, 255, 0.3)",
 } as const;
 
-// Типографика
+// Типографика с семантическими комбинациями
 export const typography = {
   // Размеры заголовков
   h1: "text-2xl sm:text-3xl font-bold",
@@ -105,6 +105,17 @@ export const typography = {
   small: "text-xs sm:text-sm",
   tiny: "text-xs",
 
+  // Семантические комбинации (НОВОЕ)
+  bodyMuted: "text-sm sm:text-base text-gray-400",
+  smallMuted: "text-xs sm:text-sm text-gray-400",
+  caption: "text-xs text-gray-400",
+  description: "text-blue-300",
+  descriptionMuted: "text-gray-400",
+  label: "text-blue-400",
+  accent: "text-blue-400",
+  link: "text-blue-400 hover:text-blue-300",
+  linkMuted: "text-gray-400 hover:text-blue-400",
+
   // Вес шрифта
   weight: {
     light: "font-light",
@@ -113,6 +124,17 @@ export const typography = {
     semibold: "font-semibold",
     bold: "font-bold",
   },
+} as const;
+
+// Цветовые утилиты (НОВОЕ)
+export const textColors = {
+  primary: "text-white",
+  secondary: "text-blue-300",
+  muted: "text-gray-400",
+  accent: "text-blue-400",
+  success: "text-green-400",
+  warning: "text-amber-400",
+  error: "text-red-400",
 } as const;
 
 // Градиенты
@@ -126,85 +148,18 @@ export const gradients = {
   error: "bg-gradient-to-r from-red-500 to-red-600",
 } as const;
 
-// Утилиты для создания классов отступов
-export const spacingClasses = {
-  p: {
-    xs: `p-${spacing.xs}`,
-    sm: `p-${spacing.sm}`,
-    md: `p-${spacing.md}`,
-    lg: `p-${spacing.lg}`,
-    xl: `p-${spacing.xl}`,
-    "2xl": `p-${spacing["2xl"]}`,
-    "3xl": `p-${spacing["3xl"]}`,
-  },
-  px: {
-    xs: `px-${spacing.xs}`,
-    sm: `px-${spacing.sm}`,
-    md: `px-${spacing.md}`,
-    lg: `px-${spacing.lg}`,
-    xl: `px-${spacing.xl}`,
-    "2xl": `px-${spacing["2xl"]}`,
-    "3xl": `px-${spacing["3xl"]}`,
-  },
-  py: {
-    xs: `py-${spacing.xs}`,
-    sm: `py-${spacing.sm}`,
-    md: `py-${spacing.md}`,
-    lg: `py-${spacing.lg}`,
-    xl: `py-${spacing.xl}`,
-    "2xl": `py-${spacing["2xl"]}`,
-    "3xl": `py-${spacing["3xl"]}`,
-  },
-  mt: {
-    xs: `mt-${spacing.xs}`,
-    sm: `mt-${spacing.sm}`,
-    md: `mt-${spacing.md}`,
-    lg: `mt-${spacing.lg}`,
-    xl: `mt-${spacing.xl}`,
-    "2xl": `mt-${spacing["2xl"]}`,
-    "3xl": `mt-${spacing["3xl"]}`,
-  },
-  mb: {
-    xs: `mb-${spacing.xs}`,
-    sm: `mb-${spacing.sm}`,
-    md: `mb-${spacing.md}`,
-    lg: `mb-${spacing.lg}`,
-    xl: `mb-${spacing.xl}`,
-    "2xl": `mb-${spacing["2xl"]}`,
-    "3xl": `mb-${spacing["3xl"]}`,
-  },
-  gap: {
-    xs: `gap-${spacing.xs}`,
-    sm: `gap-${spacing.sm}`,
-    md: `gap-${spacing.md}`,
-    lg: `gap-${spacing.lg}`,
-    xl: `gap-${spacing.xl}`,
-    "2xl": `gap-${spacing["2xl"]}`,
-    "3xl": `gap-${spacing["3xl"]}`,
-  },
-} as const;
-
-// Утилиты для создания классов радиусов
-export const radiusClasses = {
-  sm: `rounded-${radius.sm}`,
-  md: `rounded-${radius.md}`,
-  lg: `rounded-${radius.lg}`,
-  xl: `rounded-${radius.xl}`,
-  full: `rounded-${radius.full}`,
-} as const;
-
-// Стили компонентов
+// Стили компонентов (РАСШИРЕННЫЕ)
 export const components = {
   // Карточки
   card: {
     base: cn(
-      radiusClasses.xl,
+      `rounded-${radius.xl}`,
       "border backdrop-blur-sm transition-all duration-200",
       "bg-slate-800/50 border-blue-500/20 text-white",
     ),
     hover: "hover:border-blue-500/30 hover:shadow-lg hover:shadow-blue-500/5",
     gradient: cn(
-      radiusClasses.xl,
+      `rounded-${radius.xl}`,
       "border backdrop-blur-sm",
       "bg-gradient-to-br from-slate-800/50 to-slate-900/50",
       "border-blue-500/20 text-white",
@@ -217,24 +172,26 @@ export const components = {
     primary: cn(
       gradients.primary,
       "text-white shadow-md hover:shadow-lg",
-      gradients.primaryHover,
+      "hover:" + gradients.primaryHover.replace("bg-", ""),
     ),
     secondary: cn(
       "bg-slate-800/50 text-blue-300 border border-blue-500/20",
       "hover:bg-slate-700/50 hover:border-blue-500/30",
     ),
     ghost: "text-gray-400 hover:text-white hover:bg-slate-800/50",
+    ghostIcon: "text-blue-400 hover:bg-white/10 hover:text-blue-300", // НОВОЕ
     danger: cn(
       "bg-red-500/10 text-red-400 border border-red-500/20",
       "hover:bg-red-500/20 hover:border-red-500/30",
     ),
+    outline: "border border-blue-500/20 text-blue-300 hover:bg-blue-500/10",
   },
 
   // Инпуты
   input: {
     base: cn(
       "w-full transition-all duration-200",
-      radiusClasses.md,
+      `rounded-${radius.md}`,
       "bg-slate-900/70 border border-blue-500/20 text-white",
       "placeholder:text-gray-500",
       "focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20",
@@ -245,22 +202,74 @@ export const components = {
   badge: {
     base: cn(
       "inline-flex items-center gap-1 text-xs font-medium",
-      spacingClasses.px.sm,
+      `px-${spacing.sm}`,
       "py-0.5",
-      radiusClasses.full,
+      `rounded-${radius.full}`,
     ),
     primary: "bg-blue-500/10 text-blue-400 border border-blue-500/20",
     success: "bg-green-500/10 text-green-400 border border-green-500/20",
     warning: "bg-amber-500/10 text-amber-400 border border-amber-500/20",
     error: "bg-red-500/10 text-red-400 border border-red-500/20",
+    outline: "border border-blue-500/20 text-blue-300",
+  },
+
+  // Диалоги (НОВОЕ)
+  dialog: {
+    content: cn(
+      "bg-slate-800 border border-blue-500/20 text-white",
+      `rounded-${radius.lg}`,
+    ),
+    title: typography.h3,
+    description: typography.description,
+  },
+
+  // Алерты (НОВОЕ)
+  alert: {
+    base: cn("border", `rounded-${radius.md}`, `p-${spacing.md}`),
+    default: "bg-slate-800/50 border-blue-500/20",
+    warning: "bg-amber-500/10 border-amber-500/20",
+    error: "bg-red-500/10 border-red-500/20",
+    success: "bg-green-500/10 border-green-500/20",
+  },
+
+  // Навигация (НОВОЕ)
+  navigation: {
+    bottom: cn(
+      "bg-slate-800/80 backdrop-blur-md",
+      `rounded-${radius.lg}`,
+      "shadow-lg shadow-black/30",
+      "border border-blue-500/20",
+    ),
+    item: `px-${spacing.sm} py-1`,
+    itemActive: "text-blue-400 font-medium",
+    itemInactive: "text-slate-400 hover:text-blue-300",
   },
 
   // Скелетоны
   skeleton: {
-    base: cn("animate-pulse bg-slate-800/50", radiusClasses.md),
+    base: cn("animate-pulse bg-slate-800/50", `rounded-${radius.md}`),
     text: "h-4 w-full rounded",
     title: "h-6 w-3/4 rounded",
-    card: cn("h-32 w-full", radiusClasses.xl),
+    card: cn("h-32 w-full", `rounded-${radius.xl}`),
+  },
+
+  // Таблицы (НОВОЕ)
+  table: {
+    base: cn(
+      "border border-blue-500/20",
+      `rounded-${radius.lg}`,
+      "overflow-hidden",
+    ),
+    header: "bg-slate-800/70",
+    row: "hover:bg-slate-800/50",
+    cell: `p-${spacing.sm}`,
+  },
+
+  // Формы (НОВОЕ)
+  form: {
+    field: `space-y-${spacing.sm}`,
+    label: cn(typography.small, textColors.secondary),
+    error: cn(typography.tiny, textColors.error),
   },
 } as const;
 
@@ -294,3 +303,40 @@ export const createBadgeStyle = (
 ) => {
   return cn(components.badge.base, components.badge[variant]);
 };
+
+// Новые композитные утилиты
+export const createTextStyle = (
+  size: "h1" | "h2" | "h3" | "h4" | "body" | "small" | "tiny",
+  color: keyof typeof textColors = "primary",
+) => {
+  return cn(typography[size], textColors[color]);
+};
+
+export const createAlertStyle = (
+  variant: keyof typeof components.alert = "default",
+) => {
+  return cn(components.alert.base, components.alert[variant]);
+};
+
+export const createDialogStyle = () => ({
+  content: components.dialog.content,
+  title: components.dialog.title,
+  description: components.dialog.description,
+});
+
+// Размеры (НОВОЕ)
+export const sizes = {
+  icon: {
+    xs: "h-3 w-3",
+    sm: "h-4 w-4",
+    md: "h-5 w-5",
+    lg: "h-6 w-6",
+    xl: "h-8 w-8",
+  },
+  button: {
+    xs: "h-6 w-6",
+    sm: "h-8 w-8",
+    md: "h-9 w-9",
+    lg: "h-10 w-10",
+  },
+} as const;

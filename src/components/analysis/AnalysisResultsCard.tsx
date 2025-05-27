@@ -41,6 +41,7 @@ import {
   createCardStyle,
   createButtonStyle,
   createBadgeStyle,
+  createTextStyle,
   typography,
   spacing,
   animations,
@@ -110,7 +111,7 @@ const AnalysisResultsCard: React.FC<AnalysisResultsCardProps> = ({
         {/* Status badge */}
         <div className="flex items-center mt-1">
           <StatusBadge status={status || "pending"} />
-          <div className={cn("ml-4", typography.small, "text-blue-300")}>
+          <div className={cn("ml-4", createTextStyle("small", "secondary"))}>
             {started_at && <div>Начат: {formatDate(started_at)}</div>}
             {completed_at && <div>Завершен: {formatDate(completed_at)}</div>}
           </div>

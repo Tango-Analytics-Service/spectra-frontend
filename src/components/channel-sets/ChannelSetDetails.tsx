@@ -95,7 +95,11 @@ const ChannelSetDetails = ({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-6 w-6 sm:h-8 sm:w-8 text-blue-400 hover:bg-white/10 hover:text-blue-300"
+                className={cn(
+                  createButtonStyle("ghostIcon"),
+                  sizes.button.xs,
+                  "sm:" + sizes.button.sm,
+                )}
                 onClick={() => onShare(set.id)}
               >
                 <Share2 size={14} />
@@ -105,7 +109,11 @@ const ChannelSetDetails = ({
             <Button
               variant="ghost"
               size="icon"
-              className="h-6 w-6 sm:h-8 sm:w-8 text-gray-400 hover:bg-white/10 hover:text-gray-300"
+              className={cn(
+                createButtonStyle("ghost"),
+                sizes.button.xs,
+                "sm:" + sizes.button.sm,
+              )}
               onClick={() => onEdit(set.id)}
             >
               <Settings size={14} />
@@ -115,7 +123,7 @@ const ChannelSetDetails = ({
         </div>
 
         <div className={cn(typography.h4, "mb-1")}>{set.name}</div>
-        <div className={cn(typography.small, "text-gray-400 mb-2 sm:mb-3")}>
+        <div className={cn(createTextStyle("small", "muted"), "mb-2 sm:mb-3")}>
           {set.description}
         </div>
 
@@ -125,7 +133,7 @@ const ChannelSetDetails = ({
             typography.tiny,
           )}
         >
-          <div className="flex items-center text-blue-300">
+          <div className={(cn(textColors.secondary), "flex items-center")}>
             <Calendar size={10} className="mr-1" />
             <span>Обновлен: {formatDate(set.updated_at)}</span>
           </div>
@@ -134,10 +142,7 @@ const ChannelSetDetails = ({
             {set.all_parsed ? (
               <Badge
                 variant="outline"
-                className={cn(
-                  createBadgeStyle("success"),
-                  "flex items-center gap-1 text-[10px] sm:text-xs py-0 h-5 sm:h-6",
-                )}
+                className={cn(createBadgeStyle("success"))}
               >
                 <CheckCircle size={10} />
                 <span>Готов к анализу</span>
@@ -145,10 +150,7 @@ const ChannelSetDetails = ({
             ) : (
               <Badge
                 variant="outline"
-                className={cn(
-                  createBadgeStyle("warning"),
-                  "flex items-center gap-1 text-[10px] sm:text-xs py-0 h-5 sm:h-6",
-                )}
+                className={cn(createBadgeStyle("warning"))}
               >
                 <AlertCircle size={10} />
                 <span>Обработка данных</span>
