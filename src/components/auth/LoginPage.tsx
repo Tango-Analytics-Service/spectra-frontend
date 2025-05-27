@@ -3,6 +3,14 @@ import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import {
+  typography,
+  spacing,
+  gradients,
+  createButtonStyle,
+  animations,
+} from "@/lib/design-system";
 
 const LoginPage: React.FC = () => {
   const { isAuthenticated, login, isLoading, error, isTelegram } = useAuth();
@@ -30,7 +38,11 @@ const LoginPage: React.FC = () => {
         <Button
           onClick={handleLogin}
           disabled={isLoading}
-          className="w-full sm:w-auto bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-md hover:shadow-lg transition-all px-5 py-3"
+          className={cn(
+            createButtonStyle("primary"),
+            "w-full sm:w-auto shadow-md hover:shadow-lg transition-all",
+            `px-${spacing.lg} py-${spacing.sm}`,
+          )}
         >
           {isLoading ? "Авторизация..." : "Войти через Telegram"}
         </Button>
@@ -43,7 +55,11 @@ const LoginPage: React.FC = () => {
           </p>
           <a
             href={telegramBotUrl}
-            className="inline-block px-5 py-3 rounded-md bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors"
+            className={cn(
+              "inline-block rounded-md font-medium transition-colors",
+              createButtonStyle("primary"),
+              `px-${spacing.lg} py-${spacing.sm}`,
+            )}
           >
             Открыть в Telegram
           </a>
@@ -53,16 +69,33 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-[#0F172A] to-[#131c2e] text-white px-4">
-      <div className="text-3xl font-semibold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-blue-300">
+    <div
+      className={cn(
+        "flex flex-col items-center justify-center min-h-screen text-white",
+        `px-${spacing.md}`,
+        gradients.background,
+        animations.fadeIn,
+      )}
+    >
+      <div
+        className={cn(
+          "text-3xl font-semibold mb-2 bg-clip-text text-transparent",
+          gradients.primary.replace("bg-gradient-to-r", "bg-gradient-to-r"),
+        )}
+      >
         SPECTRA
       </div>
-      <p className="mb-6 text-blue-300 text-center">
+      <p className={cn(typography.body, "text-blue-300 text-center mb-6")}>
         Аналитика и управление телеграм-каналами
       </p>
 
       {error && (
-        <div className="mb-6 p-3 rounded-md bg-red-500/20 border border-red-500/40 text-red-300 max-w-md text-center">
+        <div
+          className={cn(
+            "mb-6 p-3 rounded-md max-w-md text-center",
+            "bg-red-500/20 border border-red-500/40 text-red-300",
+          )}
+        >
           {error}
         </div>
       )}

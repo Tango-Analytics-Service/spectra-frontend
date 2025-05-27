@@ -7,6 +7,7 @@ import {
   spacing,
   animations,
   createButtonStyle,
+  colors,
 } from "@/lib/design-system";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -33,8 +34,13 @@ const WebNavigation: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="bg-[#030d20] border-b border-blue-900/30 sticky top-0 z-50">
-      <div className="container mx-auto px-4">
+    <header
+      className={cn(
+        "border-b sticky top-0 z-50",
+        "bg-[#030d20] border-blue-900/30",
+      )}
+    >
+      <div className={cn("container mx-auto", `px-${spacing.md}`)}>
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex items-center">
@@ -45,7 +51,7 @@ const WebNavigation: React.FC = () => {
                 className="h-8 mr-2"
               />
               <span
-                className={cn(typography.h3, "text-[#4395d3] hidden sm:block")}
+                className={cn(typography.h3, "text-blue-400 hidden sm:block")}
               >
                 SPECTRA
               </span>
@@ -66,7 +72,10 @@ const WebNavigation: React.FC = () => {
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="ghost"
-                      className="ml-2 p-2 rounded-full bg-[#4395d3]/10 hover:bg-[#4395d3]/20"
+                      className={cn(
+                        "ml-2 p-2 rounded-full transition-colors",
+                        "bg-blue-500/10 hover:bg-blue-500/20",
+                      )}
                     >
                       {user?.photo_url ? (
                         <img
@@ -75,7 +84,7 @@ const WebNavigation: React.FC = () => {
                           className="h-8 w-8 rounded-full"
                         />
                       ) : (
-                        <User className="h-5 w-5 text-[#4395d3]" />
+                        <User className="h-5 w-5 text-blue-400" />
                       )}
                     </Button>
                   </DropdownMenuTrigger>
@@ -83,12 +92,12 @@ const WebNavigation: React.FC = () => {
                     align="end"
                     className="bg-[#041331] border-blue-900/50"
                   >
-                    <div className="px-2 py-1.5 text-sm font-medium text-[#4395d3]">
+                    <div className="px-2 py-1.5 text-sm font-medium text-blue-400">
                       {user?.first_name} {user?.last_name}
                     </div>
                     <DropdownMenuSeparator className="bg-blue-900/30" />
                     <DropdownMenuItem
-                      className="cursor-pointer hover:bg-[#4395d3]/10"
+                      className="cursor-pointer hover:bg-blue-500/10"
                       asChild
                     >
                       <Link to="/profile">
@@ -97,7 +106,7 @@ const WebNavigation: React.FC = () => {
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      className="cursor-pointer hover:bg-[#4395d3]/10"
+                      className="cursor-pointer hover:bg-blue-500/10"
                       asChild
                     >
                       <Link to="/credits">
@@ -118,7 +127,7 @@ const WebNavigation: React.FC = () => {
               </>
             ) : (
               <Button
-                className="bg-[#4395d3] hover:bg-[#3a80b9] text-white"
+                className={createButtonStyle("primary")}
                 onClick={() => {}}
               >
                 Войти
@@ -132,7 +141,7 @@ const WebNavigation: React.FC = () => {
               variant="ghost"
               size="icon"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-[#4395d3]"
+              className="text-blue-400"
             >
               {mobileMenuOpen ? <X /> : <Menu />}
             </Button>
@@ -142,7 +151,13 @@ const WebNavigation: React.FC = () => {
 
       {/* Mobile menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-[#030d20] border-t border-blue-900/30 py-2 px-4">
+        <div
+          className={cn(
+            "md:hidden border-t border-blue-900/30 py-2",
+            "bg-[#030d20]",
+            `px-${spacing.md}`,
+          )}
+        >
           <nav className="flex flex-col space-y-2">
             <MobileNavLink
               to="/"
@@ -205,7 +220,10 @@ const NavLink: React.FC<NavLinkProps> = ({ to, label }) => {
   return (
     <Link
       to={to}
-      className="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-[#4395d3] hover:bg-[#4395d3]/10 transition-colors"
+      className={cn(
+        "px-3 py-2 rounded-md text-sm font-medium transition-colors",
+        "text-gray-300 hover:text-blue-400 hover:bg-blue-500/10",
+      )}
     >
       {label}
     </Link>
@@ -229,10 +247,13 @@ const MobileNavLink: React.FC<MobileNavLinkProps> = ({
   return (
     <Link
       to={to}
-      className="flex items-center px-2 py-2 rounded-md text-gray-300 hover:text-[#4395d3] hover:bg-[#4395d3]/10 transition-colors"
+      className={cn(
+        "flex items-center px-2 py-2 rounded-md transition-colors",
+        "text-gray-300 hover:text-blue-400 hover:bg-blue-500/10",
+      )}
       onClick={onClick}
     >
-      <span className="mr-3 text-[#4395d3]">{icon}</span>
+      <span className="mr-3 text-blue-400">{icon}</span>
       {label}
     </Link>
   );

@@ -33,6 +33,15 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
+import {
+  createCardStyle,
+  createButtonStyle,
+  typography,
+  spacing,
+  components,
+  animations,
+} from "@/lib/design-system";
 
 interface StartAnalysisDialogProps {
   open: boolean;
@@ -106,9 +115,14 @@ const StartAnalysisDialog: React.FC<StartAnalysisDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-slate-800 border border-blue-500/20 text-white sm:max-w-[750px] max-h-[90vh] overflow-hidden flex flex-col">
+      <DialogContent
+        className={cn(
+          createCardStyle(),
+          "sm:max-w-[750px] max-h-[90vh] overflow-hidden flex flex-col",
+        )}
+      >
         <DialogHeader>
-          <DialogTitle>Запуск анализа</DialogTitle>
+          <DialogTitle className={typography.h3}>Запуск анализа</DialogTitle>
           <DialogDescription className="text-blue-300">
             Выберите фильтры и настройте параметры для анализа каналов
           </DialogDescription>
@@ -116,45 +130,64 @@ const StartAnalysisDialog: React.FC<StartAnalysisDialogProps> = ({
 
         <div className="flex-1 overflow-hidden flex flex-col">
           {/* Tabs for selections */}
-          <div className="flex border-b border-slate-700 mb-4">
+          <div
+            className={cn("flex border-b border-slate-700", `mb-${spacing.md}`)}
+          >
             <Button
               variant="ghost"
-              className={`pb-2 px-4 rounded-none ${
+              className={cn(
+                `pb-${spacing.sm} px-${spacing.md}`,
+                "rounded-none",
                 showFiltersList
                   ? "text-blue-400 border-b-2 border-blue-400"
-                  : "text-slate-400"
-              }`}
+                  : "text-slate-400",
+              )}
               onClick={() => setShowFiltersList(true)}
             >
-              <FilterIcon size={16} className="mr-2" />
+              <FilterIcon size={16} className={`mr-${spacing.sm}`} />
               Выбор фильтров
             </Button>
             <Button
               variant="ghost"
-              className={`pb-2 px-4 rounded-none ${
+              className={cn(
+                `pb-${spacing.sm} px-${spacing.md}`,
+                "rounded-none",
                 !showFiltersList
                   ? "text-blue-400 border-b-2 border-blue-400"
-                  : "text-slate-400"
-              }`}
+                  : "text-slate-400",
+              )}
               onClick={() => setShowFiltersList(false)}
             >
-              <Info size={16} className="mr-2" />
+              <Info size={16} className={`mr-${spacing.sm}`} />
               Параметры анализа
             </Button>
           </div>
 
           {/* Selected filters count */}
-          <div className="mb-4">
+          <div className={`mb-${spacing.md}`}>
             <div className="flex justify-between items-center">
               <div className="flex items-center">
-                <span className="text-sm text-blue-300 mr-2">
+                <span
+                  className={cn(
+                    typography.small,
+                    "text-blue-300",
+                    `mr-${spacing.sm}`,
+                  )}
+                >
                   Выбрано фильтров:
                 </span>
-                <span className="font-semibold bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full text-sm">
+                <span
+                  className={cn(
+                    "font-semibold bg-blue-500/20 text-blue-400",
+                    `px-${spacing.sm} py-${spacing.xs}`,
+                    "rounded-full",
+                    typography.small,
+                  )}
+                >
                   {selectedFilters.length}
                 </span>
               </div>
-              <div className="text-sm text-blue-300">
+              <div className={cn(typography.small, "text-blue-300")}>
                 Каналов для анализа:{" "}
                 <span className="font-semibold">{channelCount}</span>
               </div>
@@ -162,7 +195,7 @@ const StartAnalysisDialog: React.FC<StartAnalysisDialogProps> = ({
           </div>
 
           {/* Content area */}
-          <ScrollArea className="flex-1 pr-4">
+          <ScrollArea className={cn("flex-1", `pr-${spacing.md}`)}>
             {showFiltersList ? (
               /* Filters selection */
               <FiltersList
@@ -172,8 +205,8 @@ const StartAnalysisDialog: React.FC<StartAnalysisDialogProps> = ({
               />
             ) : (
               /* Analysis options */
-              <div className="space-y-6 pb-4">
-                <Alert className="bg-slate-900/50 border border-blue-500/20">
+              <div className={cn(`space-y-${spacing.lg} pb-${spacing.md}`)}>
+                <Alert className={cn(createCardStyle(), "bg-slate-900/50")}>
                   <Info className="h-4 w-4" />
                   <AlertTitle>О параметрах анализа</AlertTitle>
                   <AlertDescription>
@@ -183,7 +216,7 @@ const StartAnalysisDialog: React.FC<StartAnalysisDialogProps> = ({
                   </AlertDescription>
                 </Alert>
 
-                <div className="space-y-3">
+                <div className={`space-y-${spacing.sm}`}>
                   <Label htmlFor="processing-mode">Режим обработки</Label>
                   <Select
                     value={processingMode}
@@ -193,11 +226,13 @@ const StartAnalysisDialog: React.FC<StartAnalysisDialogProps> = ({
                   >
                     <SelectTrigger
                       id="processing-mode"
-                      className="bg-slate-900/70 border-blue-500/20"
+                      className={components.input.base}
                     >
                       <SelectValue placeholder="Выберите режим обработки" />
                     </SelectTrigger>
-                    <SelectContent className="bg-slate-800 border-blue-500/20">
+                    <SelectContent
+                      className={cn(createCardStyle(), "bg-slate-800")}
+                    >
                       <SelectItem value={ProcessingMode.BATCH}>
                         Пакетный (асинхронно, дешевле)
                       </SelectItem>
@@ -206,19 +241,21 @@ const StartAnalysisDialog: React.FC<StartAnalysisDialogProps> = ({
                       </SelectItem>
                     </SelectContent>
                   </Select>
-                  <p className="text-xs text-blue-300">
+                  <p className={cn(typography.tiny, "text-blue-300")}>
                     Пакетный режим выполняет анализ асинхронно и стоит дешевле.
                     Прямой режим выполняет анализ сразу и стоит дороже, но
                     результаты будут доступны быстрее.
                   </p>
                 </div>
 
-                <div className="space-y-3">
+                <div className={`space-y-${spacing.sm}`}>
                   <div className="flex justify-between items-center">
                     <Label htmlFor="max-posts">
                       Количество постов для анализа
                     </Label>
-                    <span className="text-sm text-blue-300">{maxPosts}</span>
+                    <span className={cn(typography.small, "text-blue-300")}>
+                      {maxPosts}
+                    </span>
                   </div>
                   <Slider
                     id="max-posts"
@@ -227,9 +264,9 @@ const StartAnalysisDialog: React.FC<StartAnalysisDialogProps> = ({
                     step={5}
                     value={[maxPosts]}
                     onValueChange={(value) => setMaxPosts(value[0])}
-                    className="py-2"
+                    className={`py-${spacing.sm}`}
                   />
-                  <p className="text-xs text-blue-300">
+                  <p className={cn(typography.tiny, "text-blue-300")}>
                     Количество последних постов, которые будут проанализированы
                     в каждом канале. Больше постов = более точный анализ, но
                     дольше и дороже.
@@ -238,10 +275,12 @@ const StartAnalysisDialog: React.FC<StartAnalysisDialogProps> = ({
 
                 <Separator className="bg-slate-700/50" />
 
-                <div className="space-y-4">
+                <div className={`space-y-${spacing.md}`}>
                   <Label>Дополнительные опции</Label>
 
-                  <div className="flex items-start space-x-2">
+                  <div
+                    className={cn("flex items-start", `space-x-${spacing.sm}`)}
+                  >
                     <Checkbox
                       id="detailed"
                       checked={detailed}
@@ -252,11 +291,14 @@ const StartAnalysisDialog: React.FC<StartAnalysisDialogProps> = ({
                     <div className="space-y-1 flex-1">
                       <Label
                         htmlFor="detailed"
-                        className="text-sm font-medium leading-none cursor-pointer"
+                        className={cn(
+                          typography.small,
+                          "font-medium leading-none cursor-pointer",
+                        )}
                       >
                         Детальные объяснения
                       </Label>
-                      <p className="text-xs text-slate-400">
+                      <p className={cn(typography.tiny, "text-slate-400")}>
                         Включает подробные объяснения оценок для каждого фильтра
                       </p>
                     </div>
@@ -274,7 +316,9 @@ const StartAnalysisDialog: React.FC<StartAnalysisDialogProps> = ({
                     </Tooltip>
                   </div>
 
-                  <div className="flex items-start space-x-2">
+                  <div
+                    className={cn("flex items-start", `space-x-${spacing.sm}`)}
+                  >
                     <Checkbox
                       id="examples"
                       checked={includeExamples}
@@ -285,11 +329,14 @@ const StartAnalysisDialog: React.FC<StartAnalysisDialogProps> = ({
                     <div className="space-y-1 flex-1">
                       <Label
                         htmlFor="examples"
-                        className="text-sm font-medium leading-none cursor-pointer"
+                        className={cn(
+                          typography.small,
+                          "font-medium leading-none cursor-pointer",
+                        )}
                       >
                         Примеры проблемных постов
                       </Label>
-                      <p className="text-xs text-slate-400">
+                      <p className={cn(typography.tiny, "text-slate-400")}>
                         Включает примеры постов, не соответствующих фильтрам
                       </p>
                     </div>
@@ -311,23 +358,26 @@ const StartAnalysisDialog: React.FC<StartAnalysisDialogProps> = ({
           </ScrollArea>
         </div>
 
-        <DialogFooter className="pt-4">
+        <DialogFooter className={`pt-${spacing.md}`}>
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
-            className="border-blue-500/20 text-blue-300"
+            className={createButtonStyle("secondary")}
             disabled={isStarting}
           >
             Отмена
           </Button>
           <Button
             onClick={handleStartAnalysis}
-            className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600"
+            className={createButtonStyle("primary")}
             disabled={isStarting || selectedFilters.length === 0}
           >
             {isStarting ? (
               <>
-                <LoaderCircle size={16} className="mr-2 animate-spin" />
+                <LoaderCircle
+                  size={16}
+                  className={`mr-${spacing.sm} animate-spin`}
+                />
                 Запуск анализа...
               </>
             ) : (

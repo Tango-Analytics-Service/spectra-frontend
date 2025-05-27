@@ -161,27 +161,6 @@ const ChannelSetPage = () => {
         "text-white",
       )}
     >
-      {/* Header */}
-      <header
-        className={cn(
-          "flex items-center relative z-10",
-          `px-${spacing.md} sm:px-${spacing.lg}`,
-          `py-${spacing.sm} sm:py-${spacing.md}`,
-        )}
-      >
-        <div className="text-xl font-semibold tracking-tight">
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-blue-300">
-            SPECTRA
-          </span>
-          <Badge
-            className="ml-2 bg-gradient-to-r from-[#358ee4] to-[#3b82f6] shadow-[0_0_8px_rgba(53,142,228,0.3)]"
-            variant="default"
-          >
-            BETA
-          </Badge>
-        </div>
-      </header>
-
       <main
         className={cn(
           "flex-1 overflow-hidden flex flex-col",

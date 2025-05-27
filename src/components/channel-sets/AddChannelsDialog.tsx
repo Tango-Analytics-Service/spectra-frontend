@@ -10,6 +10,8 @@ import {
   LoaderCircle,
   ExternalLink,
   Trash2,
+  Users,
+  Eye,
 } from "lucide-react";
 import {
   Dialog,
@@ -41,6 +43,15 @@ import {
 } from "@/components/ui/tooltip";
 import { useChannelSets } from "@/contexts/ChannelSetsContext";
 import { ChannelDetails } from "@/types/channel-sets";
+import { cn } from "@/lib/utils";
+import {
+  createCardStyle,
+  createButtonStyle,
+  components,
+  typography,
+  spacing,
+  animations,
+} from "@/lib/design-system";
 
 interface AddChannelsDialogProps {
   open: boolean;
@@ -195,27 +206,31 @@ const AddChannelsDialog: React.FC<AddChannelsDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-slate-800 border border-blue-500/20 text-white max-w-4xl">
+      <DialogContent
+        className={cn(createCardStyle(), "max-w-4xl", animations.fadeIn)}
+      >
         <DialogHeader>
-          <DialogTitle>Добавление каналов</DialogTitle>
+          <DialogTitle className={typography.h3}>
+            Добавление каналов
+          </DialogTitle>
           <DialogDescription className="text-blue-300">
             Найдите или введите каналы, которые хотите добавить в набор
           </DialogDescription>
         </DialogHeader>
 
         {/* Tabs */}
-        <div className="flex space-x-2 mb-4">
+        <div className={cn("flex", `space-x-${spacing.sm} mb-${spacing.md}`)}>
           <Button
             variant={activeTab === "search" ? "default" : "outline"}
             size="sm"
             onClick={() => handleTabChange("search")}
             className={
               activeTab === "search"
-                ? "bg-blue-600 hover:bg-blue-700"
-                : "border-blue-500/20 text-gray-300"
+                ? createButtonStyle("primary")
+                : createButtonStyle("secondary")
             }
           >
-            <Search size={16} className="mr-2" />
+            <Search size={16} className={`mr-${spacing.sm}`} />
             Поиск каналов
           </Button>
           <Button
@@ -224,11 +239,11 @@ const AddChannelsDialog: React.FC<AddChannelsDialogProps> = ({
             onClick={() => handleTabChange("manual")}
             className={
               activeTab === "manual"
-                ? "bg-blue-600 hover:bg-blue-700"
-                : "border-blue-500/20 text-gray-300"
+                ? createButtonStyle("primary")
+                : createButtonStyle("secondary")
             }
           >
-            <Plus size={16} className="mr-2" />
+            <Plus size={16} className={`mr-${spacing.sm}`} />
             Добавить вручную
           </Button>
         </div>
@@ -237,34 +252,48 @@ const AddChannelsDialog: React.FC<AddChannelsDialogProps> = ({
           {/* Search Tab */}
           {activeTab === "search" && (
             <>
-              <div className="relative mb-2">
+              <div className={cn("relative", `mb-${spacing.sm}`)}>
                 <Search
                   size={16}
                   className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
                 />
                 <Input
                   placeholder="Поиск каналов по названию или @username"
-                  className="pl-9 bg-slate-900/70 border-blue-500/20"
+                  className={cn(components.input.base, "pl-9")}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
 
-              <ScrollArea className="flex-1 border border-blue-500/20 rounded-md bg-slate-900/30">
+              <ScrollArea
+                className={cn(
+                  "flex-1 border border-blue-500/20 rounded-md bg-slate-900/30",
+                )}
+              >
                 {searchLoading ? (
-                  <div className="py-8 flex justify-center items-center">
+                  <div className={cn("py-8 flex justify-center items-center")}>
                     <LoaderCircle
                       size={24}
                       className="text-blue-400 animate-spin"
                     />
                   </div>
                 ) : searchResults.length === 0 ? (
-                  <div className="py-8 px-4 text-center text-gray-400">
+                  <div
+                    className={cn(
+                      "py-8",
+                      `px-${spacing.md}`,
+                      "text-center text-gray-400",
+                    )}
+                  >
                     {searchQuery.length < 2 ? (
                       <div>
                         <Search
                           size={24}
-                          className="mx-auto mb-2 text-gray-500"
+                          className={cn(
+                            "mx-auto",
+                            `mb-${spacing.sm}`,
+                            "text-gray-500",
+                          )}
                         />
                         Введите не менее 2 символов для поиска
                       </div>
@@ -272,7 +301,11 @@ const AddChannelsDialog: React.FC<AddChannelsDialogProps> = ({
                       <div>
                         <AlertCircle
                           size={24}
-                          className="mx-auto mb-2 text-gray-500"
+                          className={cn(
+                            "mx-auto",
+                            `mb-${spacing.sm}`,
+                            "text-gray-500",
+                          )}
                         />
                         Каналы не найдены. Попробуйте другой запрос или добавьте
                         канал вручную
@@ -284,21 +317,40 @@ const AddChannelsDialog: React.FC<AddChannelsDialogProps> = ({
                     {searchResults.map((channel) => (
                       <div
                         key={channel.username}
-                        className={`flex items-center justify-between p-3 rounded-md cursor-pointer ${
+                        className={cn(
+                          "flex items-center justify-between",
+                          `p-${spacing.sm}`,
+                          "rounded-md cursor-pointer",
                           selectedChannels.includes(channel.username)
                             ? "bg-blue-500/20 hover:bg-blue-500/30"
-                            : "hover:bg-slate-800/70"
-                        }`}
+                            : "hover:bg-slate-800/70",
+                        )}
                         onClick={() => handleToggleChannel(channel.username)}
                       >
                         <div className="flex items-center">
                           {selectedChannels.includes(channel.username) ? (
-                            <Check size={16} className="text-blue-400 mr-2" />
+                            <Check
+                              size={16}
+                              className={cn(
+                                "text-blue-400",
+                                `mr-${spacing.sm}`,
+                              )}
+                            />
                           ) : (
-                            <div className="w-4 h-4 border border-gray-500 rounded-sm mr-2" />
+                            <div
+                              className={cn(
+                                "w-4 h-4 border border-gray-500 rounded-sm",
+                                `mr-${spacing.sm}`,
+                              )}
+                            />
                           )}
                           <div>
-                            <div className="font-medium flex items-center">
+                            <div
+                              className={cn(
+                                "font-medium flex items-center",
+                                typography.body,
+                              )}
+                            >
                               @{channel.username}
                               <a
                                 href={`https://t.me/${channel.username}`}
@@ -311,7 +363,12 @@ const AddChannelsDialog: React.FC<AddChannelsDialogProps> = ({
                               </a>
                             </div>
                             {channel.title && (
-                              <div className="text-sm text-gray-400">
+                              <div
+                                className={cn(
+                                  typography.small,
+                                  "text-gray-400",
+                                )}
+                              >
                                 {channel.title}
                               </div>
                             )}
@@ -319,8 +376,15 @@ const AddChannelsDialog: React.FC<AddChannelsDialogProps> = ({
                         </div>
 
                         {channel.stats && (
-                          <div className="text-sm text-gray-400">
-                            <div className="flex items-center space-x-2">
+                          <div
+                            className={cn(typography.small, "text-gray-400")}
+                          >
+                            <div
+                              className={cn(
+                                "flex items-center",
+                                `space-x-${spacing.sm}`,
+                              )}
+                            >
                               <span
                                 title="Подписчики"
                                 className="flex items-center"
@@ -349,10 +413,10 @@ const AddChannelsDialog: React.FC<AddChannelsDialogProps> = ({
           {/* Manual Tab */}
           {activeTab === "manual" && (
             <>
-              <div className="mb-2 flex">
+              <div className={cn("mb-2 flex", `mr-${spacing.sm}`)}>
                 <Input
                   placeholder="Введите @username канала"
-                  className="flex-1 mr-2 bg-slate-900/70 border-blue-500/20"
+                  className={cn(components.input.base, "flex-1")}
                   value={manualInput}
                   onChange={(e) => setManualInput(e.target.value)}
                   onKeyDown={handleKeyDown}
@@ -360,32 +424,60 @@ const AddChannelsDialog: React.FC<AddChannelsDialogProps> = ({
                 <Button
                   onClick={handleAddManualChannel}
                   disabled={!manualInput.trim()}
+                  className={cn(
+                    createButtonStyle("primary"),
+                    `ml-${spacing.sm}`,
+                  )}
                 >
                   Добавить
                 </Button>
               </div>
 
-              <div className="text-xs text-gray-400 mb-2">
+              <div
+                className={cn(
+                  typography.tiny,
+                  "text-gray-400",
+                  `mb-${spacing.sm}`,
+                )}
+              >
                 <AlertCircle size={12} className="inline mr-1" />
                 Вводите юзернеймы каналов с @ или без, например: @channel_name
                 или channel_name
               </div>
 
-              <ScrollArea className="flex-1 border border-blue-500/20 rounded-md bg-slate-900/30 p-4">
+              <ScrollArea
+                className={cn(
+                  "flex-1 border border-blue-500/20 rounded-md bg-slate-900/30",
+                  `p-${spacing.md}`,
+                )}
+              >
                 {manualChannels.length === 0 ? (
-                  <div className="py-8 text-center text-gray-400">
-                    <Plus size={24} className="mx-auto mb-2 text-gray-500" />
+                  <div className={cn("py-8 text-center text-gray-400")}>
+                    <Plus
+                      size={24}
+                      className={cn(
+                        "mx-auto",
+                        `mb-${spacing.sm}`,
+                        "text-gray-500",
+                      )}
+                    />
                     Добавьте каналы, введя их @username
                   </div>
                 ) : (
-                  <div className="space-y-2">
+                  <div className={`space-y-${spacing.sm}`}>
                     {manualChannels.map((username) => (
                       <div
                         key={username}
-                        className="flex items-center justify-between px-3 py-2 bg-slate-800/70 rounded-md"
+                        className={cn(
+                          "flex items-center justify-between",
+                          `px-${spacing.sm} py-${spacing.sm}`,
+                          "bg-slate-800/70 rounded-md",
+                        )}
                       >
                         <div className="flex items-center">
-                          <div className="font-medium">@{username}</div>
+                          <div className={cn("font-medium", typography.body)}>
+                            @{username}
+                          </div>
                           <a
                             href={`https://t.me/${username}`}
                             target="_blank"
@@ -412,7 +504,7 @@ const AddChannelsDialog: React.FC<AddChannelsDialogProps> = ({
           )}
 
           {/* Selected counter */}
-          <div className="mt-2 text-sm">
+          <div className={cn(`mt-${spacing.sm}`, typography.small)}>
             Выбрано каналов:{" "}
             <span className="font-semibold text-blue-400">{totalSelected}</span>
           </div>
@@ -422,7 +514,7 @@ const AddChannelsDialog: React.FC<AddChannelsDialogProps> = ({
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
-            className="border-blue-500/20 text-blue-300"
+            className={createButtonStyle("secondary")}
             disabled={isAdding}
           >
             Отмена
@@ -430,16 +522,19 @@ const AddChannelsDialog: React.FC<AddChannelsDialogProps> = ({
           <Button
             onClick={handleAddChannels}
             disabled={totalSelected === 0 || isAdding}
-            className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600"
+            className={createButtonStyle("primary")}
           >
             {isAdding ? (
               <>
-                <LoaderCircle size={16} className="mr-2 animate-spin" />
+                <LoaderCircle
+                  size={16}
+                  className={`mr-${spacing.sm} animate-spin`}
+                />
                 Добавление...
               </>
             ) : (
               <>
-                <Plus size={16} className="mr-2" />
+                <Plus size={16} className={`mr-${spacing.sm}`} />
                 Добавить {totalSelected} {getChannelWord(totalSelected)}
               </>
             )}

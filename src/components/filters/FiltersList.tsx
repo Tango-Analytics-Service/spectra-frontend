@@ -9,6 +9,15 @@ import { Search, FilterIcon, Plus, AlertCircle, Loader2 } from "lucide-react";
 import FilterCard from "./FilterCard";
 import CreateFilterDialog from "./CreateFilterDialog";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  createCardStyle,
+  createButtonStyle,
+  typography,
+  spacing,
+  animations,
+  components,
+} from "@/lib/design-system";
+import { cn } from "@/lib/utils";
 
 interface FiltersListProps {
   onSelectFilter?: (id: string) => void;
@@ -97,7 +106,7 @@ const FiltersList: React.FC<FiltersListProps> = ({
   const isLoading = isSystemFiltersLoading || isUserFiltersLoading;
 
   return (
-    <div className="space-y-4">
+    <div className={cn("space-y-4", animations.fadeIn)}>
       {/* Search and filter controls */}
       <div className="flex items-center space-x-2">
         <div className="relative flex-1">
@@ -107,16 +116,15 @@ const FiltersList: React.FC<FiltersListProps> = ({
           />
           <Input
             placeholder="Поиск фильтров..."
-            className="pl-9 bg-slate-900/70 border-blue-500/20"
+            className={cn(components.input.base, "pl-9")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
         {showActions && (
           <Button
-            variant="outline"
             onClick={() => setShowCreateDialog(true)}
-            className="border-blue-500/20 text-blue-300"
+            className={createButtonStyle("primary")}
           >
             <Plus size={16} className="mr-1" />
             Создать
@@ -145,13 +153,13 @@ const FiltersList: React.FC<FiltersListProps> = ({
         </TabsList>
 
         {/* All Filters Tab */}
-        <TabsContent value="all" className="mt-4">
+        <TabsContent value="all" className={`mt-${spacing.md}`}>
           {isLoading ? (
             <div className="flex justify-center items-center h-40">
               <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
             </div>
           ) : filteredFilters.length === 0 ? (
-            <Alert className="bg-slate-800/50 border border-blue-500/20">
+            <Alert className={cn(createCardStyle(), "border-blue-500/20")}>
               <AlertCircle className="h-4 w-4" />
               <AlertTitle>Ничего не найдено</AlertTitle>
               <AlertDescription>
@@ -160,13 +168,18 @@ const FiltersList: React.FC<FiltersListProps> = ({
             </Alert>
           ) : (
             <ScrollArea className={`${height} pr-4`}>
-              <div className="space-y-6">
+              <div className={`space-y-${spacing.lg}`}>
                 {sortedCategories.map((category) => (
                   <div key={category}>
-                    <h3 className="text-sm font-medium text-blue-300 mb-3">
+                    <h3 className={cn(typography.h4, "text-blue-300 mb-3")}>
                       {category}
                     </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div
+                      className={cn(
+                        "grid grid-cols-1 md:grid-cols-2",
+                        `gap-${spacing.sm}`,
+                      )}
+                    >
                       {filtersByCategory[category].map((filter) => (
                         <FilterCard
                           key={filter.id}
@@ -188,20 +201,25 @@ const FiltersList: React.FC<FiltersListProps> = ({
         </TabsContent>
 
         {/* System Filters Tab */}
-        <TabsContent value="system" className="mt-4">
+        <TabsContent value="system" className={`mt-${spacing.md}`}>
           {isSystemFiltersLoading ? (
             <div className="flex justify-center items-center h-40">
               <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
             </div>
           ) : filteredFilters.filter((f) => !f.is_custom).length === 0 ? (
-            <Alert className="bg-slate-800/50 border border-blue-500/20">
+            <Alert className={cn(createCardStyle(), "border-blue-500/20")}>
               <AlertCircle className="h-4 w-4" />
               <AlertTitle>Ничего не найдено</AlertTitle>
               <AlertDescription>Попробуйте изменить запрос</AlertDescription>
             </Alert>
           ) : (
             <ScrollArea className={`${height} pr-4`}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div
+                className={cn(
+                  "grid grid-cols-1 md:grid-cols-2",
+                  `gap-${spacing.sm}`,
+                )}
+              >
                 {filteredFilters
                   .filter((f) => !f.is_custom)
                   .map((filter) => (
@@ -219,25 +237,32 @@ const FiltersList: React.FC<FiltersListProps> = ({
         </TabsContent>
 
         {/* Custom Filters Tab */}
-        <TabsContent value="custom" className="mt-4">
+        <TabsContent value="custom" className={`mt-${spacing.md}`}>
           {isUserFiltersLoading ? (
             <div className="flex justify-center items-center h-40">
               <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
             </div>
           ) : customFilters.length === 0 ? (
-            <div className="text-center py-10 border border-blue-500/20 rounded-lg bg-slate-800/50">
+            <div
+              className={cn(
+                createCardStyle(),
+                "text-center",
+                `py-${spacing.xl}`,
+                animations.fadeIn,
+              )}
+            >
               <div className="flex flex-col items-center justify-center">
                 <FilterIcon size={48} className="text-blue-400/50 mb-4" />
-                <h3 className="text-lg font-medium mb-2">
+                <h3 className={cn(typography.h3, "mb-2")}>
                   Нет пользовательских фильтров
                 </h3>
-                <p className="text-sm text-gray-400 mb-4">
+                <p className={cn(typography.small, "text-gray-400 mb-4")}>
                   Создайте свой первый фильтр для анализа каналов
                 </p>
                 {showActions && (
                   <Button
                     onClick={() => setShowCreateDialog(true)}
-                    className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600"
+                    className={createButtonStyle("primary")}
                   >
                     Создать фильтр
                   </Button>
@@ -246,7 +271,12 @@ const FiltersList: React.FC<FiltersListProps> = ({
             </div>
           ) : (
             <ScrollArea className={`${height} pr-4`}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div
+                className={cn(
+                  "grid grid-cols-1 md:grid-cols-2",
+                  `gap-${spacing.sm}`,
+                )}
+              >
                 {customFilters
                   .filter((filter) =>
                     searchQuery

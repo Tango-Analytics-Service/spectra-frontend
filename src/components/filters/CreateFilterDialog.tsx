@@ -22,6 +22,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { LoaderCircle } from "lucide-react";
+import {
+  createCardStyle,
+  createButtonStyle,
+  typography,
+  spacing,
+  components,
+} from "@/lib/design-system";
+import { cn } from "@/lib/utils";
 
 interface CreateFilterDialogProps {
   open: boolean;
@@ -91,17 +99,24 @@ const CreateFilterDialog: React.FC<CreateFilterDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-slate-800 border border-blue-500/20 text-white sm:max-w-[550px]">
+      <DialogContent
+        className={cn(
+          createCardStyle(),
+          "bg-slate-800 text-white sm:max-w-[550px]",
+        )}
+      >
         <DialogHeader>
-          <DialogTitle>Создание фильтра</DialogTitle>
-          <DialogDescription className="text-blue-300">
+          <DialogTitle className={typography.h3}>Создание фильтра</DialogTitle>
+          <DialogDescription className={cn(typography.small, "text-blue-300")}>
             Создайте свой фильтр для анализа каналов по выбранным критериям
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid gap-4 py-4">
+        <div className={cn("grid", `gap-${spacing.md}`, `py-${spacing.md}`)}>
           <div className="grid gap-2">
-            <Label htmlFor="name">Название фильтра</Label>
+            <Label htmlFor="name" className={typography.small}>
+              Название фильтра
+            </Label>
             <Input
               id="name"
               placeholder="Например: Контент без нецензурной лексики"
@@ -110,13 +125,17 @@ const CreateFilterDialog: React.FC<CreateFilterDialogProps> = ({
                 setName(e.target.value);
                 setNameError("");
               }}
-              className="bg-slate-900/70 border-blue-500/20"
+              className={components.input.base}
             />
-            {nameError && <p className="text-sm text-red-400">{nameError}</p>}
+            {nameError && (
+              <p className={cn(typography.tiny, "text-red-400")}>{nameError}</p>
+            )}
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="criteria">Критерии фильтра</Label>
+            <Label htmlFor="criteria" className={typography.small}>
+              Критерии фильтра
+            </Label>
             <Textarea
               id="criteria"
               placeholder="Опишите, каким критериям должен соответствовать канал..."
@@ -125,23 +144,24 @@ const CreateFilterDialog: React.FC<CreateFilterDialogProps> = ({
                 setCriteria(e.target.value);
                 setCriteriaError("");
               }}
-              className="min-h-[100px] bg-slate-900/70 border-blue-500/20"
+              className={cn(components.input.base, "min-h-[100px] resize-none")}
             />
             {criteriaError && (
-              <p className="text-sm text-red-400">{criteriaError}</p>
+              <p className={cn(typography.tiny, "text-red-400")}>
+                {criteriaError}
+              </p>
             )}
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="category">Категория</Label>
+            <Label htmlFor="category" className={typography.small}>
+              Категория
+            </Label>
             <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger
-                id="category"
-                className="bg-slate-900/70 border-blue-500/20"
-              >
+              <SelectTrigger id="category" className={components.input.base}>
                 <SelectValue placeholder="Выберите категорию" />
               </SelectTrigger>
-              <SelectContent className="bg-slate-800 border-blue-500/20">
+              <SelectContent className={cn(createCardStyle(), "bg-slate-800")}>
                 <SelectItem value="Содержание">Содержание</SelectItem>
                 <SelectItem value="Качество">Качество</SelectItem>
                 <SelectItem value="Безопасность">Безопасность</SelectItem>
@@ -154,8 +174,12 @@ const CreateFilterDialog: React.FC<CreateFilterDialogProps> = ({
 
           <div className="grid gap-2">
             <div className="flex justify-between items-center">
-              <Label htmlFor="threshold">Порог прохождения (1-10)</Label>
-              <span className="text-sm text-blue-300">{threshold}</span>
+              <Label htmlFor="threshold" className={typography.small}>
+                Порог прохождения (1-10)
+              </Label>
+              <span className={cn(typography.small, "text-blue-300")}>
+                {threshold}
+              </span>
             </div>
             <Slider
               id="threshold"
@@ -164,9 +188,9 @@ const CreateFilterDialog: React.FC<CreateFilterDialogProps> = ({
               step={0.5}
               value={[threshold]}
               onValueChange={(value) => setThreshold(value[0])}
-              className="py-2"
+              className={`py-${spacing.sm}`}
             />
-            <p className="text-xs text-blue-300">
+            <p className={cn(typography.tiny, "text-blue-300")}>
               Минимальный балл для прохождения фильтра (1 - минимальный, 10 -
               максимальный)
             </p>
@@ -174,8 +198,10 @@ const CreateFilterDialog: React.FC<CreateFilterDialogProps> = ({
 
           <div className="grid gap-2">
             <div className="flex justify-between items-center">
-              <Label htmlFor="strictness">Строгость проверки (0-1)</Label>
-              <span className="text-sm text-blue-300">
+              <Label htmlFor="strictness" className={typography.small}>
+                Строгость проверки (0-1)
+              </Label>
+              <span className={cn(typography.small, "text-blue-300")}>
                 {strictness.toFixed(1)}
               </span>
             </div>
@@ -186,9 +212,9 @@ const CreateFilterDialog: React.FC<CreateFilterDialogProps> = ({
               step={0.1}
               value={[strictness]}
               onValueChange={(value) => setStrictness(value[0])}
-              className="py-2"
+              className={`py-${spacing.sm}`}
             />
-            <p className="text-xs text-blue-300">
+            <p className={cn(typography.tiny, "text-blue-300")}>
               Строгость проверки (0 - более снисходительно, 1 - максимально
               строго)
             </p>
@@ -199,14 +225,14 @@ const CreateFilterDialog: React.FC<CreateFilterDialogProps> = ({
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
-            className="border-blue-500/20 text-blue-300"
+            className={components.button.secondary}
             disabled={isCreating}
           >
             Отмена
           </Button>
           <Button
             onClick={handleSubmit}
-            className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600"
+            className={createButtonStyle("primary")}
             disabled={isCreating}
           >
             {isCreating ? (

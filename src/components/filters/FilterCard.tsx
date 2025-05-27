@@ -17,6 +17,14 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  createCardStyle,
+  createBadgeStyle,
+  typography,
+  spacing,
+  animations,
+  components,
+} from "@/lib/design-system";
 
 interface FilterCardProps {
   filter: Filter;
@@ -49,21 +57,23 @@ const FilterCard: React.FC<FilterCardProps> = ({
   return (
     <Card
       className={cn(
-        "transition-all duration-200 border hover:border-blue-500/30",
+        createCardStyle(),
+        "transition-all duration-200 cursor-pointer",
         selected
-          ? "bg-blue-500/10 border-blue-500/50"
-          : "bg-slate-800/40 border-slate-700/50",
+          ? "border-blue-500/50 bg-blue-500/10"
+          : "border-slate-700/50 hover:border-blue-500/30",
+        animations.scaleIn,
       )}
       onClick={handleClick}
     >
-      <CardContent className="p-4">
+      <CardContent className={`p-${spacing.md}`}>
         <div className="flex justify-between items-start">
           <div className="flex items-center space-x-2">
             {/* Category Tag */}
             <div
               className={cn(
-                "px-2 py-0.5 rounded-full text-xs",
-                getCategoryColor(filter.category),
+                createBadgeStyle(getCategoryVariant(filter.category)),
+                "text-xs",
               )}
             >
               {filter.category || "Общий"}
@@ -71,7 +81,7 @@ const FilterCard: React.FC<FilterCardProps> = ({
 
             {/* Custom filter badge */}
             {filter.is_custom && (
-              <div className="px-2 py-0.5 rounded-full text-xs bg-blue-500/10 text-blue-400 border border-blue-500/20">
+              <div className={cn(createBadgeStyle("primary"), "text-xs")}>
                 Свой
               </div>
             )}
@@ -81,17 +91,32 @@ const FilterCard: React.FC<FilterCardProps> = ({
           {selected && <CheckCircle2 size={18} className="text-blue-400" />}
         </div>
 
-        <h3 className="text-base font-medium mt-3 mb-1">{filter.name}</h3>
+        <h3 className={cn(typography.h4, `mt-${spacing.sm} mb-1`)}>
+          {filter.name}
+        </h3>
 
-        <p className="text-sm text-gray-400 line-clamp-2">{filter.criteria}</p>
+        <p
+          className={cn(
+            typography.small,
+            "text-gray-400 line-clamp-2",
+            `mb-${spacing.sm}`,
+          )}
+        >
+          {filter.criteria}
+        </p>
 
         {showActions && (
-          <div className="flex justify-between items-center mt-3">
+          <div className="flex justify-between items-center">
             <div className="flex items-center space-x-2">
               {filter.threshold && (
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <div className="flex items-center text-xs text-blue-300">
+                    <div
+                      className={cn(
+                        typography.tiny,
+                        "text-blue-300 flex items-center",
+                      )}
+                    >
                       <Info size={12} className="mr-1" />
                       <span>Порог: {filter.threshold}</span>
                     </div>
@@ -108,7 +133,7 @@ const FilterCard: React.FC<FilterCardProps> = ({
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-8 w-8 p-0 text-red-400 hover:text-red-300 hover:bg-red-400/10"
+                className={cn(components.button.danger, "h-8 w-8 p-0")}
                 onClick={handleDelete}
               >
                 <Trash2 size={14} />
@@ -121,23 +146,24 @@ const FilterCard: React.FC<FilterCardProps> = ({
   );
 };
 
-// Helper function to get color based on category
-const getCategoryColor = (category?: string): string => {
-  if (!category) return "bg-slate-500/20 text-slate-300";
+// Helper function to get badge variant based on category
+const getCategoryVariant = (
+  category?: string,
+): "primary" | "success" | "warning" | "error" => {
+  if (!category) return "primary";
 
-  const categoryColors: Record<string, string> = {
-    Содержание:
-      "bg-emerald-500/20 text-emerald-400 border border-emerald-500/20",
-    Качество: "bg-blue-500/20 text-blue-400 border border-blue-500/20",
-    Безопасность: "bg-red-500/20 text-red-400 border border-red-500/20",
-    Вовлеченность: "bg-amber-500/20 text-amber-400 border border-amber-500/20",
-    Рост: "bg-purple-500/20 text-purple-400 border border-purple-500/20",
+  const categoryVariants: Record<
+    string,
+    "primary" | "success" | "warning" | "error"
+  > = {
+    Содержание: "success",
+    Качество: "primary",
+    Безопасность: "error",
+    Вовлеченность: "warning",
+    Рост: "primary",
   };
 
-  return (
-    categoryColors[category] ||
-    "bg-slate-500/20 text-slate-300 border border-slate-500/20"
-  );
+  return categoryVariants[category] || "primary";
 };
 
 export default FilterCard;

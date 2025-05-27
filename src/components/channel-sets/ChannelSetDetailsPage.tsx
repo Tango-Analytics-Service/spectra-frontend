@@ -54,6 +54,15 @@ import {
 } from "@/types/channel-sets";
 import ChannelsList from "./ChannelsList";
 import AddChannelsDialog from "./AddChannelsDialog";
+import {
+  createCardStyle,
+  createButtonStyle,
+  createBadgeStyle,
+  typography,
+  spacing,
+  components,
+  animations,
+} from "@/lib/design-system";
 
 const ChannelSetDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -192,12 +201,22 @@ const ChannelSetDetailsPage: React.FC = () => {
   // Render loading state
   if (isLoading) {
     return (
-      <div className="container mx-auto py-6 px-4 max-w-5xl">
-        <div className="flex items-center mb-6">
+      <div
+        className={cn(
+          "container mx-auto",
+          `py-${spacing.lg} px-${spacing.md}`,
+          "max-w-5xl",
+        )}
+      >
+        <div className={cn("flex items-center", `mb-${spacing.lg}`)}>
           <Button
             variant="ghost"
             size="sm"
-            className="mr-2 text-blue-400"
+            className={cn(
+              createButtonStyle("ghost"),
+              `mr-${spacing.sm}`,
+              "text-blue-400",
+            )}
             onClick={() => navigate("/")}
           >
             <ChevronLeft size={16} className="mr-1" />
@@ -206,11 +225,11 @@ const ChannelSetDetailsPage: React.FC = () => {
           <Skeleton className="h-8 w-40" />
         </div>
 
-        <div className="mb-6">
+        <div className={`mb-${spacing.lg}`}>
           <Skeleton className="h-48 w-full rounded-lg" />
         </div>
 
-        <Skeleton className="h-10 w-full mb-4" />
+        <Skeleton className={cn("h-10 w-full", `mb-${spacing.md}`)} />
         <Skeleton className="h-[400px] w-full rounded-lg" />
       </div>
     );
@@ -219,27 +238,47 @@ const ChannelSetDetailsPage: React.FC = () => {
   // Render when no channel set found
   if (!channelSet) {
     return (
-      <div className="container mx-auto py-6 px-4 max-w-5xl">
-        <div className="flex items-center mb-6">
+      <div
+        className={cn(
+          "container mx-auto",
+          `py-${spacing.lg} px-${spacing.md}`,
+          "max-w-5xl",
+        )}
+      >
+        <div className={cn("flex items-center", `mb-${spacing.lg}`)}>
           <Button
             variant="ghost"
             size="sm"
-            className="mr-2 text-blue-400"
+            className={cn(
+              createButtonStyle("ghost"),
+              `mr-${spacing.sm}`,
+              "text-blue-400",
+            )}
             onClick={() => navigate("/")}
           >
             <ChevronLeft size={16} className="mr-1" />
             Назад
           </Button>
-          <h1 className="text-xl sm:text-2xl font-semibold">Набор не найден</h1>
+          <h1 className={cn(typography.h2, "font-semibold")}>
+            Набор не найден
+          </h1>
         </div>
 
-        <Card className="bg-slate-800/50 border border-blue-500/20 text-white p-6">
+        <Card className={cn(createCardStyle(), `p-${spacing.lg}`)}>
           <div className="text-center py-12">
-            <AlertCircle className="mx-auto h-12 w-12 text-amber-400 mb-4" />
-            <p className="text-lg mb-4">
+            <AlertCircle
+              className={cn(
+                "mx-auto h-12 w-12 text-amber-400",
+                `mb-${spacing.md}`,
+              )}
+            />
+            <p className={cn(typography.h3, `mb-${spacing.md}`)}>
               Набор каналов не найден или был удален
             </p>
-            <Button onClick={() => navigate("/")}>
+            <Button
+              onClick={() => navigate("/")}
+              className={createButtonStyle("primary")}
+            >
               Вернуться к списку наборов
             </Button>
           </div>
@@ -250,14 +289,30 @@ const ChannelSetDetailsPage: React.FC = () => {
 
   // Main content render
   return (
-    <div className="container mx-auto py-6 px-4 max-w-5xl">
+    <div
+      className={cn(
+        "container mx-auto",
+        `py-${spacing.lg} px-${spacing.md}`,
+        "max-w-5xl",
+        animations.fadeIn,
+      )}
+    >
       {/* Header with back button and actions */}
-      <div className="flex flex-wrap items-center justify-between mb-6 gap-4">
+      <div
+        className={cn(
+          "flex flex-wrap items-center justify-between",
+          `mb-${spacing.lg} gap-${spacing.md}`,
+        )}
+      >
         <div className="flex items-center">
           <Button
             variant="ghost"
             size="sm"
-            className="mr-2 text-blue-400"
+            className={cn(
+              createButtonStyle("ghost"),
+              `mr-${spacing.sm}`,
+              "text-blue-400",
+            )}
             onClick={() => navigate("/")}
           >
             <ChevronLeft size={16} className="mr-1" />
@@ -271,12 +326,15 @@ const ChannelSetDetailsPage: React.FC = () => {
                 onChange={(e) =>
                   setEditForm((prev) => ({ ...prev, name: e.target.value }))
                 }
-                className="w-72 mr-2 bg-slate-900 border-blue-500/20"
+                className={cn(components.input.base, `w-72 mr-${spacing.sm}`)}
               />
               <Button
                 variant="ghost"
                 size="sm"
-                className="mr-1 text-green-400 hover:text-green-300 hover:bg-green-400/10"
+                className={cn(
+                  createButtonStyle("ghost"),
+                  "mr-1 text-green-400 hover:text-green-300 hover:bg-green-400/10",
+                )}
                 onClick={handleSaveEditing}
               >
                 <Save size={16} className="mr-1" />
@@ -285,7 +343,10 @@ const ChannelSetDetailsPage: React.FC = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-red-400 hover:text-red-300 hover:bg-red-400/10"
+                className={cn(
+                  createButtonStyle("ghost"),
+                  "text-red-400 hover:text-red-300 hover:bg-red-400/10",
+                )}
                 onClick={handleCancelEditing}
               >
                 <X size={16} className="mr-1" />
@@ -293,12 +354,12 @@ const ChannelSetDetailsPage: React.FC = () => {
               </Button>
             </div>
           ) : (
-            <h1 className="text-xl sm:text-2xl font-semibold flex items-center">
+            <h1 className={cn(typography.h1, "flex items-center")}>
               {channelSet.name}
               {channelSet.is_predefined && (
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Star size={16} className="ml-2 text-yellow-400" />
+                    <Star size={16} className={cn("ml-2 text-yellow-400")} />
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>Предустановленный набор</p>
@@ -308,7 +369,7 @@ const ChannelSetDetailsPage: React.FC = () => {
               {channelSet.is_public ? (
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Globe size={16} className="ml-2 text-blue-400" />
+                    <Globe size={16} className={cn("ml-2 text-blue-400")} />
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>Публичный набор</p>
@@ -317,7 +378,7 @@ const ChannelSetDetailsPage: React.FC = () => {
               ) : (
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Lock size={16} className="ml-2 text-gray-400" />
+                    <Lock size={16} className={cn("ml-2 text-gray-400")} />
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>Приватный набор</p>
@@ -328,11 +389,11 @@ const ChannelSetDetailsPage: React.FC = () => {
           )}
         </div>
 
-        <div className="flex items-center space-x-2">
+        <div className={cn("flex items-center", `space-x-${spacing.sm}`)}>
           <Button
             variant="outline"
             size="sm"
-            className="border-blue-500/20 text-blue-300"
+            className={createButtonStyle("secondary")}
             onClick={handleRefresh}
             disabled={isRefreshing}
           >
@@ -349,7 +410,7 @@ const ChannelSetDetailsPage: React.FC = () => {
               <Button
                 variant="outline"
                 size="sm"
-                className="border-blue-500/20 text-blue-300"
+                className={createButtonStyle("secondary")}
                 onClick={handleStartEditing}
               >
                 <Edit size={16} className="mr-1" />
@@ -359,7 +420,7 @@ const ChannelSetDetailsPage: React.FC = () => {
               <Button
                 variant="outline"
                 size="sm"
-                className="border-red-500/20 text-red-300 hover:bg-red-500/10"
+                className={cn(createButtonStyle("danger"))}
                 onClick={() => setShowDeleteDialog(true)}
               >
                 <Trash2 size={16} className="mr-1" />
@@ -372,7 +433,7 @@ const ChannelSetDetailsPage: React.FC = () => {
             <Button
               variant="outline"
               size="sm"
-              className="border-blue-500/20 text-blue-300"
+              className={createButtonStyle("secondary")}
             >
               <Share2 size={16} className="mr-1" />
               Поделиться
@@ -382,11 +443,11 @@ const ChannelSetDetailsPage: React.FC = () => {
       </div>
 
       {/* Channel set info card */}
-      <Card className="bg-slate-800/50 border border-blue-500/20 text-white mb-6">
-        <CardContent className="p-4">
+      <Card className={cn(createCardStyle(), `mb-${spacing.lg}`)}>
+        <CardContent className={`p-${spacing.md}`}>
           {isEditing ? (
-            <div className="space-y-4 py-2">
-              <div className="space-y-2">
+            <div className={cn(`space-y-${spacing.md} py-${spacing.sm}`)}>
+              <div className={`space-y-${spacing.sm}`}>
                 <Label htmlFor="description">Описание</Label>
                 <Input
                   id="description"
@@ -397,11 +458,11 @@ const ChannelSetDetailsPage: React.FC = () => {
                       description: e.target.value,
                     }))
                   }
-                  className="bg-slate-900 border-blue-500/20"
+                  className={components.input.base}
                 />
               </div>
 
-              <div className="flex items-center space-x-2">
+              <div className={cn("flex items-center", `space-x-${spacing.sm}`)}>
                 <Switch
                   id="is-public"
                   checked={editForm.is_public}
@@ -415,9 +476,18 @@ const ChannelSetDetailsPage: React.FC = () => {
             </div>
           ) : (
             <>
-              <p className="mb-3 text-gray-300">{channelSet.description}</p>
+              <p className={cn(`mb-${spacing.sm}`, "text-gray-300")}>
+                {channelSet.description}
+              </p>
 
-              <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-gray-400">
+              <div
+                className={cn(
+                  "flex flex-wrap items-center",
+                  `gap-x-${spacing.lg} gap-y-${spacing.sm}`,
+                  typography.small,
+                  "text-gray-400",
+                )}
+              >
                 <div className="flex items-center">
                   <Calendar size={14} className="mr-1" />
                   <span>
@@ -457,40 +527,47 @@ const ChannelSetDetailsPage: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Tabs for channels/stats/settings */}
+      {/* Tabs for channels/settings */}
       <Tabs
         defaultValue="channels"
         value={activeTab}
         onValueChange={setActiveTab}
-        className="mb-6"
+        className={`mb-${spacing.lg}`}
       >
         <TabsList className="bg-slate-800">
           <TabsTrigger
             value="channels"
             className="data-[state=active]:bg-blue-500"
           >
-            <Users size={16} className="mr-2" />
+            <Users size={16} className={`mr-${spacing.sm}`} />
             Каналы
           </TabsTrigger>
           <TabsTrigger
             value="settings"
             className="data-[state=active]:bg-blue-500"
           >
-            <Settings size={16} className="mr-2" />
+            <Settings size={16} className={`mr-${spacing.sm}`} />
             Настройки
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="analysis" className="mt-4">
+        <TabsContent value="analysis" className={`mt-${spacing.md}`}>
           <AnalysisTab channelSet={channelSet} />
         </TabsContent>
 
-        <TabsContent value="channels" className="mt-4">
-          <div className="flex justify-between items-center mb-4">
-            <div className="text-lg font-medium">Каналы в наборе</div>
+        <TabsContent value="channels" className={`mt-${spacing.md}`}>
+          <div
+            className={cn(
+              "flex justify-between items-center",
+              `mb-${spacing.md}`,
+            )}
+          >
+            <div className={cn(typography.h3, "font-medium")}>
+              Каналы в наборе
+            </div>
             <Button
               onClick={() => setShowAddChannelsDialog(true)}
-              className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600"
+              className={createButtonStyle("primary")}
             >
               <Plus size={16} className="mr-1" />
               Добавить каналы
@@ -500,15 +577,21 @@ const ChannelSetDetailsPage: React.FC = () => {
           <ChannelsList channels={channelSet.channels} setId={channelSet.id} />
         </TabsContent>
 
-        <TabsContent value="settings" className="mt-4">
-          <Card className="bg-slate-800/50 border border-blue-500/20 text-white">
+        <TabsContent value="settings" className={`mt-${spacing.md}`}>
+          <Card className={createCardStyle()}>
             <CardHeader>
-              <CardTitle className="text-lg font-medium">
+              <CardTitle className={cn(typography.h3, "font-medium")}>
                 Настройки набора
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-gray-400 mb-4">
+              <p
+                className={cn(
+                  typography.small,
+                  "text-gray-400",
+                  `mb-${spacing.md}`,
+                )}
+              >
                 Здесь будут дополнительные настройки набора каналов
               </p>
             </CardContent>
@@ -518,9 +601,9 @@ const ChannelSetDetailsPage: React.FC = () => {
 
       {/* Delete confirmation dialog */}
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <DialogContent className="bg-slate-800 border border-blue-500/20 text-white">
+        <DialogContent className={createCardStyle()}>
           <DialogHeader>
-            <DialogTitle>Удаление набора</DialogTitle>
+            <DialogTitle className={typography.h3}>Удаление набора</DialogTitle>
             <DialogDescription className="text-blue-300">
               Вы уверены, что хотите удалить набор каналов "{channelSet.name}"?
               Это действие нельзя отменить.
@@ -531,7 +614,7 @@ const ChannelSetDetailsPage: React.FC = () => {
             <Button
               variant="outline"
               onClick={() => setShowDeleteDialog(false)}
-              className="border-blue-500/20 text-blue-300"
+              className={createButtonStyle("secondary")}
               disabled={isDeleting}
             >
               Отмена
@@ -540,6 +623,7 @@ const ChannelSetDetailsPage: React.FC = () => {
               variant="destructive"
               onClick={handleDeleteSet}
               disabled={isDeleting}
+              className={createButtonStyle("danger")}
             >
               {isDeleting ? (
                 <>
@@ -589,10 +673,10 @@ const Badge = ({
 
   switch (variant) {
     case "success":
-      variantClasses = "bg-green-500/10 text-green-400 border-green-500/20";
+      variantClasses = createBadgeStyle("success");
       break;
     case "warning":
-      variantClasses = "bg-amber-500/10 text-amber-400 border-amber-500/20";
+      variantClasses = createBadgeStyle("warning");
       break;
     default:
       variantClasses = "";
