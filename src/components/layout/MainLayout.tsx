@@ -11,6 +11,7 @@ import {
   spacing,
   animations,
 } from "@/lib/design-system";
+import AppHeader from "../common/AppHeader";
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -49,6 +50,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           <rect width="100%" height="100%" fill="url(#grid)" />
         </svg>
       </div>
+
+      {/* App Header */}
+      <AppHeader />
 
       {/* Основной контент */}
       <div className={cn("flex-1 pb-[70px]", animations.fadeIn)}>

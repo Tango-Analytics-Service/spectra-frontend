@@ -146,6 +146,7 @@ export const gradients = {
   success: "bg-gradient-to-r from-green-500 to-green-600",
   warning: "bg-gradient-to-r from-amber-500 to-amber-600",
   error: "bg-gradient-to-r from-red-500 to-red-600",
+  logo: "bg-gradient-to-r from-blue-400 to-blue-300",
 } as const;
 
 // Стили компонентов (РАСШИРЕННЫЕ)
