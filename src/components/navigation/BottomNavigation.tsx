@@ -81,7 +81,7 @@ const BottomNavigation: React.FC = () => {
           to="/filters"
           icon={<Search size={18} />}
           label="Фильтры"
-          active={currentPath.startsWith("/credit")}
+          active={currentPath.startsWith("/filters")}
         />
         <NavItem
           to="/credits"
