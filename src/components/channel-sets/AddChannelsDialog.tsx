@@ -498,7 +498,7 @@ const AddChannelsDialog: React.FC<AddChannelsDialogProps> = ({
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
-            className={createButtonStyle("secondary")}
+            className={cn(createButtonStyle("secondary"), `mt-${spacing.sm}`)}
             disabled={isAdding}
           >
             Отмена

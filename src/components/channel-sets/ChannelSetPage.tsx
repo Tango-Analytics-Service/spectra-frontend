@@ -1,10 +1,8 @@
 // src/components/channel-sets/ChannelSetPage.tsx
 import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { Search, Filter, LayoutGrid, List, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Search, Plus, LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Toggle } from "@/components/ui/toggle";
 import { Input } from "@/components/ui/input";
 import {
   Dialog,
@@ -18,67 +16,52 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "@/components/ui/use-toast";
 import { useChannelSets } from "@/contexts/ChannelSetsContext";
-import ChannelSetsList from "./ChannelSetsList";
-import ChannelSetDetails from "./ChannelSetDetails";
-import { LoadingCard, LoadingSpinner } from "@/components/ui/loading";
+import ChannelSetCard from "./ChannelSetCard";
+import AnalysisConfirmDialog from "./AnalysisConfirmDialog";
+import AddChannelsDialog from "./AddChannelsDialog";
+import { LoadingCard } from "@/components/ui/loading";
 import {
   createButtonStyle,
+  createCardStyle,
+  createTextStyle,
   spacing,
   typography,
   gradients,
   components,
-  createCardStyle,
-  colors,
-  radius,
-  shadows,
+  textColors,
   animations,
-  createBadgeStyle,
 } from "@/lib/design-system";
 import { cn } from "@/lib/utils";
+import { ChannelSet } from "@/types/channel-sets";
 
 const ChannelSetPage = () => {
   const navigate = useNavigate();
   const {
     channelSets,
     isLoading,
-    totalSets,
-    totalChannels,
     fetchChannelSets,
-    getChannelSet,
     createChannelSet,
   } = useChannelSets();
 
-  // Local state
-  const [selectedSetId, setSelectedSetId] = useState("");
-  const [currentSet, setCurrentSet] = useState(undefined);
-  const [detailsLoading, setDetailsLoading] = useState(false);
-  const [createLoading, setCreateLoading] = useState(false);
-  const [viewMode, setViewMode] = useState("grid");
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  // Состояния
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredSets, setFilteredSets] = useState([]);
+  const [filteredSets, setFilteredSets] = useState<ChannelSet[]>([]);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [createLoading, setCreateLoading] = useState(false);
+  const [analysisDialogOpen, setAnalysisDialogOpen] = useState(false);
+  const [selectedSetForAnalysis, setSelectedSetForAnalysis] = useState<ChannelSet>();
+  const [addChannelsDialogOpen, setAddChannelsDialogOpen] = useState(false);
+  const [selectedSetForChannels, setSelectedSetForChannels] = useState("");
 
-  // Form state
+  // Форма создания набора
   const [newSetName, setNewSetName] = useState("");
   const [newSetDescription, setNewSetDescription] = useState("");
   const [newSetIsPublic, setNewSetIsPublic] = useState(false);
 
-  // Effects
+  // Эффекты
   useEffect(() => {
     fetchChannelSets();
   }, [fetchChannelSets]);
-
-  useEffect(() => {
-    if (channelSets.length > 0 && !selectedSetId) {
-      setSelectedSetId(channelSets[0].id);
-    }
-  }, [channelSets, selectedSetId]);
-
-  useEffect(() => {
-    if (selectedSetId) {
-      loadChannelSetDetails(selectedSetId);
-    }
-  }, [selectedSetId]);
 
   useEffect(() => {
     if (!searchQuery.trim()) {
@@ -90,21 +73,12 @@ const ChannelSetPage = () => {
     const filtered = channelSets.filter(
       (set) =>
         set.name.toLowerCase().includes(query) ||
-        set.description.toLowerCase().includes(query),
+        set.description.toLowerCase().includes(query)
     );
     setFilteredSets(filtered);
   }, [searchQuery, channelSets]);
 
-  const loadChannelSetDetails = async (id) => {
-    setDetailsLoading(true);
-    try {
-      const set = await getChannelSet(id);
-      setCurrentSet(set);
-    } finally {
-      setDetailsLoading(false);
-    }
-  };
-
+  // Обработчики
   const handleCreateNewSet = async () => {
     if (!newSetName.trim()) {
       toast({
@@ -126,31 +100,49 @@ const ChannelSetPage = () => {
       const newSet = await createChannelSet(data);
 
       if (newSet) {
-        setSelectedSetId(newSet.id);
         setNewSetName("");
         setNewSetDescription("");
         setNewSetIsPublic(false);
         setIsCreateModalOpen(false);
+        
+        toast({
+          title: "Успешно",
+          description: "Набор каналов создан",
+        });
       }
     } finally {
       setCreateLoading(false);
     }
   };
 
-  const handleViewDetails = (setId) => {
+  const handleAnalyze = (setId: string) => {
+    const set = channelSets.find(s => s.id === setId);
+    if (set) {
+      setSelectedSetForAnalysis(set);
+      setAnalysisDialogOpen(true);
+    }
+  };
+
+  const handleConfirmAnalysis = async (setId: string) => {
+    // TODO: Реализовать создание задачи анализа
+    console.log("Starting analysis for set:", setId);
+    
+    // Имитация API вызова
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    toast({
+      title: "Анализ запущен",
+      description: "Задача создана и поставлена в очередь",
+    });
+  };
+
+  const handleViewDetails = (setId: string) => {
     navigate(`/channel-sets/${setId}`);
   };
 
-  const handleShareSet = (setId) => {
-    console.log("Share set:", setId);
-  };
-
-  const handleEditSet = (setId) => {
-    navigate(`/channel-sets/${setId}`);
-  };
-
-  const handleAnalyzeSet = async (setId) => {
-    console.log("Analyze set:", setId);
+  const handleAddChannels = (setId: string) => {
+    setSelectedSetForChannels(setId);
+    setAddChannelsDialogOpen(true);
   };
 
   return (
@@ -158,32 +150,27 @@ const ChannelSetPage = () => {
       className={cn(
         "flex flex-col w-full min-h-screen",
         gradients.background,
-        "text-white",
+        "text-white"
       )}
     >
       <main
         className={cn(
           "flex-1 overflow-hidden flex flex-col",
           `px-${spacing.md} sm:px-${spacing.lg}`,
-          `pb-${spacing.md} sm:pb-${spacing.lg}`,
+          `pb-${spacing.md} sm:pb-${spacing.lg}`
         )}
       >
-        {/* Title */}
+        {/* Заголовок */}
         <div className={`mt-${spacing.sm} sm:mt-${spacing.md}`}>
           <h1 className={typography.h1}>Наборы каналов</h1>
-          <p className={cn(typography.small, "text-blue-300 mt-1")}>
+          <p className={cn(createTextStyle("small", "secondary"), "mt-1")}>
             Управляйте группами каналов для аналитики
           </p>
         </div>
 
-        {/* Search and View Controls */}
-        <div
-          className={cn(
-            "flex flex-col sm:flex-row gap-3 items-center",
-            `mt-${spacing.md}`,
-          )}
-        >
-          <div className="relative flex-1">
+        {/* Поиск */}
+        <div className={`mt-${spacing.md}`}>
+          <div className="relative">
             <Search
               size={16}
               className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
@@ -195,111 +182,81 @@ const ChannelSetPage = () => {
               className={cn(components.input.base, "pl-9")}
             />
           </div>
-          <div className="flex gap-2 ml-auto">
-            <div
-              className={cn(
-                "flex p-0.5 rounded-lg",
-                "bg-slate-800/70 border border-blue-500/20",
-              )}
-            >
-              <Toggle
-                pressed={viewMode === "grid"}
-                onPressedChange={() => setViewMode("grid")}
-                className={cn(
-                  "p-1.5 rounded-md transition-colors",
-                  viewMode === "grid"
-                    ? "bg-blue-500 text-white"
-                    : "text-gray-400 hover:text-white",
-                )}
-              >
-                <LayoutGrid size={16} />
-              </Toggle>
-              <Toggle
-                pressed={viewMode === "list"}
-                onPressedChange={() => setViewMode("list")}
-                className={cn(
-                  "p-1.5 rounded-md transition-colors",
-                  viewMode === "list"
-                    ? "bg-blue-500 text-white"
-                    : "text-gray-400 hover:text-white",
-                )}
-              >
-                <List size={16} />
-              </Toggle>
-            </div>
-            <Button
-              variant="outline"
-              size="icon"
-              className={components.button.secondary}
-            >
-              <Filter size={16} />
-            </Button>
-          </div>
         </div>
 
-        {/* Create New Set Button */}
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
+        {/* Кнопка создания */}
+        <Button
           onClick={() => setIsCreateModalOpen(true)}
           className={cn(
+            createButtonStyle("primary"),
             `mt-${spacing.md}`,
-            `w-full py-${spacing.md} sm:py-${spacing.lg}`,
-            `rounded-${radius.xl}`,
-            "flex items-center justify-center",
-            "font-medium transition-all duration-200",
-            gradients.primary,
-            "hover:" + gradients.primaryHover,
-            "shadow-lg",
-            "shadow-blue-600/20 hover:shadow-blue-600/30",
-            animations.scaleIn,
+            `py-${spacing.md}`,
+            "w-full",
+            animations.scaleIn
           )}
         >
-          <Plus size={18} className="mr-2" />
-          <span>Создать новый набор</span>
-        </motion.button>
+          <Plus size={18} className={`mr-${spacing.sm}`} />
+          Создать новый набор
+        </Button>
 
-        {/* Channel Sets List */}
-        <div className={`mt-${spacing.lg} overflow-auto flex-1`}>
-          <ChannelSetsList
-            channelSets={filteredSets}
-            isLoading={isLoading}
-            selectedSetId={selectedSetId}
-            onSelectSet={setSelectedSetId}
-            onViewDetails={handleViewDetails}
-            viewMode={viewMode}
-          />
+        {/* Список наборов */}
+        <div className={`mt-${spacing.lg} flex-1`}>
+          {isLoading ? (
+            <div className="space-y-4">
+              {[1, 2, 3].map((i) => (
+                <LoadingCard key={i} text="Загрузка наборов..." />
+              ))}
+            </div>
+          ) : filteredSets.length === 0 ? (
+            <div
+              className={cn(
+                createCardStyle(),
+                "text-center",
+                `py-${spacing.xl}`,
+                animations.fadeIn
+              )}
+            >
+              <h3 className={cn(typography.h3, textColors.primary, "mb-2")}>
+                {searchQuery ? "Наборы не найдены" : "У вас пока нет наборов"}
+              </h3>
+              <p className={cn(createTextStyle("small", "muted"), "mb-4")}>
+                {searchQuery 
+                  ? "Попробуйте изменить поисковый запрос"
+                  : "Создайте первый набор каналов для анализа"
+                }
+              </p>
+              {!searchQuery && (
+                <Button
+                  onClick={() => setIsCreateModalOpen(true)}
+                  className={createButtonStyle("primary")}
+                >
+                  <Plus size={16} className={`mr-${spacing.sm}`} />
+                  Создать набор
+                </Button>
+              )}
+            </div>
+          ) : (
+            <div className={cn(`space-y-${spacing.md}`, animations.fadeIn)}>
+              {filteredSets.map((set) => (
+                <ChannelSetCard
+                  key={set.id}
+                  channelSet={set}
+                  onAnalyze={handleAnalyze}
+                  onViewDetails={handleViewDetails}
+                  onAddChannels={handleAddChannels}
+                />
+              ))}
+            </div>
+          )}
         </div>
-
-        {/* Selected Set Details */}
-        {selectedSetId && (
-          <div className={`mt-${spacing.md}`}>
-            {detailsLoading ? (
-              <LoadingCard text="Загрузка информации о наборе..." />
-            ) : currentSet ? (
-              <ChannelSetDetails
-                selectedSet={currentSet}
-                onShare={handleShareSet}
-                onEdit={handleEditSet}
-                onAnalyze={handleAnalyzeSet}
-              />
-            ) : (
-              <div className={cn(createCardStyle(), "p-6 text-center")}>
-                Выберите набор для просмотра деталей
-              </div>
-            )}
-          </div>
-        )}
       </main>
 
-      {/* Create Set Modal */}
+      {/* Диалог создания набора */}
       <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
-        <DialogContent className="bg-slate-800 border border-blue-500/20 text-white">
+        <DialogContent className={createCardStyle()}>
           <DialogHeader>
-            <DialogTitle className={typography.h3}>
-              Создать новый набор
-            </DialogTitle>
-            <DialogDescription className="text-blue-300">
+            <DialogTitle className={typography.h3}>Создать новый набор</DialogTitle>
+            <DialogDescription className={textColors.secondary}>
               Создайте набор каналов для анализа и мониторинга
             </DialogDescription>
           </DialogHeader>
@@ -341,7 +298,7 @@ const ChannelSetPage = () => {
             <Button
               variant="outline"
               onClick={() => setIsCreateModalOpen(false)}
-              className={components.button.secondary}
+              className={createButtonStyle("secondary")}
               disabled={createLoading}
             >
               Отмена
@@ -353,7 +310,10 @@ const ChannelSetPage = () => {
             >
               {createLoading ? (
                 <>
-                  <LoadingSpinner size="sm" className="mr-2" />
+                  <LoaderCircle
+                    size={16}
+                    className={`mr-${spacing.sm} animate-spin`}
+                  />
                   Создание...
                 </>
               ) : (
@@ -363,6 +323,21 @@ const ChannelSetPage = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Диалог подтверждения анализа */}
+      <AnalysisConfirmDialog
+        open={analysisDialogOpen}
+        onOpenChange={setAnalysisDialogOpen}
+        channelSet={selectedSetForAnalysis}
+        onConfirm={handleConfirmAnalysis}
+      />
+
+      {/* Диалог добавления каналов */}
+      <AddChannelsDialog
+        open={addChannelsDialogOpen}
+        onOpenChange={setAddChannelsDialogOpen}
+        setId={selectedSetForChannels}
+      />
     </div>
   );
 };

@@ -2,34 +2,29 @@
 import React, { useState, useEffect, useMemo } from "react";
 import {
   CheckCircle2,
-  XCircle,
-  AlertCircle,
   HourglassIcon,
   Trash2,
   ExternalLink,
-  ArrowUpDown,
+  ChevronUp,
+  ChevronDown,
   SearchIcon,
-  MessageSquare,
   Users,
-  Eye,
-  Star,
-  CalendarClock,
+  AlertCircle,
+  LoaderCircle,
+  MoreHorizontal,
   BarChart2,
-  Share2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   components,
-  gradients,
   typography,
   spacing,
   createCardStyle,
   createButtonStyle,
-  colors,
-  radius,
-  shadows,
-  animations,
   createBadgeStyle,
+  animations,
+  createTextStyle,
+  textColors,
 } from "@/lib/design-system";
 import {
   Table,
@@ -47,7 +42,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -169,7 +163,17 @@ const ChannelsList: React.FC<ChannelsListProps> = ({ channels, setId }) => {
       const result = await removeChannelsFromSet(setId, [channelToDelete]);
       if (result.success) {
         setShowDeleteDialog(false);
+        toast({
+          title: "Успешно",
+          description: "Канал удален из набора",
+        });
       }
+    } catch (error) {
+      toast({
+        title: "Ошибка",
+        description: "Не удалось удалить канал",
+        variant: "destructive",
+      });
     } finally {
       setIsDeleting(false);
     }
@@ -177,9 +181,9 @@ const ChannelsList: React.FC<ChannelsListProps> = ({ channels, setId }) => {
 
   const getStatusIcon = (isParsed: boolean) => {
     if (isParsed) {
-      return <CheckCircle2 size={16} className="text-green-400" />;
+      return <CheckCircle2 size={16} className={textColors.success} />;
     } else {
-      return <HourglassIcon size={16} className="text-amber-400" />;
+      return <HourglassIcon size={16} className={textColors.warning} />;
     }
   };
 
@@ -204,12 +208,14 @@ const ChannelsList: React.FC<ChannelsListProps> = ({ channels, setId }) => {
         )}
       >
         <div className="flex flex-col items-center justify-center">
-          <Users size={48} className="text-blue-400/50 mb-4" />
-          <h3 className={cn(typography.h3, "mb-2")}>Нет каналов в наборе</h3>
-          <p className={cn(typography.small, "text-gray-400 mb-4")}>
+          <Users size={48} className={cn(textColors.accent, "opacity-50 mb-4")} />
+          <h3 className={cn(typography.h3, textColors.primary, "mb-2")}>
+            Нет каналов в наборе
+          </h3>
+          <p className={cn(createTextStyle("small", "muted"), "mb-4")}>
             Добавьте каналы в этот набор, чтобы начать работу
           </p>
-          <Button onClick={() => {}} className={createButtonStyle("primary")}>
+          <Button className={createButtonStyle("primary")}>
             Добавить каналы
           </Button>
         </div>
@@ -229,7 +235,10 @@ const ChannelsList: React.FC<ChannelsListProps> = ({ channels, setId }) => {
         <div className="relative flex-1">
           <SearchIcon
             size={16}
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+            className={cn(
+              "absolute left-3 top-1/2 transform -translate-y-1/2",
+              textColors.muted
+            )}
           />
           <Input
             placeholder="Поиск по @username"
@@ -249,7 +258,7 @@ const ChannelsList: React.FC<ChannelsListProps> = ({ channels, setId }) => {
             className={
               filters.status === "all"
                 ? createButtonStyle("primary")
-                : components.button.secondary
+                : createButtonStyle("secondary")
             }
           >
             Все
@@ -262,11 +271,11 @@ const ChannelsList: React.FC<ChannelsListProps> = ({ channels, setId }) => {
             }
             className={
               filters.status === "parsed"
-                ? "bg-green-600 hover:bg-green-700"
-                : components.button.secondary
+                ? createButtonStyle("success")
+                : createButtonStyle("secondary")
             }
           >
-            <CheckCircle2 size={14} className="mr-1" />
+            <CheckCircle2 size={14} className={`mr-${spacing.sm}`} />
             Обработанные
           </Button>
           <Button
@@ -277,11 +286,12 @@ const ChannelsList: React.FC<ChannelsListProps> = ({ channels, setId }) => {
             }
             className={
               filters.status === "unparsed"
-                ? "bg-amber-600 hover:bg-amber-700"
-                : components.button.secondary
+                ? createButtonStyle("warning")
+                : createButtonStyle("secondary")
             }
           >
-            <HourglassIcon size={14} className="mr-1" />В процессе
+            <HourglassIcon size={14} className={`mr-${spacing.sm}`} />
+            В процессе
           </Button>
         </div>
       </div>
@@ -289,8 +299,8 @@ const ChannelsList: React.FC<ChannelsListProps> = ({ channels, setId }) => {
       {/* Results summary */}
       <div
         className={cn(
-          "flex justify-between items-center mb-3 text-gray-400",
-          typography.small,
+          "flex justify-between items-center mb-3",
+          createTextStyle("small", "muted")
         )}
       >
         <div>
@@ -302,69 +312,97 @@ const ChannelsList: React.FC<ChannelsListProps> = ({ channels, setId }) => {
       {/* Channels table */}
       <div
         className={cn(
-          "border border-blue-500/20 rounded-lg overflow-hidden",
           createCardStyle(),
+          "border overflow-hidden"
         )}
       >
-        <ScrollArea className="h-[600px]">
+        <div className="max-h-96 sm:max-h-[500px] overflow-auto">
           <Table>
-            <TableHeader className="bg-slate-800/70 sticky top-0 z-10">
+            <TableHeader className={cn(
+              components.table.header,
+              "sticky top-0 z-10"
+            )}>
               <TableRow>
-                <TableHead className="w-[40px]">№</TableHead>
                 <TableHead
-                  className="w-[200px] cursor-pointer hover:text-blue-300"
+                  className={cn(
+                    "w-[200px] cursor-pointer",
+                    textColors.muted,
+                    "hover:" + textColors.accent
+                  )}
                   onClick={() => handleSort("username")}
                 >
                   <div className="flex items-center">
                     Канал
                     {sortConfig.field === "username" && (
-                      <ArrowUpDown size={14} className="ml-1" />
+                      sortConfig.direction === "asc" ? (
+                        <ChevronUp size={14} className={`ml-${spacing.sm}`} />
+                      ) : (
+                        <ChevronDown size={14} className={`ml-${spacing.sm}`} />
+                      )
                     )}
                   </div>
                 </TableHead>
                 <TableHead
-                  className="cursor-pointer hover:text-blue-300"
+                  className={cn(
+                    "cursor-pointer",
+                    textColors.muted,
+                    "hover:" + textColors.accent
+                  )}
                   onClick={() => handleSort("is_parsed")}
                 >
                   <div className="flex items-center">
                     Статус
                     {sortConfig.field === "is_parsed" && (
-                      <ArrowUpDown size={14} className="ml-1" />
+                      sortConfig.direction === "asc" ? (
+                        <ChevronUp size={14} className={`ml-${spacing.sm}`} />
+                      ) : (
+                        <ChevronDown size={14} className={`ml-${spacing.sm}`} />
+                      )
                     )}
                   </div>
                 </TableHead>
                 <TableHead
-                  className="cursor-pointer hover:text-blue-300"
+                  className={cn(
+                    "cursor-pointer",
+                    textColors.muted,
+                    "hover:" + textColors.accent
+                  )}
                   onClick={() => handleSort("added_at")}
                 >
                   <div className="flex items-center">
                     Добавлен
                     {sortConfig.field === "added_at" && (
-                      <ArrowUpDown size={14} className="ml-1" />
+                      sortConfig.direction === "asc" ? (
+                        <ChevronUp size={14} className={`ml-${spacing.sm}`} />
+                      ) : (
+                        <ChevronDown size={14} className={`ml-${spacing.sm}`} />
+                      )
                     )}
                   </div>
                 </TableHead>
-                <TableHead className="text-right">Действия</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredAndSortedChannels.map((channel, index) => (
                 <TableRow
                   key={channel.username}
-                  className="hover:bg-slate-800/50"
+                  className="hover:bg-slate-800/30 transition-colors duration-200"
                 >
-                  <TableCell className="font-medium">{index + 1}</TableCell>
-                  <TableCell className="font-medium">
+                  <TableCell className={typography.weight.medium}>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <a
                           href={`https://t.me/${channel.username}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center hover:text-blue-400"
+                          className={cn(
+                            "flex items-center",
+                            textColors.primary,
+                            "hover:" + textColors.accent
+                          )}
                         >
                           @{channel.username}
-                          <ExternalLink size={12} className="ml-1" />
+                          <ExternalLink size={12} className={`ml-${spacing.sm}`} />
                         </a>
                       </TooltipTrigger>
                       <TooltipContent>
@@ -375,65 +413,19 @@ const ChannelsList: React.FC<ChannelsListProps> = ({ channels, setId }) => {
                   <TableCell>
                     <div className="flex items-center">
                       {getStatusIcon(channel.is_parsed)}
-                      <span className="ml-1">
+                      <span className={cn(textColors.primary, `ml-${spacing.sm}`)}>
                         {channel.is_parsed ? "Обработан" : "Обработка"}
                       </span>
                     </div>
                   </TableCell>
-                  <TableCell>{formatDate(channel.added_at)}</TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 w-8 p-0"
-                        >
-                          <span className="sr-only">Меню</span>
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent
-                        align="end"
-                        className={cn(createCardStyle(), "bg-slate-800")}
-                      >
-                        <DropdownMenuLabel>Действия</DropdownMenuLabel>
-                        <DropdownMenuSeparator className="bg-slate-700" />
-                        <DropdownMenuItem
-                          className="cursor-pointer hover:bg-slate-700"
-                          onClick={() =>
-                            window.open(
-                              `https://t.me/${channel.username}`,
-                              "_blank",
-                            )
-                          }
-                        >
-                          <ExternalLink className="mr-2 h-4 w-4" />
-                          <span>Открыть канал</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          className="cursor-pointer hover:bg-slate-700"
-                          onClick={() => {}}
-                        >
-                          <BarChart2 className="mr-2 h-4 w-4" />
-                          <span>Анализировать</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator className="bg-slate-700" />
-                        <DropdownMenuItem
-                          className="cursor-pointer text-red-400 hover:bg-red-400/10 hover:text-red-300"
-                          onClick={() => handleDeleteClick(channel.username)}
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          <span>Удалить из набора</span>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                  <TableCell className={textColors.muted}>
+                    {formatDate(channel.added_at)}
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-        </ScrollArea>
+        </div>
       </div>
 
       {/* No results after filtering */}
@@ -441,7 +433,7 @@ const ChannelsList: React.FC<ChannelsListProps> = ({ channels, setId }) => {
         <Alert className={cn("mt-4", createCardStyle())}>
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Ничего не найдено</AlertTitle>
-          <AlertDescription>
+          <AlertDescription className={textColors.muted}>
             По вашему запросу не найдено каналов. Попробуйте изменить параметры
             поиска.
           </AlertDescription>
@@ -450,10 +442,10 @@ const ChannelsList: React.FC<ChannelsListProps> = ({ channels, setId }) => {
 
       {/* Delete channel confirmation dialog */}
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <DialogContent className={cn(createCardStyle(), "bg-slate-800")}>
+        <DialogContent className={createCardStyle()}>
           <DialogHeader>
-            <DialogTitle>Удаление канала</DialogTitle>
-            <DialogDescription className="text-blue-300">
+            <DialogTitle className={typography.h3}>Удаление канала</DialogTitle>
+            <DialogDescription className={textColors.secondary}>
               Вы действительно хотите удалить канал @{channelToDelete} из
               набора?
             </DialogDescription>
@@ -463,7 +455,7 @@ const ChannelsList: React.FC<ChannelsListProps> = ({ channels, setId }) => {
             <Button
               variant="outline"
               onClick={() => setShowDeleteDialog(false)}
-              className={components.button.secondary}
+              className={createButtonStyle("secondary")}
               disabled={isDeleting}
             >
               Отмена
@@ -472,10 +464,14 @@ const ChannelsList: React.FC<ChannelsListProps> = ({ channels, setId }) => {
               variant="destructive"
               onClick={handleDeleteConfirm}
               disabled={isDeleting}
+              className={createButtonStyle("danger")}
             >
               {isDeleting ? (
                 <>
-                  <LoaderCircle size={16} className="mr-1 animate-spin" />
+                  <LoaderCircle
+                    size={16}
+                    className={cn(`mr-${spacing.sm}`, "animate-spin")}
+                  />
                   Удаление...
                 </>
               ) : (
@@ -488,8 +484,5 @@ const ChannelsList: React.FC<ChannelsListProps> = ({ channels, setId }) => {
     </>
   );
 };
-
-// Additional components needed for the ChannelsList
-import { MoreHorizontal, LoaderCircle } from "lucide-react";
 
 export default ChannelsList;

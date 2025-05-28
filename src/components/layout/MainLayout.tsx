@@ -9,12 +9,7 @@ import {
   gradients,
   typography,
   spacing,
-  colors,
-  radius,
-  shadows,
   animations,
-  components,
-  createCardStyle,
 } from "@/lib/design-system";
 
 interface MainLayoutProps {
@@ -56,7 +51,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       </div>
 
       {/* Основной контент */}
-      <div className={cn("flex-1", `pb-${spacing.xl}`, animations.fadeIn)}>
+      <div className={cn("flex-1 pb-[70px]", animations.fadeIn)}>
         <PageTransition>{children}</PageTransition>
       </div>
 

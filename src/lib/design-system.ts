@@ -154,13 +154,13 @@ export const components = {
   card: {
     base: cn(
       `rounded-${radius.xl}`,
-      "border backdrop-blur-sm transition-all duration-200",
+      "border transition-all duration-200",
       "bg-slate-800/50 border-blue-500/20 text-white",
     ),
     hover: "hover:border-blue-500/30 hover:shadow-lg hover:shadow-blue-500/5",
     gradient: cn(
       `rounded-${radius.xl}`,
-      "border backdrop-blur-sm",
+      "border",
       "bg-gradient-to-br from-slate-800/50 to-slate-900/50",
       "border-blue-500/20 text-white",
     ),
@@ -174,6 +174,19 @@ export const components = {
       "text-white shadow-md hover:shadow-lg",
       "hover:" + gradients.primaryHover.replace("bg-", ""),
     ),
+    success: cn(
+      gradients.success,
+      "text-white border border-green-600",
+      "hover:bg-green-700 hover:border-green-700",
+      "shadow-md hover:shadow-lg"
+    ),
+    warning: cn(
+      gradients.warning,
+      "text-white border border-amber-600", 
+      "hover:bg-amber-700 hover:border-amber-700",
+      "shadow-md hover:shadow-lg"
+    ),
+
     secondary: cn(
       "bg-slate-800/50 text-blue-300 border border-blue-500/20",
       "hover:bg-slate-700/50 hover:border-blue-500/30",

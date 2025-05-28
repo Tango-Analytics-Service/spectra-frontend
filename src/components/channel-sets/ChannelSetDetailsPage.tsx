@@ -7,7 +7,6 @@ import {
   Settings,
   Calendar,
   Users,
-  Share2,
   Trash2,
   Save,
   X,
@@ -21,18 +20,10 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Badge, Badge as UIBadge, badgeVariants } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import AnalysisTab from "../analysis/AnalysisTab";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import {
   Dialog,
   DialogContent,
@@ -44,20 +35,21 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/components/ui/use-toast";
 import { useChannelSets } from "@/contexts/ChannelSetsContext";
-import {
-  ChannelSet,
-} from "@/types/channel-sets";
+import { ChannelSet } from "@/types/channel-sets";
 import ChannelsList from "./ChannelsList";
 import AddChannelsDialog from "./AddChannelsDialog";
+import AnalysisConfirmDialog from "./AnalysisConfirmDialog";
+import ChannelSetStatus from "./ChannelSetStatus";
 import {
   createCardStyle,
   createButtonStyle,
-  createBadgeStyle,
+  createTextStyle,
   typography,
   spacing,
   components,
   animations,
   textColors,
+  gradients,
 } from "@/lib/design-system";
 
 const ChannelSetDetailsPage: React.FC = () => {
@@ -70,7 +62,7 @@ const ChannelSetDetailsPage: React.FC = () => {
     deleteChannelSet,
   } = useChannelSets();
 
-  // State
+  // Состояния
   const [channelSet, setChannelSet] = useState<ChannelSet | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -83,9 +75,9 @@ const ChannelSetDetailsPage: React.FC = () => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showAddChannelsDialog, setShowAddChannelsDialog] = useState(false);
-  const [activeTab, setActiveTab] = useState("channels");
+  const [analysisDialogOpen, setAnalysisDialogOpen] = useState(false);
 
-  // Load channel set data
+  // Загрузка данных набора
   useEffect(() => {
     if (!id) return;
 
@@ -118,7 +110,7 @@ const ChannelSetDetailsPage: React.FC = () => {
     loadChannelSet();
   }, [id, getChannelSet, navigate]);
 
-  // Handlers
+  // Обработчики
   const handleRefresh = async () => {
     if (!id || !channelSet) return;
 
@@ -139,7 +131,6 @@ const ChannelSetDetailsPage: React.FC = () => {
 
   const handleStartEditing = () => {
     if (!channelSet) return;
-
     setEditForm({
       name: channelSet.name,
       description: channelSet.description,
@@ -194,69 +185,53 @@ const ChannelSetDetailsPage: React.FC = () => {
     }
   };
 
-  // Render loading state
+  const handleAnalyze = () => {
+    if (channelSet) {
+      setAnalysisDialogOpen(true);
+    }
+  };
+
+  const handleConfirmAnalysis = async (setId: string) => {
+    // TODO: Реализовать создание задачи анализа
+    console.log("Starting analysis for set:", setId);
+    
+    // Имитация API вызова
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    toast({
+      title: "Анализ запущен",
+      description: "Задача создана и поставлена в очередь",
+    });
+  };
+
+  // Состояния загрузки
   if (isLoading) {
     return (
       <div
         className={cn(
           "container mx-auto",
           `py-${spacing.lg} px-${spacing.md}`,
-          "max-w-5xl",
+          "max-w-5xl"
         )}
       >
-        <div className={cn("flex items-center", `mb-${spacing.lg}`)}>
-          <Button
-            variant="ghost"
-            size="sm"
-            className={cn(
-              createButtonStyle("ghost"),
-              `mr-${spacing.sm}`,
-            )}
-            onClick={() => navigate("/")}
-          >
-            <ChevronLeft size={16} className="mr-1" />
-            Назад
-          </Button>
-          <Skeleton className="h-8 w-40" />
-        </div>
-
         <div className={`mb-${spacing.lg}`}>
           <Skeleton className="h-48 w-full rounded-lg" />
         </div>
 
-        <Skeleton className={cn("h-10 w-full", `mb-${spacing.md}`)} />
         <Skeleton className="h-[400px] w-full rounded-lg" />
       </div>
     );
   }
 
-  // Render when no channel set found
   if (!channelSet) {
     return (
       <div
         className={cn(
           "container mx-auto",
           `py-${spacing.lg} px-${spacing.md}`,
-          "max-w-5xl",
+          "max-w-5xl"
         )}
       >
-        <div className={cn("flex items-center", `mb-${spacing.lg}`)}>
-          <Button
-            variant="ghost"
-            size="sm"
-            className={cn(
-              createButtonStyle("ghost"),
-              `mr-${spacing.sm}`,
-            )}
-            onClick={() => navigate("/")}
-          >
-            <ChevronLeft size={16} className="mr-1" />
-            Назад
-          </Button>
-          <h1 className={cn(typography.h2, typography.weight.semibold)}>
-            Набор не найден
-          </h1>
-        </div>
 
         <Card className={cn(createCardStyle(), `p-${spacing.lg}`)}>
           <div className="text-center py-12">
@@ -282,52 +257,35 @@ const ChannelSetDetailsPage: React.FC = () => {
     );
   }
 
-  // Main content render
   return (
     <div
       className={cn(
         "container mx-auto",
         `py-${spacing.lg} px-${spacing.md}`,
         "max-w-5xl",
-        animations.fadeIn,
+        animations.fadeIn
       )}
     >
-      {/* Header with back button and actions */}
-      <div
-        className={cn(
-          "flex flex-wrap items-center justify-between",
-          `mb-${spacing.lg} gap-${spacing.md}`,
-        )}
-      >
-        <div className="flex items-center">
-          <Button
-            variant="ghost"
-            size="sm"
-            className={cn(
-              createButtonStyle("ghost"),
-              `mr-${spacing.sm}`,
-            )}
-            onClick={() => navigate("/")}
-          >
-            <ChevronLeft size={16} className="mr-1" />
-            Назад
-          </Button>
+
+      {/* Заголовок */}
+      <div className={cn(`mb-${spacing.lg}`)}>
+        <div className="flex items-center mb-4">
 
           {isEditing ? (
-            <div className="flex items-center">
+            <div className="flex items-center flex-1">
               <Input
                 value={editForm.name}
                 onChange={(e) =>
                   setEditForm((prev) => ({ ...prev, name: e.target.value }))
                 }
-                className={cn(components.input.base, `w-72 mr-${spacing.sm}`)}
+                className={cn(components.input.base, `flex-1 mr-${spacing.sm}`)}
               />
               <Button
                 variant="ghost"
                 size="sm"
                 className={cn(
                   createButtonStyle("ghost"),
-                  "mr-1 text-green-400 hover:text-green-300 hover:bg-green-400/10",
+                  "mr-1 text-green-400 hover:text-green-300"
                 )}
                 onClick={handleSaveEditing}
               >
@@ -339,7 +297,7 @@ const ChannelSetDetailsPage: React.FC = () => {
                 size="sm"
                 className={cn(
                   createButtonStyle("ghost"),
-                  "text-red-400 hover:text-red-300 hover:bg-red-400/10",
+                  "text-red-400 hover:text-red-300"
                 )}
                 onClick={handleCancelEditing}
               >
@@ -351,56 +309,36 @@ const ChannelSetDetailsPage: React.FC = () => {
             <h1 className={cn(typography.h1, "flex items-center")}>
               {channelSet.name}
               {channelSet.is_predefined && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Star size={16} className={cn("ml-2 text-yellow-400")} />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Предустановленный набор</p>
-                  </TooltipContent>
-                </Tooltip>
+                <Star size={16} className={cn("ml-2 text-yellow-400")} />
               )}
               {channelSet.is_public ? (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Globe size={16} className={cn("ml-2 text-blue-400")} />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Публичный набор</p>
-                  </TooltipContent>
-                </Tooltip>
+                <Globe size={16} className={cn("ml-2 text-blue-400")} />
               ) : (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Lock size={16} className={cn("ml-2 text-gray-400")} />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Приватный набор</p>
-                  </TooltipContent>
-                </Tooltip>
+                <Lock size={16} className={cn("ml-2 text-gray-400")} />
               )}
             </h1>
           )}
         </div>
 
-        <div className={cn("flex items-center", `space-x-${spacing.sm}`)}>
-          <Button
-            variant="outline"
-            size="sm"
-            className={createButtonStyle("secondary")}
-            onClick={handleRefresh}
-            disabled={isRefreshing}
-          >
-            {isRefreshing ? (
-              <LoaderCircle size={16} className="mr-1 animate-spin" />
-            ) : (
-              <RefreshCw size={16} className="mr-1" />
-            )}
-            Обновить
-          </Button>
+        <div className={cn("flex flex-wrap items-center gap-2")}>
 
           {!isEditing && !channelSet.is_predefined && (
             <>
+              <Button
+                variant="outline"
+                size="sm"
+                className={createButtonStyle("secondary")}
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+              >
+                {isRefreshing ? (
+                  <LoaderCircle size={16} className="mr-1 animate-spin" />
+                ) : (
+                  <RefreshCw size={16} className="mr-1" />
+                )}
+                Обновить
+              </Button>
+
               <Button
                 variant="outline"
                 size="sm"
@@ -414,7 +352,7 @@ const ChannelSetDetailsPage: React.FC = () => {
               <Button
                 variant="outline"
                 size="sm"
-                className={cn(createButtonStyle("danger"))}
+                className={createButtonStyle("danger")}
                 onClick={() => setShowDeleteDialog(true)}
               >
                 <Trash2 size={16} className="mr-1" />
@@ -422,23 +360,12 @@ const ChannelSetDetailsPage: React.FC = () => {
               </Button>
             </>
           )}
-
-          {channelSet.is_public && (
-            <Button
-              variant="outline"
-              size="sm"
-              className={createButtonStyle("secondary")}
-            >
-              <Share2 size={16} className="mr-1" />
-              Поделиться
-            </Button>
-          )}
         </div>
       </div>
 
-      {/* Channel set info card */}
-      <Card className={cn(createCardStyle(), `mb-${spacing.lg}`)}>
-        <CardContent className={`p-${spacing.md}`}>
+      {/* Информация о наборе */}
+      <div className={cn(createCardStyle(), `mb-${spacing.lg}`)}>
+        <div className={`p-${spacing.md}`}>
           {isEditing ? (
             <div className={cn(`space-y-${spacing.md} py-${spacing.sm}`)}>
               <div className={`space-y-${spacing.sm}`}>
@@ -470,94 +397,58 @@ const ChannelSetDetailsPage: React.FC = () => {
             </div>
           ) : (
             <>
-              <p className={cn(`mb-${spacing.sm}`, "text-gray-300")}>
-                {channelSet.description}
-              </p>
-
-              <div
-                className={cn(
-                  "flex flex-wrap items-center",
-                  `gap-x-${spacing.lg} gap-y-${spacing.sm}`,
-                  typography.small,
-                  "text-gray-400",
-                )}
-              >
-                <div className="flex items-center">
-                  <Calendar size={14} className="mr-1" />
-                  <span>
-                    Создан:{" "}
-                    {new Date(channelSet.created_at).toLocaleDateString()}
-                  </span>
-                </div>
-
-                {channelSet.updated_at && (
-                  <div className="flex items-center">
-                    <Calendar size={14} className="mr-1" />
-                    <span>
-                      Обновлен:{" "}
-                      {new Date(channelSet.updated_at).toLocaleDateString()}
-                    </span>
+              <div className="mb-4">
+                <p className={cn(createTextStyle("body", "muted"), "mb-3")}>
+                  {channelSet.description}
+                </p>
+                
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                    <div className="flex items-center gap-2">
+                      <Users size={14} className={textColors.muted} />
+                      <span className={createTextStyle("small", "muted")}>
+                        {channelSet.channel_count} каналов
+                      </span>
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      <Calendar size={14} className={textColors.muted} />
+                      <span className={createTextStyle("small", "muted")}>
+                        Обновлен:{" "}
+                        {new Date(channelSet.updated_at).toLocaleDateString()}
+                      </span>
+                    </div>
                   </div>
-                )}
 
-                <div className="flex items-center">
-                  <Users size={14} className="mr-1" />
-                  <span>Каналов: {channelSet.channel_count}</span>
-                </div>
-
-                <div>
-                  <Badge
-                    className={cn(channelSet.all_parsed ? createBadgeStyle("success") : createBadgeStyle("warning"), "ml-1")}
-                  >
-                    {channelSet.all_parsed
-                      ? "Все каналы обработаны"
-                      : "Не все каналы обработаны"}
-                  </Badge>
+                  <div className="flex flex-col sm:items-end gap-2">
+                    <ChannelSetStatus
+                      channelCount={channelSet.channel_count}
+                      allParsed={channelSet.all_parsed}
+                    />
+                    
+                    {channelSet.all_parsed && channelSet.channel_count > 0 && (
+                      <Button
+                        onClick={handleAnalyze}
+                        className={createButtonStyle("primary")}
+                      >
+                        Анализировать
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
-            </>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Tabs for channels/settings */}
-      <Tabs
-        defaultValue="channels"
-        value={activeTab}
-        onValueChange={setActiveTab}
-        className={`mb-${spacing.lg}`}
-      >
-        <TabsList className="bg-slate-800">
-          <TabsTrigger
-            value="channels"
-            className="data-[state=active]:bg-blue-500"
-          >
-            <Users size={16} className={`mr-${spacing.sm}`} />
-            Каналы
-          </TabsTrigger>
-          <TabsTrigger
-            value="settings"
-            className="data-[state=active]:bg-blue-500"
-          >
-            <Settings size={16} className={`mr-${spacing.sm}`} />
-            Настройки
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="analysis" className={`mt-${spacing.md}`}>
-          <AnalysisTab channelSet={channelSet} />
-        </TabsContent>
-
-        <TabsContent value="channels" className={`mt-${spacing.md}`}>
-          <div
-            className={cn(
-              "flex justify-between items-center",
-              `mb-${spacing.md}`,
+            </>          
             )}
-          >
-            <div className={cn(typography.h3, "font-medium")}>
+        </div>
+      </div>
+
+      {/* Управление каналами */}
+      <div className={cn(createCardStyle())}>
+        <div className={`p-${spacing.md}`}>
+          <div className={cn("flex justify-between items-center", `mb-${spacing.md}`)}>
+            <h3 className={cn(typography.h3, "font-medium")}>
               Каналы в наборе
-            </div>
+            </h3>
             <Button
               onClick={() => setShowAddChannelsDialog(true)}
               className={createButtonStyle("primary")}
@@ -568,36 +459,15 @@ const ChannelSetDetailsPage: React.FC = () => {
           </div>
 
           <ChannelsList channels={channelSet.channels} setId={channelSet.id} />
-        </TabsContent>
+        </div>
+      </div>
 
-        <TabsContent value="settings" className={`mt-${spacing.md}`}>
-          <Card className={createCardStyle()}>
-            <CardHeader>
-              <CardTitle className={cn(typography.h3, "font-medium")}>
-                Настройки набора
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p
-                className={cn(
-                  typography.small,
-                  "text-gray-400",
-                  `mb-${spacing.md}`,
-                )}
-              >
-                Здесь будут дополнительные настройки набора каналов
-              </p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-
-      {/* Delete confirmation dialog */}
+      {/* Диалог удаления */}
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <DialogContent className={createCardStyle()}>
           <DialogHeader>
             <DialogTitle className={typography.h3}>Удаление набора</DialogTitle>
-            <DialogDescription className="text-blue-300">
+            <DialogDescription className={textColors.secondary}>
               Вы уверены, что хотите удалить набор каналов "{channelSet.name}"?
               Это действие нельзя отменить.
             </DialogDescription>
@@ -631,15 +501,22 @@ const ChannelSetDetailsPage: React.FC = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Add channels dialog */}
+      {/* Диалог добавления каналов */}
       <AddChannelsDialog
         open={showAddChannelsDialog}
         onOpenChange={setShowAddChannelsDialog}
         setId={channelSet.id}
       />
+
+      {/* Диалог подтверждения анализа */}
+      <AnalysisConfirmDialog
+        open={analysisDialogOpen}
+        onOpenChange={setAnalysisDialogOpen}
+        channelSet={channelSet}
+        onConfirm={handleConfirmAnalysis}
+      />
     </div>
   );
 };
-
 
 export default ChannelSetDetailsPage;
