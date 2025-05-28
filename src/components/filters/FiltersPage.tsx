@@ -2,23 +2,19 @@
 import React, { useState, useEffect } from "react";
 import { useFilters } from "@/contexts/FilterContext";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Plus, Search, Filter as FilterIcon, Settings } from "lucide-react";
+import { Plus, Filter as FilterIcon, Settings } from "lucide-react";
 import FiltersList from "./FiltersList";
 import CreateFilterDialog from "./CreateFilterDialog";
 import { cn } from "@/lib/utils";
 import {
-  components,
-  gradients,
+  createButtonStyle,
+  createCardStyle,
   typography,
   spacing,
-  createCardStyle,
-  createButtonStyle,
-  colors,
-  radius,
-  shadows,
+  gradients,
   animations,
-  createBadgeStyle,
+  textColors,
+  createTextStyle,
 } from "@/lib/design-system";
 
 const FiltersPage: React.FC = () => {
@@ -32,130 +28,174 @@ const FiltersPage: React.FC = () => {
   } = useFilters();
 
   const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
 
-  // Load filters on component mount
+  // Загрузка фильтров при монтировании
   useEffect(() => {
     fetchSystemFilters();
     fetchUserFilters();
   }, [fetchSystemFilters, fetchUserFilters]);
 
+  // Подсчет статистики
   const isLoading = isSystemFiltersLoading || isUserFiltersLoading;
   const totalFilters =
     systemFilters.length + userFilters.filter((f) => f.is_custom).length;
+  const systemFiltersCount = systemFilters.length;
+  const customFiltersCount = userFilters.filter((f) => f.is_custom).length;
 
   return (
     <div
       className={cn(
-        "container mx-auto max-w-5xl",
-        `py-${spacing.lg} px-${spacing.md}`,
-        animations.fadeIn,
+        "flex flex-col w-full min-h-screen",
+        gradients.background,
+        "text-white",
       )}
     >
-      {/* Header */}
-      <div
+      <main
         className={cn(
-          "flex flex-wrap items-center justify-between",
-          `mb-${spacing.lg} gap-${spacing.md}`,
+          "flex-1 overflow-hidden flex flex-col",
+          `px-${spacing.md} sm:px-${spacing.lg}`,
+          `pb-${spacing.md} sm:pb-${spacing.lg}`,
         )}
       >
-        <div>
-          <h1 className={typography.h1}>Фильтры для анализа</h1>
-          <p className={cn(typography.small, "text-blue-300 mt-1")}>
-            Управление системными и пользовательскими фильтрами для анализа
-            каналов
-          </p>
+        {/* Заголовок */}
+        <div
+          className={`mt-${spacing.sm} sm:mt-${spacing.md} mb-${spacing.lg}`}
+        >
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className={typography.h1}>Фильтры</h1>
+              <p className={cn(createTextStyle("small", "secondary"), "mt-1")}>
+                Управление фильтрами для анализа каналов
+              </p>
+            </div>
+
+            {/* Кнопка создания на мобильных */}
+            <div className="sm:hidden">
+              <Button
+                onClick={() => setShowCreateDialog(true)}
+                className={cn(createButtonStyle("primary"), "h-10 w-10 p-0")}
+              >
+                <Plus size={18} />
+              </Button>
+            </div>
+          </div>
+
+          {/* Статистика */}
+          <div
+            className={cn(
+              "grid grid-cols-3 sm:grid-cols-3",
+              `gap-${spacing.md}`,
+              animations.slideIn,
+            )}
+          >
+            <StatsCard
+              title="Всего"
+              value={isLoading ? "—" : totalFilters}
+              icon={<FilterIcon size={15} className={textColors.accent} />}
+              loading={isLoading}
+            />
+            <StatsCard
+              title="Системные"
+              value={isLoading ? "—" : systemFiltersCount}
+              icon={<Settings size={15} className="text-purple-400" />}
+              loading={isLoading}
+            />
+            <StatsCard
+              title="Мои фильтры"
+              value={isLoading ? "—" : customFiltersCount}
+              icon={<Plus size={15} className="text-green-400" />}
+              loading={isLoading}
+            />
+          </div>
         </div>
 
-        <Button
-          onClick={() => setShowCreateDialog(true)}
-          className={createButtonStyle("primary")}
+        {/* Список фильтров */}
+        <div
+          className={cn(
+            createCardStyle(),
+            `p-${spacing.lg}`,
+            "flex-1 overflow-hidden flex flex-col",
+            animations.fadeIn,
+          )}
         >
-          <Plus size={16} className="mr-2" />
-          Создать фильтр
-        </Button>
-      </div>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className={typography.h3}>Все фильтры</h2>
 
-      {/* Stats cards */}
-      <div
-        className={cn(
-          "grid grid-cols-1 sm:grid-cols-3",
-          `gap-${spacing.md} mb-${spacing.lg}`,
-          animations.slideIn,
-        )}
-      >
-        <StatsCard
-          title="Всего фильтров"
-          value={totalFilters}
-          icon={<FilterIcon size={20} className="text-blue-400" />}
-          bgColor="bg-blue-500/10"
-        />
-        <StatsCard
-          title="Системные фильтры"
-          value={systemFilters.length}
-          icon={<Settings size={20} className="text-purple-400" />}
-          bgColor="bg-purple-500/10"
-        />
-        <StatsCard
-          title="Мои фильтры"
-          value={userFilters.filter((f) => f.is_custom).length}
-          icon={<Plus size={20} className="text-green-400" />}
-          bgColor="bg-green-500/10"
-        />
-      </div>
+            {/* Кнопка создания на десктопе */}
+            <div className="hidden sm:block">
+              <Button
+                onClick={() => setShowCreateDialog(true)}
+                className={createButtonStyle("primary")}
+              >
+                <Plus size={16} className={`mr-${spacing.sm}`} />
+                Создать фильтр
+              </Button>
+            </div>
+          </div>
 
-      {/* Filters list */}
-      <div
-        className={cn(createCardStyle(), `p-${spacing.lg}`, animations.fadeIn)}
-      >
-        <FiltersList height="h-[600px]" />
-      </div>
+          <div className="flex-1 overflow-hidden">
+            <FiltersList height="h-full" showActions={true} />
+          </div>
+        </div>
+      </main>
 
-      {/* Create Filter Dialog */}
-      {showCreateDialog && (
-        <CreateFilterDialog
-          open={showCreateDialog}
-          onOpenChange={setShowCreateDialog}
-        />
-      )}
+      {/* Диалог создания фильтра */}
+      <CreateFilterDialog
+        open={showCreateDialog}
+        onOpenChange={setShowCreateDialog}
+      />
     </div>
   );
 };
 
-// Stats card component
+// Компонент карточки статистики
 interface StatsCardProps {
   title: string;
-  value: number;
+  value: string | number;
   icon: React.ReactNode;
-  bgColor: string;
+  loading?: boolean;
 }
 
 const StatsCard: React.FC<StatsCardProps> = ({
   title,
   value,
   icon,
-  bgColor,
+  loading = false,
 }) => (
   <div
     className={cn(
       createCardStyle(),
       `p-${spacing.md}`,
-      "flex items-center",
+      "flex items-start flex-wrap content-between justify-start",
       animations.scaleIn,
     )}
   >
     <div
       className={cn(
-        bgColor,
-        `rounded-${radius.full}`,
+        createTextStyle("small", "secondary"),
+        "truncate",
+        `pb-${spacing.sm} pr-${spacing.sm}`,
+      )}
+    >
+      {title}
+    </div>
+    <div
+      className={cn(
+        "bg-blue-500/10 rounded-full",
         `p-${spacing.sm} mr-${spacing.md}`,
+        "flex items-center justify-center",
       )}
     >
       {icon}
     </div>
-    <div>
-      <div className={cn(typography.h2, "font-semibold")}>{value}</div>
-      <div className={cn(typography.small, "text-blue-300")}>{title}</div>
+    <div className="flex-1 min-w-0">
+      <div className={cn(typography.h2, "font-semibold truncate")}>
+        {loading ? (
+          <div className="animate-pulse bg-slate-700 h-6 w-8 rounded"></div>
+        ) : (
+          value
+        )}
+      </div>
     </div>
   </div>
 );

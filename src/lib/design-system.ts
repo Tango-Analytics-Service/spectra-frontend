@@ -179,13 +179,13 @@ export const components = {
       gradients.success,
       "text-white border border-green-600",
       "hover:bg-green-700 hover:border-green-700",
-      "shadow-md hover:shadow-lg"
+      "shadow-md hover:shadow-lg",
     ),
     warning: cn(
       gradients.warning,
-      "text-white border border-amber-600", 
+      "text-white border border-amber-600",
       "hover:bg-amber-700 hover:border-amber-700",
-      "shadow-md hover:shadow-lg"
+      "shadow-md hover:shadow-lg",
     ),
 
     secondary: cn(

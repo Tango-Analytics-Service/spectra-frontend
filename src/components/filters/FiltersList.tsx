@@ -1,36 +1,57 @@
 // src/components/filters/FiltersList.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Filter, useFilters } from "@/contexts/FilterContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Search, FilterIcon, Plus, AlertCircle, Loader2 } from "lucide-react";
+import { Search, FilterIcon, Plus, AlertCircle } from "lucide-react";
 import FilterCard from "./FilterCard";
 import CreateFilterDialog from "./CreateFilterDialog";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { cn } from "@/lib/utils";
 import {
-  createCardStyle,
   createButtonStyle,
+  createBadgeStyle,
   typography,
   spacing,
   animations,
   components,
+  textColors,
+  createTextStyle,
 } from "@/lib/design-system";
-import { cn } from "@/lib/utils";
+import { EmptyState, LoadingState } from "@/components/ui/dialog-components";
 
 interface FiltersListProps {
   onSelectFilter?: (id: string) => void;
   selectedFilters?: string[];
   showActions?: boolean;
   height?: string;
+  multiSelect?: boolean;
 }
+
+// Типы фильтров для быстрого доступа
+const FILTER_TYPES = [
+  { id: "all", label: "Все", icon: FilterIcon },
+  { id: "my", label: "Мои", icon: Plus },
+  { id: "system", label: "Системные", icon: FilterIcon },
+] as const;
+
+// Категории для фильтрации
+const CATEGORIES = [
+  "Содержание",
+  "Качество",
+  "Безопасность",
+  "Вовлеченность",
+  "Рост",
+  "Другое",
+] as const;
 
 const FiltersList: React.FC<FiltersListProps> = ({
   onSelectFilter,
   selectedFilters = [],
   showActions = true,
-  height = "h-[400px]",
+  height = "h-[600px]",
+  multiSelect = false,
 }) => {
   const {
     systemFilters,
@@ -42,275 +63,229 @@ const FiltersList: React.FC<FiltersListProps> = ({
     deleteCustomFilter,
   } = useFilters();
 
+  // Локальное состояние
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeTab, setActiveTab] = useState("all");
+  const [activeType, setActiveType] = useState<"all" | "my" | "system">("all");
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
 
-  // Load filters on component mount
+  // Загрузка фильтров при монтировании
   useEffect(() => {
     fetchSystemFilters();
     fetchUserFilters();
   }, [fetchSystemFilters, fetchUserFilters]);
 
-  // Filter and categorize filters
-  const allFilters = [...systemFilters, ...userFilters];
+  // Комбинированный список фильтров
+  const allFilters = useMemo(() => {
+    const combined = [...systemFilters, ...userFilters];
+    // Удаляем дубликаты по id
+    return combined.filter(
+      (filter, index, self) =>
+        index === self.findIndex((f) => f.id === filter.id),
+    );
+  }, [systemFilters, userFilters]);
 
-  // Remove duplicates (in case system filters are also included in user filters)
-  const uniqueFilters = allFilters.filter(
-    (filter, index, self) =>
-      index === self.findIndex((f) => f.id === filter.id),
-  );
+  // Фильтрация по типу
+  const filteredByType = useMemo(() => {
+    switch (activeType) {
+      case "my":
+        return allFilters.filter((filter) => filter.is_custom);
+      case "system":
+        return allFilters.filter((filter) => !filter.is_custom);
+      default:
+        return allFilters;
+    }
+  }, [allFilters, activeType]);
 
-  // Get custom filters
-  const customFilters = userFilters.filter((filter) => filter.is_custom);
+  // Фильтрация по категории
+  const filteredByCategory = useMemo(() => {
+    if (!activeCategory) return filteredByType;
+    return filteredByType.filter(
+      (filter) => filter.category === activeCategory,
+    );
+  }, [filteredByType, activeCategory]);
 
-  // Filter by search query
-  const filteredFilters = uniqueFilters.filter((filter) =>
-    searchQuery
-      ? filter.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        filter.criteria.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (filter.category &&
-          filter.category.toLowerCase().includes(searchQuery.toLowerCase()))
-      : true,
-  );
+  // Фильтрация по поиску
+  const filteredFilters = useMemo(() => {
+    if (!searchQuery.trim()) return filteredByCategory;
 
-  // Group filters by category
-  const filtersByCategory = filteredFilters.reduce(
-    (acc, filter) => {
-      const category = filter.category || "Другое";
-      if (!acc[category]) {
-        acc[category] = [];
-      }
-      acc[category].push(filter);
-      return acc;
-    },
-    {} as Record<string, Filter[]>,
-  );
+    const query = searchQuery.toLowerCase();
+    return filteredByCategory.filter(
+      (filter) =>
+        filter.name.toLowerCase().includes(query) ||
+        filter.criteria.toLowerCase().includes(query) ||
+        (filter.category && filter.category.toLowerCase().includes(query)),
+    );
+  }, [filteredByCategory, searchQuery]);
 
-  // Sort categories alphabetically
-  const sortedCategories = Object.keys(filtersByCategory).sort();
-
-  // Handle filter selection
+  // Обработчики
   const handleSelectFilter = (id: string) => {
     if (onSelectFilter) {
       onSelectFilter(id);
     }
   };
 
-  // Handle filter deletion
-  const handleDeleteFilter = async (id: string) => {
-    await deleteCustomFilter(id);
+  const handleToggleExpand = (id: string) => {
+    const newExpanded = new Set(expandedCards);
+    if (newExpanded.has(id)) {
+      newExpanded.delete(id);
+    } else {
+      newExpanded.add(id);
+    }
+    setExpandedCards(newExpanded);
   };
 
-  // Determine if filters are loading
+  const handleDeleteFilter = async (id: string) => {
+    await deleteCustomFilter(id);
+    // Убираем из развернутых если был развернут
+    const newExpanded = new Set(expandedCards);
+    newExpanded.delete(id);
+    setExpandedCards(newExpanded);
+  };
+
+  const handleEditFilter = (id: string) => {
+    // TODO: Реализовать редактирование фильтра
+    console.log("Edit filter:", id);
+  };
+
+  const handleDuplicateFilter = (id: string) => {
+    // TODO: Реализовать дублирование фильтра
+    console.log("Duplicate filter:", id);
+  };
+
+  // Состояние загрузки
   const isLoading = isSystemFiltersLoading || isUserFiltersLoading;
 
   return (
     <div className={cn("space-y-4", animations.fadeIn)}>
-      {/* Search and filter controls */}
-      <div className="flex items-center space-x-2">
-        <div className="relative flex-1">
-          <Search
-            size={16}
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-          />
-          <Input
-            placeholder="Поиск фильтров..."
-            className={cn(components.input.base, "pl-9")}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-        {showActions && (
-          <Button
-            onClick={() => setShowCreateDialog(true)}
-            className={createButtonStyle("primary")}
-          >
-            <Plus size={16} className="mr-1" />
-            Создать
-          </Button>
-        )}
-      </div>
-
-      {/* Tabs */}
-      <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="bg-slate-800">
-          <TabsTrigger value="all" className="data-[state=active]:bg-blue-500">
-            Все
-          </TabsTrigger>
-          <TabsTrigger
-            value="system"
-            className="data-[state=active]:bg-blue-500"
-          >
-            Системные
-          </TabsTrigger>
-          <TabsTrigger
-            value="custom"
-            className="data-[state=active]:bg-blue-500"
-          >
-            Мои
-          </TabsTrigger>
-        </TabsList>
-
-        {/* All Filters Tab */}
-        <TabsContent value="all" className={`mt-${spacing.md}`}>
-          {isLoading ? (
-            <div className="flex justify-center items-center h-40">
-              <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
-            </div>
-          ) : filteredFilters.length === 0 ? (
-            <Alert className={cn(createCardStyle(), "border-blue-500/20")}>
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Ничего не найдено</AlertTitle>
-              <AlertDescription>
-                Попробуйте изменить запрос или создайте свой фильтр
-              </AlertDescription>
-            </Alert>
-          ) : (
-            <ScrollArea className={`${height} pr-4`}>
-              <div className={`space-y-${spacing.lg}`}>
-                {sortedCategories.map((category) => (
-                  <div key={category}>
-                    <h3 className={cn(typography.h4, "text-blue-300 mb-3")}>
-                      {category}
-                    </h3>
-                    <div
-                      className={cn(
-                        "grid grid-cols-1 md:grid-cols-2",
-                        `gap-${spacing.sm}`,
-                      )}
-                    >
-                      {filtersByCategory[category].map((filter) => (
-                        <FilterCard
-                          key={filter.id}
-                          filter={filter}
-                          selected={selectedFilters.includes(filter.id)}
-                          onSelect={handleSelectFilter}
-                          onDelete={
-                            filter.is_custom ? handleDeleteFilter : undefined
-                          }
-                          showActions={showActions}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </ScrollArea>
-          )}
-        </TabsContent>
-
-        {/* System Filters Tab */}
-        <TabsContent value="system" className={`mt-${spacing.md}`}>
-          {isSystemFiltersLoading ? (
-            <div className="flex justify-center items-center h-40">
-              <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
-            </div>
-          ) : filteredFilters.filter((f) => !f.is_custom).length === 0 ? (
-            <Alert className={cn(createCardStyle(), "border-blue-500/20")}>
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Ничего не найдено</AlertTitle>
-              <AlertDescription>Попробуйте изменить запрос</AlertDescription>
-            </Alert>
-          ) : (
-            <ScrollArea className={`${height} pr-4`}>
-              <div
-                className={cn(
-                  "grid grid-cols-1 md:grid-cols-2",
-                  `gap-${spacing.sm}`,
-                )}
-              >
-                {filteredFilters
-                  .filter((f) => !f.is_custom)
-                  .map((filter) => (
-                    <FilterCard
-                      key={filter.id}
-                      filter={filter}
-                      selected={selectedFilters.includes(filter.id)}
-                      onSelect={handleSelectFilter}
-                      showActions={showActions}
-                    />
-                  ))}
-              </div>
-            </ScrollArea>
-          )}
-        </TabsContent>
-
-        {/* Custom Filters Tab */}
-        <TabsContent value="custom" className={`mt-${spacing.md}`}>
-          {isUserFiltersLoading ? (
-            <div className="flex justify-center items-center h-40">
-              <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
-            </div>
-          ) : customFilters.length === 0 ? (
-            <div
-              className={cn(
-                createCardStyle(),
-                "text-center",
-                `py-${spacing.xl}`,
-                animations.fadeIn,
-              )}
-            >
-              <div className="flex flex-col items-center justify-center">
-                <FilterIcon size={48} className="text-blue-400/50 mb-4" />
-                <h3 className={cn(typography.h3, "mb-2")}>
-                  Нет пользовательских фильтров
-                </h3>
-                <p className={cn(typography.small, "text-gray-400 mb-4")}>
-                  Создайте свой первый фильтр для анализа каналов
-                </p>
-                {showActions && (
-                  <Button
-                    onClick={() => setShowCreateDialog(true)}
-                    className={createButtonStyle("primary")}
-                  >
-                    Создать фильтр
-                  </Button>
-                )}
-              </div>
-            </div>
-          ) : (
-            <ScrollArea className={`${height} pr-4`}>
-              <div
-                className={cn(
-                  "grid grid-cols-1 md:grid-cols-2",
-                  `gap-${spacing.sm}`,
-                )}
-              >
-                {customFilters
-                  .filter((filter) =>
-                    searchQuery
-                      ? filter.name
-                          .toLowerCase()
-                          .includes(searchQuery.toLowerCase()) ||
-                        filter.criteria
-                          .toLowerCase()
-                          .includes(searchQuery.toLowerCase())
-                      : true,
-                  )
-                  .map((filter) => (
-                    <FilterCard
-                      key={filter.id}
-                      filter={filter}
-                      selected={selectedFilters.includes(filter.id)}
-                      onSelect={handleSelectFilter}
-                      onDelete={handleDeleteFilter}
-                      showActions={showActions}
-                    />
-                  ))}
-              </div>
-            </ScrollArea>
-          )}
-        </TabsContent>
-      </Tabs>
-
-      {/* Create Filter Dialog */}
-      {showCreateDialog && (
-        <CreateFilterDialog
-          open={showCreateDialog}
-          onOpenChange={setShowCreateDialog}
+      {/* Поиск */}
+      <div className="relative">
+        <Search
+          size={16}
+          className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
         />
-      )}
+        <Input
+          placeholder="Поиск фильтров..."
+          className={cn(components.input.base, "pl-9")}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
+      {/* Быстрые фильтры по типу */}
+      <div className="flex items-center gap-2 overflow-x-auto">
+        {FILTER_TYPES.map(({ id, label, icon: Icon }) => (
+          <Button
+            key={id}
+            variant={activeType === id ? "default" : "outline"}
+            size="sm"
+            onClick={() => setActiveType(id)}
+            className={cn(
+              "flex-shrink-0",
+              activeType === id
+                ? createButtonStyle("primary")
+                : createButtonStyle("secondary"),
+            )}
+          >
+            <Icon size={14} className={`mr-${spacing.sm}`} />
+            {label}
+          </Button>
+        ))}
+      </div>
+      {/* Фильтры по категориям */}
+      <div className="flex gap-2 overflow-x-auto items-center flex-wrap content-start">
+        <Button
+          variant={!activeCategory ? "default" : "outline"}
+          size="sm"
+          onClick={() => setActiveCategory(null)}
+          className={cn(
+            "flex-shrink-0",
+            !activeCategory
+              ? createButtonStyle("primary")
+              : createButtonStyle("secondary"),
+          )}
+        >
+          Все категории
+        </Button>
+
+        {CATEGORIES.map((category) => (
+          <Button
+            key={category}
+            variant={activeCategory === category ? "default" : "outline"}
+            size="sm"
+            onClick={() => setActiveCategory(category)}
+            className={cn(
+              "flex-shrink-0",
+              activeCategory === category
+                ? createButtonStyle("primary")
+                : createButtonStyle("secondary"),
+            )}
+          >
+            {category}
+          </Button>
+        ))}
+      </div>
+      {/* Счетчик результатов */}
+      <div className={createTextStyle("small", "muted")}>
+        Найдено фильтров: {filteredFilters.length}
+      </div>
+      {/* Список фильтров */}
+      <ScrollArea className={cn(height, "pr-4")}>
+        {isLoading ? (
+          <LoadingState text="Загрузка фильтров..." />
+        ) : filteredFilters.length === 0 ? (
+          <EmptyState
+            icon={<AlertCircle size={48} />}
+            title={
+              searchQuery || activeCategory
+                ? "Ничего не найдено"
+                : "Нет фильтров"
+            }
+            description={
+              searchQuery || activeCategory
+                ? "Попробуйте изменить параметры поиска"
+                : activeType === "my"
+                  ? "Создайте свой первый фильтр"
+                  : "Фильтры не загружены"
+            }
+            action={
+              showActions &&
+              !searchQuery &&
+              !activeCategory &&
+              activeType === "my" ? (
+                <Button
+                  onClick={() => setShowCreateDialog(true)}
+                  className={createButtonStyle("primary")}
+                >
+                  Создать фильтр
+                </Button>
+              ) : undefined
+            }
+          />
+        ) : (
+          <div className={cn(`space-y-${spacing.sm}`)}>
+            {filteredFilters.map((filter) => (
+              <FilterCard
+                key={filter.id}
+                filter={filter}
+                selected={selectedFilters.includes(filter.id)}
+                expanded={expandedCards.has(filter.id)}
+                onSelect={handleSelectFilter}
+                onToggleExpand={handleToggleExpand}
+                onEdit={filter.is_custom ? handleEditFilter : undefined}
+                onDelete={filter.is_custom ? handleDeleteFilter : undefined}
+                onDuplicate={handleDuplicateFilter}
+                showActions={showActions}
+              />
+            ))}
+          </div>
+        )}
+      </ScrollArea>
+      {/* Диалог создания фильтра */}
+      <CreateFilterDialog
+        open={showCreateDialog}
+        onOpenChange={setShowCreateDialog}
+      />
     </div>
   );
 };
