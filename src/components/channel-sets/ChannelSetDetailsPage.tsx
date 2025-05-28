@@ -14,10 +14,7 @@ import {
   Lock,
   Globe,
   Plus,
-  Search,
   RefreshCw,
-  ArrowUpDown,
-  Filter,
   Star,
   AlertCircle,
   LoaderCircle,
@@ -28,7 +25,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Badge as UIBadge, badgeVariants } from "@/components/ui/badge";
+import { Badge, Badge as UIBadge, badgeVariants } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AnalysisTab from "../analysis/AnalysisTab";
 import {
@@ -49,8 +46,6 @@ import { toast } from "@/components/ui/use-toast";
 import { useChannelSets } from "@/contexts/ChannelSetsContext";
 import {
   ChannelSet,
-  ChannelDetails,
-  ChannelParsingStatus,
 } from "@/types/channel-sets";
 import ChannelsList from "./ChannelsList";
 import AddChannelsDialog from "./AddChannelsDialog";
@@ -62,6 +57,7 @@ import {
   spacing,
   components,
   animations,
+  textColors,
 } from "@/lib/design-system";
 
 const ChannelSetDetailsPage: React.FC = () => {
@@ -215,7 +211,6 @@ const ChannelSetDetailsPage: React.FC = () => {
             className={cn(
               createButtonStyle("ghost"),
               `mr-${spacing.sm}`,
-              "text-blue-400",
             )}
             onClick={() => navigate("/")}
           >
@@ -252,14 +247,13 @@ const ChannelSetDetailsPage: React.FC = () => {
             className={cn(
               createButtonStyle("ghost"),
               `mr-${spacing.sm}`,
-              "text-blue-400",
             )}
             onClick={() => navigate("/")}
           >
             <ChevronLeft size={16} className="mr-1" />
             Назад
           </Button>
-          <h1 className={cn(typography.h2, "font-semibold")}>
+          <h1 className={cn(typography.h2, typography.weight.semibold)}>
             Набор не найден
           </h1>
         </div>
@@ -268,8 +262,9 @@ const ChannelSetDetailsPage: React.FC = () => {
           <div className="text-center py-12">
             <AlertCircle
               className={cn(
-                "mx-auto h-12 w-12 text-amber-400",
+                "mx-auto h-12 w-12",
                 `mb-${spacing.md}`,
+                textColors.warning
               )}
             />
             <p className={cn(typography.h3, `mb-${spacing.md}`)}>
@@ -311,7 +306,6 @@ const ChannelSetDetailsPage: React.FC = () => {
             className={cn(
               createButtonStyle("ghost"),
               `mr-${spacing.sm}`,
-              "text-blue-400",
             )}
             onClick={() => navigate("/")}
           >
@@ -513,8 +507,7 @@ const ChannelSetDetailsPage: React.FC = () => {
 
                 <div>
                   <Badge
-                    variant={channelSet.all_parsed ? "success" : "warning"}
-                    className="ml-1"
+                    className={cn(channelSet.all_parsed ? createBadgeStyle("success") : createBadgeStyle("warning"), "ml-1")}
                   >
                     {channelSet.all_parsed
                       ? "Все каналы обработаны"
@@ -648,46 +641,5 @@ const ChannelSetDetailsPage: React.FC = () => {
   );
 };
 
-// Add custom Badge variants
-UIBadge.defaultProps = {
-  ...UIBadge.defaultProps,
-  variant: "default",
-};
-
-type ExtendedBadgeProps = React.ComponentPropsWithoutRef<typeof Badge> & {
-  variant?:
-    | "default"
-    | "secondary"
-    | "destructive"
-    | "outline"
-    | "success"
-    | "warning";
-};
-
-const Badge = ({
-  className,
-  variant = "default",
-  ...props
-}: ExtendedBadgeProps) => {
-  let variantClasses = "";
-
-  switch (variant) {
-    case "success":
-      variantClasses = createBadgeStyle("success");
-      break;
-    case "warning":
-      variantClasses = createBadgeStyle("warning");
-      break;
-    default:
-      variantClasses = "";
-  }
-
-  return (
-    <div
-      className={cn(badgeVariants({ variant }), variantClasses, className)}
-      {...props}
-    />
-  );
-};
 
 export default ChannelSetDetailsPage;

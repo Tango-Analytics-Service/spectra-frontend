@@ -6,7 +6,7 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
-import { TokenResponse, WebAppUser } from "../types/telegram";
+import { WebAppUser } from "../types/telegram";
 import {
   authenticateWithTelegram,
   getToken,
@@ -28,6 +28,9 @@ interface AuthContextType {
   error: string | null;
   isTelegram: boolean;
 }
+
+const API_DEV_TOKEN = import.meta.env.VITE_API_DEV_TOKEN || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1NGJlNjZkOC0xZTMwLTRhNTQtYjZlMS0yNTlkMzFmYWIyOTUiLCJ1c2VyX2lkIjoiNTRiZTY2ZDgtMWUzMC00YTU0LWI2ZTEtMjU5ZDMxZmFiMjk1IiwidGVsZWdyYW1faWQiOjk5ODU1OTA5NiwidHlwZSI6ImFjY2VzcyIsImV4cCI6MTc1NDQyMTIwOH0.PYMwuywoNIKm3TjH5xhk93xRWMbNIzWdrT3BfzdkI_Y";
+
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -85,7 +88,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
     try {
       if (isTelegram) {
-        const token = await authenticateWithTelegram();
+        // Only for dev mode, in production this should be await authenticateWithTelegram();
+        const token = {
+          access_token: API_DEV_TOKEN,
+          token_type: "Bearer",
+          expires_in: 99999,
+          refresh_token: "dev-refresh-token",
+        };
         saveToken(token);
         setIsAuthenticated(true);
       } else {

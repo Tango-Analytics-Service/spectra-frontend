@@ -5,8 +5,6 @@ import {
   Check,
   Plus,
   Search,
-  Trash,
-  X,
   LoaderCircle,
   ExternalLink,
   Trash2,
@@ -24,23 +22,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+
 import { toast } from "@/components/ui/use-toast";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+
 import { useChannelSets } from "@/contexts/ChannelSetsContext";
 import { ChannelDetails } from "@/types/channel-sets";
 import { cn } from "@/lib/utils";
@@ -51,6 +35,8 @@ import {
   typography,
   spacing,
   animations,
+  textColors,
+  createTextStyle,
 } from "@/lib/design-system";
 
 interface AddChannelsDialogProps {
@@ -213,7 +199,7 @@ const AddChannelsDialog: React.FC<AddChannelsDialogProps> = ({
           <DialogTitle className={typography.h3}>
             Добавление каналов
           </DialogTitle>
-          <DialogDescription className="text-blue-300">
+          <DialogDescription className={textColors.secondary}>
             Найдите или введите каналы, которые хотите добавить в набор
           </DialogDescription>
         </DialogHeader>
@@ -282,7 +268,8 @@ const AddChannelsDialog: React.FC<AddChannelsDialogProps> = ({
                     className={cn(
                       "py-8",
                       `px-${spacing.md}`,
-                      "text-center text-gray-400",
+                      "text-center",
+                      textColors.muted
                     )}
                   >
                     {searchQuery.length < 2 ? (
@@ -292,7 +279,7 @@ const AddChannelsDialog: React.FC<AddChannelsDialogProps> = ({
                           className={cn(
                             "mx-auto",
                             `mb-${spacing.sm}`,
-                            "text-gray-500",
+                            textColors.muted,
                           )}
                         />
                         Введите не менее 2 символов для поиска
@@ -304,7 +291,7 @@ const AddChannelsDialog: React.FC<AddChannelsDialogProps> = ({
                           className={cn(
                             "mx-auto",
                             `mb-${spacing.sm}`,
-                            "text-gray-500",
+                            textColors.muted,
                           )}
                         />
                         Каналы не найдены. Попробуйте другой запрос или добавьте
@@ -332,15 +319,16 @@ const AddChannelsDialog: React.FC<AddChannelsDialogProps> = ({
                             <Check
                               size={16}
                               className={cn(
-                                "text-blue-400",
+                                textColors.accent,
                                 `mr-${spacing.sm}`,
                               )}
                             />
                           ) : (
                             <div
                               className={cn(
-                                "w-4 h-4 border border-gray-500 rounded-sm",
+                                "w-4 h-4 borde rounded-sm",
                                 `mr-${spacing.sm}`,
+                                textColors.muted,
                               )}
                             />
                           )}
@@ -364,10 +352,7 @@ const AddChannelsDialog: React.FC<AddChannelsDialogProps> = ({
                             </div>
                             {channel.title && (
                               <div
-                                className={cn(
-                                  typography.small,
-                                  "text-gray-400",
-                                )}
+                                className={createTextStyle("small", "muted")}
                               >
                                 {channel.title}
                               </div>
@@ -377,7 +362,7 @@ const AddChannelsDialog: React.FC<AddChannelsDialogProps> = ({
 
                         {channel.stats && (
                           <div
-                            className={cn(typography.small, "text-gray-400")}
+                            className={createTextStyle("small", "muted")}
                           >
                             <div
                               className={cn(
@@ -435,8 +420,7 @@ const AddChannelsDialog: React.FC<AddChannelsDialogProps> = ({
 
               <div
                 className={cn(
-                  typography.tiny,
-                  "text-gray-400",
+                  createTextStyle("tiny", "muted"),
                   `mb-${spacing.sm}`,
                 )}
               >
@@ -452,13 +436,13 @@ const AddChannelsDialog: React.FC<AddChannelsDialogProps> = ({
                 )}
               >
                 {manualChannels.length === 0 ? (
-                  <div className={cn("py-8 text-center text-gray-400")}>
+                  <div className={cn(textColors.muted,"py-8 text-center")}>
                     <Plus
                       size={24}
                       className={cn(
                         "mx-auto",
                         `mb-${spacing.sm}`,
-                        "text-gray-500",
+                        textColors.muted,
                       )}
                     />
                     Добавьте каналы, введя их @username
@@ -475,14 +459,14 @@ const AddChannelsDialog: React.FC<AddChannelsDialogProps> = ({
                         )}
                       >
                         <div className="flex items-center">
-                          <div className={cn("font-medium", typography.body)}>
+                          <div className={cn(typography.weight.medium, typography.body)}>
                             @{username}
                           </div>
                           <a
                             href={`https://t.me/${username}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="ml-1 text-gray-400 hover:text-blue-400"
+                            className={cn(textColors.muted, "ml-1 hover:text-blue-400")}
                           >
                             <ExternalLink size={12} />
                           </a>
@@ -491,7 +475,7 @@ const AddChannelsDialog: React.FC<AddChannelsDialogProps> = ({
                           variant="ghost"
                           size="sm"
                           onClick={() => handleRemoveManualChannel(username)}
-                          className="h-8 w-8 p-0 text-red-400 hover:text-red-300 hover:bg-red-400/10"
+                          className={createButtonStyle("danger")}
                         >
                           <Trash2 size={14} />
                         </Button>
@@ -506,7 +490,7 @@ const AddChannelsDialog: React.FC<AddChannelsDialogProps> = ({
           {/* Selected counter */}
           <div className={cn(`mt-${spacing.sm}`, typography.small)}>
             Выбрано каналов:{" "}
-            <span className="font-semibold text-blue-400">{totalSelected}</span>
+            <span className={cn(textColors.accent, typography.weight.semibold)}>{totalSelected}</span>
           </div>
         </div>
 

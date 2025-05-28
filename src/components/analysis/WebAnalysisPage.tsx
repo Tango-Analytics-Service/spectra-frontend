@@ -3,25 +3,18 @@ import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import {
   typography,
-  spacing,
   animations,
-  createCardStyle,
-  createButtonStyle,
 } from "@/lib/design-system";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   BarChart,
   Filter,
   Play,
   RefreshCw,
   AlertCircle,
-  PieChart,
-  LineChart,
 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { FilterProvider, useFilters } from "@/contexts/FilterContext";
 import { analysisService } from "@/services/analysisService";
 import { useChannelSets } from "@/contexts/ChannelSetsContext";
 import StartAnalysisDialog from "./StartAnalysisDialog";

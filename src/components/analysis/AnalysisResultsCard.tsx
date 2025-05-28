@@ -10,12 +10,10 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
-  ChevronRight,
   ExternalLink,
   RefreshCw,
   Clock,
   Filter,
-  BarChart,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -45,6 +43,8 @@ import {
   typography,
   spacing,
   animations,
+  textColors,
+  radius,
 } from "@/lib/design-system";
 
 interface AnalysisResultsCardProps {
@@ -224,8 +224,8 @@ const StatCard: React.FC<{
       {icon}
     </div>
     <div>
-      <div className={cn(typography.h2, "font-semibold")}>{value}</div>
-      <div className={cn(typography.small, "text-blue-300")}>{label}</div>
+      <div className={cn(typography.h2, typography.weight.semibold)}>{value}</div>
+      <div className={cn(createTextStyle("small", "secondary"))}>{label}</div>
     </div>
   </div>
 );
@@ -300,14 +300,14 @@ const ChannelResultItem: React.FC<{ channel: ChannelResult }> = ({
             </div>
 
             <div className="flex-1 text-left">
-              <div className={cn(typography.body, "font-medium")}>
+              <div className={cn(typography.body, typography.weight.medium)}>
                 @{channel.channel_id}
               </div>
               {channel.description && (
                 <div
                   className={cn(
-                    typography.small,
-                    "text-gray-400 truncate max-w-[400px]",
+                    createTextStyle("small", "muted"),
+                   "truncate max-w-[400px]",
                   )}
                 >
                   {channel.description}
@@ -317,20 +317,20 @@ const ChannelResultItem: React.FC<{ channel: ChannelResult }> = ({
 
             <div className={cn("ml-4 flex items-center", `mr-${spacing.md}`)}>
               <div className={typography.small}>
-                <span className="text-blue-300">Соответствие: </span>
+                <span className={cn(textColors.secondary)}>Соответствие: </span>
                 <span
                   className={cn(
                     passRate >= 70
-                      ? "text-green-400"
+                      ? cn(textColors.success)
                       : passRate >= 40
-                        ? "text-amber-400"
-                        : "text-red-400",
+                        ? cn(textColors.warning)
+                        : cn(textColors.error)
                   )}
                 >
                   {passRate}%
                 </span>
               </div>
-              <div className={cn("ml-3", typography.tiny, "text-gray-400")}>
+              <div className={cn("ml-3", createTextStyle("tiny", "muted"))}>
                 {passedFilters}/{totalFilters} фильтров
               </div>
             </div>
@@ -342,15 +342,14 @@ const ChannelResultItem: React.FC<{ channel: ChannelResult }> = ({
         >
           <div
             className={cn(
-              "bg-slate-900/30 rounded-md",
+              "bg-slate-900/30", cn(radius.md),
               `p-${spacing.sm} mt-${spacing.sm}`,
             )}
           >
             <h4
               className={cn(
-                "font-medium",
-                typography.small,
-                "text-blue-300",
+                typography.weight.medium,
+                createTextStyle("small", "secondary"),
                 `mb-${spacing.sm}`,
               )}
             >
@@ -382,9 +381,8 @@ const ChannelResultItem: React.FC<{ channel: ChannelResult }> = ({
               <div className={`mt-${spacing.md}`}>
                 <h4
                   className={cn(
-                    "font-medium",
-                    typography.small,
-                    "text-blue-300",
+                    typography.weight.medium,
+                    createTextStyle("small", "secondary"),
                     `mb-${spacing.sm}`,
                   )}
                 >
@@ -404,7 +402,7 @@ const ChannelResultItem: React.FC<{ channel: ChannelResult }> = ({
                         <h5
                           className={cn(
                             typography.small,
-                            "font-medium",
+                            typography.weight.medium,
                             `mb-${spacing.sm}`,
                           )}
                         >
@@ -422,7 +420,7 @@ const ChannelResultItem: React.FC<{ channel: ChannelResult }> = ({
                               <XCircle
                                 size={12}
                                 className={cn(
-                                  "text-red-400",
+                                  textColors.error,
                                   `mr-${spacing.sm}`,
                                   "mt-0.5 flex-shrink-0",
                                 )}
@@ -430,7 +428,7 @@ const ChannelResultItem: React.FC<{ channel: ChannelResult }> = ({
                               <div className="flex-1">
                                 <div
                                   className={cn(
-                                    "text-red-300",
+                                    textColors.error,
                                     `mb-${spacing.xs}`,
                                   )}
                                 >
@@ -440,7 +438,7 @@ const ChannelResultItem: React.FC<{ channel: ChannelResult }> = ({
                                   href={post.url}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="text-blue-400 flex items-center hover:underline"
+                                  className={cn(textColors.accent, "flex items-center hover:underline")}
                                 >
                                   Открыть пост
                                   <ExternalLink size={10} className="ml-1" />

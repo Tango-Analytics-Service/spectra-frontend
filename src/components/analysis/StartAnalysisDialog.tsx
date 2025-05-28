@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -41,6 +40,8 @@ import {
   spacing,
   components,
   animations,
+  textColors,
+  createTextStyle,
 } from "@/lib/design-system";
 
 interface StartAnalysisDialogProps {
@@ -123,7 +124,7 @@ const StartAnalysisDialog: React.FC<StartAnalysisDialogProps> = ({
       >
         <DialogHeader>
           <DialogTitle className={typography.h3}>Запуск анализа</DialogTitle>
-          <DialogDescription className="text-blue-300">
+          <DialogDescription className={textColors.secondary}>
             Выберите фильтры и настройте параметры для анализа каналов
           </DialogDescription>
         </DialogHeader>
@@ -178,16 +179,17 @@ const StartAnalysisDialog: React.FC<StartAnalysisDialogProps> = ({
                 </span>
                 <span
                   className={cn(
-                    "font-semibold bg-blue-500/20 text-blue-400",
+                    "font-semibold bg-blue-500/20",
                     `px-${spacing.sm} py-${spacing.xs}`,
                     "rounded-full",
                     typography.small,
+                    textColors.accent
                   )}
                 >
                   {selectedFilters.length}
                 </span>
               </div>
-              <div className={cn(typography.small, "text-blue-300")}>
+              <div className={createTextStyle("small", "secondary")}>
                 Каналов для анализа:{" "}
                 <span className="font-semibold">{channelCount}</span>
               </div>
@@ -241,7 +243,7 @@ const StartAnalysisDialog: React.FC<StartAnalysisDialogProps> = ({
                       </SelectItem>
                     </SelectContent>
                   </Select>
-                  <p className={cn(typography.tiny, "text-blue-300")}>
+                  <p className={createTextStyle("tiny", "secondary")}>
                     Пакетный режим выполняет анализ асинхронно и стоит дешевле.
                     Прямой режим выполняет анализ сразу и стоит дороже, но
                     результаты будут доступны быстрее.
@@ -253,7 +255,7 @@ const StartAnalysisDialog: React.FC<StartAnalysisDialogProps> = ({
                     <Label htmlFor="max-posts">
                       Количество постов для анализа
                     </Label>
-                    <span className={cn(typography.small, "text-blue-300")}>
+                    <span className={createTextStyle("small", "secondary")}>
                       {maxPosts}
                     </span>
                   </div>
@@ -266,7 +268,7 @@ const StartAnalysisDialog: React.FC<StartAnalysisDialogProps> = ({
                     onValueChange={(value) => setMaxPosts(value[0])}
                     className={`py-${spacing.sm}`}
                   />
-                  <p className={cn(typography.tiny, "text-blue-300")}>
+                  <p className={createTextStyle("tiny", "secondary")}>
                     Количество последних постов, которые будут проанализированы
                     в каждом канале. Больше постов = более точный анализ, но
                     дольше и дороже.
@@ -298,13 +300,13 @@ const StartAnalysisDialog: React.FC<StartAnalysisDialogProps> = ({
                       >
                         Детальные объяснения
                       </Label>
-                      <p className={cn(typography.tiny, "text-slate-400")}>
+                      <p className={createTextStyle("tiny", "muted")}>
                         Включает подробные объяснения оценок для каждого фильтра
                       </p>
                     </div>
                     <Tooltip>
                       <TooltipTrigger>
-                        <Info size={16} className="text-blue-400" />
+                        <Info size={16} className={textColors.accent} />
                       </TooltipTrigger>
                       <TooltipContent>
                         <p className="max-w-[200px]">
@@ -336,13 +338,13 @@ const StartAnalysisDialog: React.FC<StartAnalysisDialogProps> = ({
                       >
                         Примеры проблемных постов
                       </Label>
-                      <p className={cn(typography.tiny, "text-slate-400")}>
+                      <p className={createTextStyle("tiny", "muted")}>
                         Включает примеры постов, не соответствующих фильтрам
                       </p>
                     </div>
                     <Tooltip>
                       <TooltipTrigger>
-                        <Info size={16} className="text-blue-400" />
+                        <Info size={16} className={textColors.accent} />
                       </TooltipTrigger>
                       <TooltipContent>
                         <p className="max-w-[200px]">

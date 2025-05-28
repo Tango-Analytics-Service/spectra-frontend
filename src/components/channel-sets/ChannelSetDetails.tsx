@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Share2,
   Settings,
@@ -11,17 +10,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import {
-  components,
-  gradients,
   typography,
   spacing,
   createCardStyle,
   createBadgeStyle,
   createButtonStyle,
-  colors,
-  radius,
-  shadows,
-  animations,
+  sizes,
+  createTextStyle,
+  textColors,
 } from "@/lib/design-system";
 
 interface Channel {

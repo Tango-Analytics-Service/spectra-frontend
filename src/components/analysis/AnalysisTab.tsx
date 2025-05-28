@@ -2,23 +2,19 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { BarChart, Filter, Play, RefreshCw, AlertCircle } from "lucide-react";
+import { BarChart, Play, RefreshCw, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { cn } from "@/lib/utils";
 import {
   components,
-  gradients,
   typography,
-  spacing,
   createCardStyle,
   createButtonStyle,
-  colors,
-  radius,
-  shadows,
+  createAlertStyle,
   animations,
-  createBadgeStyle,
+  textColors,
+  createTextStyle
 } from "@/lib/design-system";
-import { FilterProvider, useFilters } from "@/contexts/FilterContext";
 import { analysisService } from "@/services/analysisService";
 import {
   AnalysisOptions,
@@ -91,7 +87,6 @@ const AnalysisTab: React.FC<AnalysisTabProps> = ({ channelSet }) => {
       const response = await analyzeChannelSet(
         channelSet.id,
         filterIds,
-        options,
       );
 
       if (response && response.success) {
@@ -139,7 +134,7 @@ const AnalysisTab: React.FC<AnalysisTabProps> = ({ channelSet }) => {
       <div className="flex items-center justify-between">
         <div>
           <h3 className={typography.h3}>Анализ каналов</h3>
-          <p className={cn(typography.small, "text-blue-300")}>
+          <p className={cn(createTextStyle("small", "secondary"))}>
             Проанализируйте каналы с помощью фильтров
           </p>
         </div>
@@ -160,7 +155,7 @@ const AnalysisTab: React.FC<AnalysisTabProps> = ({ channelSet }) => {
             <CardContent
               className={cn("p-8", "flex justify-center", animations.fadeIn)}
             >
-              <RefreshCw className="h-8 w-8 animate-spin text-blue-400" />
+              <RefreshCw className={cn(textColors.accent, "h-8 w-8 animate-spin")}/>
             </CardContent>
           </Card>
         ) : latestTask && analysisResults ? (
@@ -177,7 +172,7 @@ const AnalysisTab: React.FC<AnalysisTabProps> = ({ channelSet }) => {
           <Card className={createCardStyle()}>
             <CardContent className="p-6">
               <div className="flex flex-col items-center justify-center py-8">
-                <RefreshCw className="h-12 w-12 animate-spin text-blue-400 mb-4" />
+                <RefreshCw className={cn(textColors.accent,"h-12 w-12 animate-spin mb-4")}/>
                 <h3 className={cn(typography.h3, "mb-2")}>Анализ в процессе</h3>
                 <p className={cn(typography.small, "text-blue-300 mb-4")}>
                   Мы анализируем каналы согласно выбранным фильтрам. Это может
@@ -208,7 +203,7 @@ const AnalysisTab: React.FC<AnalysisTabProps> = ({ channelSet }) => {
                 <h3 className={cn(typography.h3, "mb-2")}>
                   Нет данных анализа
                 </h3>
-                <p className={cn(typography.small, "text-blue-300 mb-4")}>
+                <p className={cn(createTextStyle("small", "secondary"), "mb-4")}>
                   Запустите анализ, чтобы оценить каналы по выбранным фильтрам
                 </p>
                 <Button
@@ -226,9 +221,9 @@ const AnalysisTab: React.FC<AnalysisTabProps> = ({ channelSet }) => {
 
       {/* Display warning if channels are not all parsed */}
       {!channelSet.all_parsed && (
-        <Alert className="bg-amber-500/10 border-amber-500/20">
+        <Alert className={cn(createAlertStyle("warning"))}>
           <AlertCircle className="h-4 w-4 text-amber-400" />
-          <AlertTitle className="text-amber-400">Внимание</AlertTitle>
+          <AlertTitle className={cn(textColors.warning)}>Внимание</AlertTitle>
           <AlertDescription>
             Не все каналы в наборе обработаны. Результаты анализа могут быть
             неполными.
