@@ -1,10 +1,11 @@
-// src/components/filters/FiltersPage.tsx
+// src/components/filters/FiltersPage.tsx - обновленная версия с общим StatsCard
 import React, { useState, useEffect } from "react";
 import { useFilters } from "@/contexts/FilterContext";
 import { Button } from "@/components/ui/button";
 import { Plus, Filter as FilterIcon, Settings } from "lucide-react";
 import FiltersList from "./FiltersList";
 import CreateFilterDialog from "./CreateFilterDialog";
+import { StatsCard } from "@/components/ui/stats-card";
 import { cn } from "@/lib/utils";
 import {
   createButtonStyle,
@@ -83,7 +84,7 @@ const FiltersPage: React.FC = () => {
           {/* Статистика */}
           <div
             className={cn(
-              "grid grid-cols-3 sm:grid-cols-3",
+              "grid grid-cols-3",
               `gap-${spacing.md}`,
               animations.slideIn,
             )}
@@ -147,60 +148,5 @@ const FiltersPage: React.FC = () => {
     </div>
   );
 };
-
-// Компонент карточки статистики
-interface StatsCardProps {
-  title: string;
-  value: string | number;
-  icon: React.ReactNode;
-  loading?: boolean;
-}
-
-const StatsCard: React.FC<StatsCardProps> = ({
-  title,
-  value,
-  icon,
-  loading = false,
-}) => (
-  <div
-    className={cn(
-      createCardStyle(),
-      `p-${spacing.md}`,
-      "flex flex-col", // Изменено на вертикальную компоновку
-      animations.scaleIn,
-    )}
-  >
-    {/* Заголовок */}
-    <div
-      className={cn(
-        createTextStyle("small", "secondary"),
-        `mb-${spacing.sm}`, // Отступ снизу вместо padding-right
-      )}
-    >
-      {title}
-    </div>
-    
-    {/* Иконка и значение */}
-    <div className="flex items-center justify-between">
-      <div
-        className={cn(
-          "bg-blue-500/10 rounded-full",
-          `p-${spacing.sm}`,
-          "flex items-center justify-center",
-        )}
-      >
-        {icon}
-      </div>
-      
-      <div className={cn(typography.h2, "font-semibold")}>
-        {loading ? (
-          <div className="animate-pulse bg-slate-700 h-6 w-8 rounded"></div>
-        ) : (
-          value
-        )}
-      </div>
-    </div>
-  </div>
-);
 
 export default FiltersPage;

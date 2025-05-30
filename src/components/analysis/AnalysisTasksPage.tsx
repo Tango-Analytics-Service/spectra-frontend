@@ -1,4 +1,4 @@
-// src/components/analysis/AnalysisTasksPage.tsx - улучшенная мобильная версия
+// src/components/analysis/AnalysisTasksPage.tsx - улучшенная версия с design-system
 import React, { useState, useEffect } from "react";
 import { 
   RefreshCw, 
@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/components/ui/use-toast";
+import { StatsCard } from "@/components/ui/stats-card";
 import { useAnalysisTasks } from "@/contexts/AnalysisTasksContext";
 import { useChannelSets } from "@/contexts/ChannelSetsContext";
 import { AnalysisTask, AnalysisTaskBasic } from "@/types/analysis";
@@ -44,6 +45,7 @@ import {
   spacing,
   animations,
   textColors,
+  gradients,
   components,
 } from "@/lib/design-system";
 
@@ -55,7 +57,8 @@ const MobileActionSheet = ({ isOpen, onClose, actions = [] }) => {
     <div className="fixed inset-0 bg-black/50 z-50 flex items-end justify-center">
       <div 
         className={cn(
-          "bg-slate-800 border-t border-blue-500/20 rounded-t-2xl",
+          createCardStyle(),
+          "border-t rounded-t-2xl",
           "w-full max-w-md animate-in slide-in-from-bottom duration-300"
         )}
       >
@@ -65,18 +68,18 @@ const MobileActionSheet = ({ isOpen, onClose, actions = [] }) => {
         </div>
 
         {/* Заголовок */}
-        <div className="flex items-center justify-between p-4 border-b border-slate-700/50">
-          <h3 className="font-semibold text-white">Действия</h3>
+        <div className={cn("flex items-center justify-between", `p-${spacing.md}`, "border-b border-slate-700/50")}>
+          <h3 className={cn(typography.h4, textColors.primary)}>Действия</h3>
           <button 
             onClick={onClose}
-            className="text-gray-400 hover:text-white p-1"
+            className={cn(textColors.muted, "hover:" + textColors.primary, "p-1")}
           >
             ✕
           </button>
         </div>
 
         {/* Действия */}
-        <div className="p-4 space-y-2">
+        <div className={cn(`p-${spacing.md}`, `space-y-${spacing.sm}`)}>
           {actions.map((action, index) => (
             <button
               key={index}
@@ -86,28 +89,30 @@ const MobileActionSheet = ({ isOpen, onClose, actions = [] }) => {
               }}
               disabled={action.disabled}
               className={cn(
-                "w-full flex items-center justify-between p-3 rounded-lg",
-                "transition-all duration-200",
+                "w-full flex items-center justify-between",
+                `p-${spacing.sm}`,
+                "rounded-lg transition-all duration-200",
                 action.disabled 
                   ? "bg-slate-700/50 text-gray-500 cursor-not-allowed"
                   : "bg-slate-700/50 text-white hover:bg-slate-600/50 active:scale-[0.98]"
               )}
             >
-              <div className="flex items-center space-x-3">
+              <div className={cn("flex items-center", `space-x-${spacing.sm}`)}>
                 <div className={cn(
-                  "p-2 rounded-lg",
+                  `p-${spacing.sm}`,
+                  "rounded-lg",
                   action.disabled ? "bg-slate-600/50" : action.color || "bg-blue-500/20"
                 )}>
-                  <action.icon size={18} className={action.disabled ? "text-gray-500" : action.iconColor || "text-blue-400"} />
+                  <action.icon size={18} className={action.disabled ? "text-gray-500" : action.iconColor || textColors.accent} />
                 </div>
                 <div className="text-left">
-                  <div className="font-medium">{action.title}</div>
+                  <div className={typography.weight.medium}>{action.title}</div>
                   {action.subtitle && (
-                    <div className="text-xs text-gray-400">{action.subtitle}</div>
+                    <div className={createTextStyle("tiny", "muted")}>{action.subtitle}</div>
                   )}
                 </div>
               </div>
-              <ChevronRight size={16} className="text-gray-400" />
+              <ChevronRight size={16} className={textColors.muted} />
             </button>
           ))}
         </div>
@@ -259,19 +264,20 @@ const AnalysisTasksPage: React.FC = () => {
       setShowTaskDetails(true);
     };
 
-
     return (
       <div
         className={cn(
-          "bg-slate-800/50 border border-blue-500/20 rounded-xl p-4 mb-3",
+          createCardStyle(),
+          `p-${spacing.md}`,
           "transition-all duration-200 active:scale-[0.98]",
-          "hover:border-blue-500/30 hover:bg-slate-800/70"
+          "hover:border-blue-500/30 hover:bg-slate-800/70",
+          "cursor-pointer"
         )}
         onClick={handleTaskPress}
       >
         {/* Заголовок и действия */}
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center space-x-2">
+        <div className={cn("flex items-center justify-between", `mb-${spacing.sm}`)}>
+          <div className={cn("flex items-center", `space-x-${spacing.sm}`)}>
             <Badge
               variant="outline"
               className={createBadgeStyle(getStatusVariant(task.status))}
@@ -279,28 +285,28 @@ const AnalysisTasksPage: React.FC = () => {
               {getStatusIcon(task.status)}
               <span className="ml-1">{getStatusText(task.status)}</span>
             </Badge>
-            <span className="text-xs text-gray-400">{formatDate(task.created_at)}</span>
+            <span className={createTextStyle("tiny", "muted")}>{formatDate(task.created_at)}</span>
           </div>
         </div>
 
         {/* Основная информация */}
-        <div className="grid grid-cols-2 gap-3 mb-3">
-          <div className="bg-slate-900/50 rounded-lg p-2">
-            <div className="text-xs text-blue-300">Каналов</div>
-            <div className="font-semibold text-white">{details.summary.total_channels || '-'}</div>
+        <div className={cn("grid grid-cols-2", `gap-${spacing.sm} mb-${spacing.sm}`)}>
+          <div className={cn("bg-slate-900/50 rounded-lg", `p-${spacing.sm}`)}>
+            <div className={createTextStyle("tiny", "accent")}>Каналов</div>
+            <div className={cn(typography.weight.semibold, textColors.primary)}>{details?.summary?.total_channels || '-'}</div>
           </div>
           
           {task.status === "completed" && successRate !== null && (
-            <div className="bg-slate-900/50 rounded-lg p-2">
-              <div className="text-xs text-green-300">Успешность</div>
-              <div className="font-semibold text-white">{successRate}%</div>
+            <div className={cn("bg-slate-900/50 rounded-lg", `p-${spacing.sm}`)}>
+              <div className={createTextStyle("tiny", "success")}>Успешность</div>
+              <div className={cn(typography.weight.semibold, textColors.primary)}>{successRate}%</div>
             </div>
           )}
           
           {task.status === "processing" && task.progress > 0 && (
-            <div className="bg-slate-900/50 rounded-lg p-2">
-              <div className="text-xs text-blue-300">Прогресс</div>
-              <div className="font-semibold text-white">{task.progress}%</div>
+            <div className={cn("bg-slate-900/50 rounded-lg", `p-${spacing.sm}`)}>
+              <div className={createTextStyle("tiny", "accent")}>Прогресс</div>
+              <div className={cn(typography.weight.semibold, textColors.primary)}>{task.progress}%</div>
             </div>
           )}
         </div>
@@ -316,7 +322,7 @@ const AnalysisTasksPage: React.FC = () => {
         )}
 
         {/* ID задачи */}
-        <div className="mt-2 text-xs text-gray-500">
+        <div className={cn("mt-2", createTextStyle("tiny", "muted"))}>
           ID: {task.id.slice(0, 8)}...
         </div>
       </div>
@@ -328,21 +334,22 @@ const AnalysisTasksPage: React.FC = () => {
     if (!isOpen || !selectedTask) return null;
 
     return (
-      <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center p-4">
+      <div className="fixed inset-0 backdrop-blur-lg bg-black/50 z-50 flex items-center justify-center p-4 pb-20">
         <div 
           className={cn(
-            "bg-slate-800 border border-blue-500/20 rounded-t-2xl sm:rounded-2xl",
-            "w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col",
-            "animate-in slide-in-from-bottom duration-300"
+            createCardStyle(),
+            "rounded-2xl",
+            "w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col",
+            animations.slideIn
           )}
         >
           {/* Заголовок */}
-          <div className="p-4 border-b border-slate-700/50">
+          <div className={cn(`p-${spacing.md}`, "border-b border-slate-700/50")}>
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-white">Детали задачи</h2>
+              <h2 className={cn(typography.h3, textColors.primary)}>Детали задачи</h2>
               <button 
                 onClick={onClose}
-                className="text-gray-400 hover:text-white p-1"
+                className={cn(textColors.muted, "hover:" + textColors.primary, "p-1")}
               >
                 ✕
               </button>
@@ -358,8 +365,8 @@ const AnalysisTasksPage: React.FC = () => {
                 isRefreshing={false}
               />
             ) : (
-              <div className="p-6">
-                <div className="flex flex-col items-center justify-center py-12">
+              <div className={`p-${spacing.lg}`}>
+                <div className={cn("flex flex-col items-center justify-center", `py-${spacing.xl}`)}>
                   {selectedTask.status === "processing" ? (
                     <>
                       <RefreshCw className={cn(textColors.accent, "h-12 w-12 animate-spin mb-4")} />
@@ -380,7 +387,7 @@ const AnalysisTasksPage: React.FC = () => {
                       <XCircle className={cn(textColors.error, "h-12 w-12 mb-4")} />
                       <h3 className={cn(typography.h3, "mb-2")}>Ошибка выполнения</h3>
                       <p className={cn(createTextStyle("small", "secondary"), "mb-4 text-center")}>
-                        {selectedTask.error || "Произошла ошибка при выполнении анализа"}
+                        "Произошла ошибка при выполнении анализа"
                       </p>
                     </>
                   ) : (
@@ -412,7 +419,7 @@ const AnalysisTasksPage: React.FC = () => {
         subtitle: "Проверить текущий статус задачи",
         onPress: () => refreshTask(task.id),
         color: "bg-blue-500/20",
-        iconColor: "text-blue-400"
+        iconColor: textColors.accent
       }
     ];
 
@@ -420,117 +427,138 @@ const AnalysisTasksPage: React.FC = () => {
   };
 
   return (
-    <div className={cn("container mx-auto", animations.fadeIn, "p-4")}>
-      {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className={typography.h1}>Задачи анализа</h1>
-          <p className={cn(createTextStyle("small", "secondary"), "mt-1")}>
-            Отслеживайте статус и результаты анализа каналов
-          </p>
-        </div>
-        <Button
-          onClick={handleRefresh}
-          disabled={isLoading}
-          className={createButtonStyle("secondary")}
-        >
-          {isLoading ? (
-            <RefreshCw size={16} className="mr-2 animate-spin" />
-          ) : (
-            <RefreshCw size={16} className="mr-2" />
-          )}
-          Обновить
-        </Button>
-      </div>
-
-      {/* Быстрая статистика */}
-      <div className="grid grid-cols-3 gap-3 mb-6">
-        <div className="bg-slate-800/50 border border-blue-500/20 rounded-xl p-3 text-center">
-          <div className="text-lg font-bold text-white">{tasks.length}</div>
-          <div className="text-xs text-blue-300">Всего</div>
-        </div>
-        <div className="bg-slate-800/50 border border-green-500/20 rounded-xl p-3 text-center">
-          <div className="text-lg font-bold text-green-400">
-            {tasks.filter(t => t.status === "completed").length}
-          </div>
-          <div className="text-xs text-green-300">Завершено</div>
-        </div>
-        <div className="bg-slate-800/50 border border-blue-500/20 rounded-xl p-3 text-center">
-          <div className="text-lg font-bold text-blue-400">
-            {tasks.filter(t => t.status === "processing").length}
-          </div>
-          <div className="text-xs text-blue-300">В процессе</div>
-        </div>
-      </div>
-
-      {/* Фильтры */}
-      <Card className={cn(createCardStyle(), "mb-6")}>
-        <CardContent className="p-4">
-          <div className="flex flex-col gap-4">
-            {/* Поиск */}
-            <div className="relative">
-              <Search
-                size={16}
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-              />
-              <Input
-                placeholder="Поиск по ID задачи или названию набора..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className={cn(components.input.base, "pl-9")}
-              />
+    <div
+      className={cn(
+        "flex flex-col w-full min-h-screen",
+        gradients.background,
+        "text-white"
+      )}
+    >
+      <main
+        className={cn(
+          "flex-1 overflow-hidden flex flex-col",
+          `px-${spacing.md} sm:px-${spacing.lg}`,
+          `pb-${spacing.md} sm:pb-${spacing.lg}`
+        )}
+      >
+        {/* Header */}
+        <div className={`mt-${spacing.sm} sm:mt-${spacing.md} mb-${spacing.lg}`}>
+          <div className="flex justify-between items-center mb-4">
+            <div>
+              <h1 className={typography.h1}>Задачи анализа</h1>
+              <p className={cn(createTextStyle("small", "secondary"), "mt-1")}>
+                Отслеживайте статус и результаты анализа каналов
+              </p>
             </div>
+            <Button
+              onClick={handleRefresh}
+              disabled={isLoading}
+              className={createButtonStyle("secondary")}
+            >
+              {isLoading ? (
+                <RefreshCw size={16} className="mr-2 animate-spin" />
+              ) : (
+                <RefreshCw size={16} className="mr-2" />
+              )}
+              Обновить
+            </Button>
+          </div>
 
-            {/* Фильтры статуса - горизонтальная прокрутка */}
-            <div className="flex gap-2 overflow-x-auto pb-1">
-              {[
-                { value: "all", label: "Все" },
-                { value: "completed", label: "Завершены" },
-                { value: "processing", label: "В процессе" },
-                { value: "failed", label: "Ошибки" }
-              ].map((filter) => (
-                <button
-                  key={filter.value}
-                  onClick={() => setStatusFilter(filter.value)}
-                  className={cn(
-                    "px-3 py-1 rounded-full text-sm whitespace-nowrap transition-all",
-                    statusFilter === filter.value
-                      ? "bg-blue-500 text-white"
-                      : "bg-slate-800/50 text-gray-300 hover:bg-slate-700/50"
-                  )}
-                >
-                  {filter.label}
-                </button>
+          {/* Быстрая статистика */}
+          <div className={cn("grid grid-cols-3", `gap-${spacing.md}`, animations.slideIn)}>
+            <StatsCard
+              title="Всего"
+              value={isLoading ? "—" : tasks.length}
+              icon={<BarChart3 size={15} className={textColors.accent} />}
+              loading={isLoading}
+            />
+            <StatsCard
+              title="Завершено"
+              value={isLoading ? "—" : tasks.filter(t => t.status === "completed").length}
+              icon={<CheckCircle size={15} className={textColors.success} />}
+              loading={isLoading}
+            />
+            <StatsCard
+              title="В процессе"
+              value={isLoading ? "—" : tasks.filter(t => t.status === "processing").length}
+              icon={<RefreshCw size={15} className={textColors.accent} />}
+              loading={isLoading}
+            />
+          </div>
+        </div>
+
+        {/* Фильтры */}
+        <Card className={cn(createCardStyle(), `mb-${spacing.lg}`)}>
+          <CardContent className={`p-${spacing.md}`}>
+            <div className={cn("flex flex-col", `gap-${spacing.md}`)}>
+              {/* Поиск */}
+              <div className="relative">
+                <Search
+                  size={16}
+                  className={cn("absolute left-3 top-1/2 transform -translate-y-1/2", textColors.muted)}
+                />
+                <Input
+                  placeholder="Поиск по ID задачи или названию набора..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className={cn(components.input.base, "pl-9")}
+                />
+              </div>
+
+              {/* Фильтры статуса - горизонтальная прокрутка */}
+              <div className="flex gap-2 overflow-x-auto pb-1">
+                {[
+                  { value: "all", label: "Все" },
+                  { value: "completed", label: "Завершены" },
+                  { value: "processing", label: "В процессе" },
+                  { value: "failed", label: "Ошибки" }
+                ].map((filter) => (
+                  <button
+                    key={filter.value}
+                    onClick={() => setStatusFilter(filter.value)}
+                    className={cn(
+                      `px-${spacing.sm} py-1`,
+                      "rounded-full text-sm whitespace-nowrap transition-all",
+                      statusFilter === filter.value
+                        ? "bg-blue-500 text-white"
+                        : "bg-slate-800/50 text-gray-300 hover:bg-slate-700/50"
+                    )}
+                  >
+                    {filter.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Список задач */}
+        <div className={cn("flex-1", animations.fadeIn)}>
+          {isLoading ? (
+            <div className={`space-y-${spacing.sm}`}>
+              {[1, 2, 3].map((i) => (
+                <Skeleton key={i} className="h-32 w-full rounded-xl" />
               ))}
             </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Список задач */}
-      {isLoading ? (
-        <div className="space-y-3">
-          {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-32 w-full rounded-xl" />
-          ))}
+          ) : filteredTasks.length === 0 ? (
+            <div className={cn(createCardStyle(), "text-center", `py-${spacing.xl}`)}>
+              <AlertCircle className={cn("mx-auto h-12 w-12 mb-4", textColors.muted)} />
+              <p className={createTextStyle("small", "muted")}>
+                {searchQuery || statusFilter !== "all" || dateFilter !== "all"
+                  ? "Нет задач, соответствующих фильтрам"
+                  : "У вас пока нет задач анализа"
+                }
+              </p>
+            </div>
+          ) : (
+            <div className={`space-y-${spacing.sm}`}>
+              {filteredTasks.map((task) => (
+                <TaskCard key={task.id} task={task} />
+              ))}
+            </div>
+          )}
         </div>
-      ) : filteredTasks.length === 0 ? (
-        <div className="text-center py-12">
-          <AlertCircle className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-          <p className={createTextStyle("small", "muted")}>
-            {searchQuery || statusFilter !== "all" || dateFilter !== "all"
-              ? "Нет задач, соответствующих фильтрам"
-              : "У вас пока нет задач анализа"
-            }
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-0">
-          {filteredTasks.map((task) => (
-            <TaskCard key={task.id} task={task} />
-          ))}
-        </div>
-      )}
+      </main>
 
       {/* Модальное окно с деталями */}
       <TaskDetailsModal 

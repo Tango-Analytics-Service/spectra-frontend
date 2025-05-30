@@ -1,4 +1,4 @@
-// src/components/analysis/StartAnalysisDialog.tsx
+// src/components/analysis/StartAnalysisDialog.tsx - улучшенная версия с design-system
 import React, { useState, useEffect } from "react";
 import {
   Dialog,
@@ -36,12 +36,12 @@ import { cn } from "@/lib/utils";
 import {
   createCardStyle,
   createButtonStyle,
+  createTextStyle,
   typography,
   spacing,
   components,
   animations,
   textColors,
-  createTextStyle,
 } from "@/lib/design-system";
 
 interface StartAnalysisDialogProps {
@@ -131,17 +131,15 @@ const StartAnalysisDialog: React.FC<StartAnalysisDialogProps> = ({
 
         <div className="flex-1 overflow-hidden flex flex-col">
           {/* Tabs for selections */}
-          <div
-            className={cn("flex border-b border-slate-700", `mb-${spacing.md}`)}
-          >
+          <div className={cn("flex border-b border-slate-700", `mb-${spacing.md}`)}>
             <Button
               variant="ghost"
               className={cn(
                 `pb-${spacing.sm} px-${spacing.md}`,
                 "rounded-none",
                 showFiltersList
-                  ? "text-blue-400 border-b-2 border-blue-400"
-                  : "text-slate-400",
+                  ? cn(textColors.accent, "border-b-2 border-blue-400")
+                  : textColors.muted,
               )}
               onClick={() => setShowFiltersList(true)}
             >
@@ -154,8 +152,8 @@ const StartAnalysisDialog: React.FC<StartAnalysisDialogProps> = ({
                 `pb-${spacing.sm} px-${spacing.md}`,
                 "rounded-none",
                 !showFiltersList
-                  ? "text-blue-400 border-b-2 border-blue-400"
-                  : "text-slate-400",
+                  ? cn(textColors.accent, "border-b-2 border-blue-400")
+                  : textColors.muted,
               )}
               onClick={() => setShowFiltersList(false)}
             >
@@ -168,30 +166,23 @@ const StartAnalysisDialog: React.FC<StartAnalysisDialogProps> = ({
           <div className={`mb-${spacing.md}`}>
             <div className="flex justify-between items-center">
               <div className="flex items-center">
-                <span
-                  className={cn(
-                    typography.small,
-                    "text-blue-300",
-                    `mr-${spacing.sm}`,
-                  )}
-                >
+                <span className={cn(typography.small, textColors.accent, `mr-${spacing.sm}`)}>
                   Выбрано фильтров:
                 </span>
-                <span
-                  className={cn(
-                    "font-semibold bg-blue-500/20",
-                    `px-${spacing.sm} py-${spacing.xs}`,
-                    "rounded-full",
-                    typography.small,
-                    textColors.accent
-                  )}
-                >
+                <span className={cn(
+                  typography.weight.semibold,
+                  "bg-blue-500/20",
+                  `px-${spacing.sm} py-${spacing.xs}`,
+                  "rounded-full",
+                  typography.small,
+                  textColors.accent
+                )}>
                   {selectedFilters.length}
                 </span>
               </div>
               <div className={createTextStyle("small", "secondary")}>
                 Каналов для анализа:{" "}
-                <span className="font-semibold">{channelCount}</span>
+                <span className={typography.weight.semibold}>{channelCount}</span>
               </div>
             </div>
           </div>
@@ -219,7 +210,9 @@ const StartAnalysisDialog: React.FC<StartAnalysisDialogProps> = ({
                 </Alert>
 
                 <div className={`space-y-${spacing.sm}`}>
-                  <Label htmlFor="processing-mode">Режим обработки</Label>
+                  <Label htmlFor="processing-mode" className={createTextStyle("small", "secondary")}>
+                    Режим обработки
+                  </Label>
                   <Select
                     value={processingMode}
                     onValueChange={(value) =>
@@ -252,7 +245,7 @@ const StartAnalysisDialog: React.FC<StartAnalysisDialogProps> = ({
 
                 <div className={`space-y-${spacing.sm}`}>
                   <div className="flex justify-between items-center">
-                    <Label htmlFor="max-posts">
+                    <Label htmlFor="max-posts" className={createTextStyle("small", "secondary")}>
                       Количество постов для анализа
                     </Label>
                     <span className={createTextStyle("small", "secondary")}>
@@ -278,11 +271,9 @@ const StartAnalysisDialog: React.FC<StartAnalysisDialogProps> = ({
                 <Separator className="bg-slate-700/50" />
 
                 <div className={`space-y-${spacing.md}`}>
-                  <Label>Дополнительные опции</Label>
+                  <Label className={createTextStyle("small", "secondary")}>Дополнительные опции</Label>
 
-                  <div
-                    className={cn("flex items-start", `space-x-${spacing.sm}`)}
-                  >
+                  <div className={cn("flex items-start", `space-x-${spacing.sm}`)}>
                     <Checkbox
                       id="detailed"
                       checked={detailed}
@@ -290,12 +281,13 @@ const StartAnalysisDialog: React.FC<StartAnalysisDialogProps> = ({
                         setDetailed(checked as boolean)
                       }
                     />
-                    <div className="space-y-1 flex-1">
+                    <div className={cn("space-y-1 flex-1")}>
                       <Label
                         htmlFor="detailed"
                         className={cn(
                           typography.small,
-                          "font-medium leading-none cursor-pointer",
+                          typography.weight.medium,
+                          "leading-none cursor-pointer",
                         )}
                       >
                         Детальные объяснения
@@ -318,9 +310,7 @@ const StartAnalysisDialog: React.FC<StartAnalysisDialogProps> = ({
                     </Tooltip>
                   </div>
 
-                  <div
-                    className={cn("flex items-start", `space-x-${spacing.sm}`)}
-                  >
+                  <div className={cn("flex items-start", `space-x-${spacing.sm}`)}>
                     <Checkbox
                       id="examples"
                       checked={includeExamples}
@@ -328,12 +318,13 @@ const StartAnalysisDialog: React.FC<StartAnalysisDialogProps> = ({
                         setIncludeExamples(checked as boolean)
                       }
                     />
-                    <div className="space-y-1 flex-1">
+                    <div className={cn("space-y-1 flex-1")}>
                       <Label
                         htmlFor="examples"
                         className={cn(
                           typography.small,
-                          "font-medium leading-none cursor-pointer",
+                          typography.weight.medium,
+                          "leading-none cursor-pointer",
                         )}
                       >
                         Примеры проблемных постов
