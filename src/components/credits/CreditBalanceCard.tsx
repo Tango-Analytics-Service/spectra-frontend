@@ -3,6 +3,7 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Coins } from "lucide-react";
 import { CreditBalance } from "@/types/credits";
+import { textColors } from "@/lib/design-system";
 
 interface CreditBalanceCardProps {
   balance: CreditBalance;
@@ -30,7 +31,7 @@ const CreditBalanceCard = ({ balance }: CreditBalanceCardProps) => {
           </div>
           <div className="flex items-center text-blue-300">
             <Coins size={16} className="mr-1" />
-            <span>Обновлен: {formatDate(balance.last_updated)}</span>
+            <span className={textColors.muted}>Обновлен: {formatDate(balance.last_updated)}</span>
           </div>
         </div>
 

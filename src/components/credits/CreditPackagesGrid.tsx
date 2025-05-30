@@ -22,23 +22,23 @@ const CreditPackagesGrid = ({
       </CardHeader>
       <CardContent className="p-4 sm:p-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {packages.map((pkg) => (
+          {packages.map((pkg, index) => (
             <Card
               key={pkg.id}
               className="bg-slate-900/50 border border-slate-700/50 hover:border-blue-500/30 
                 transition-colors overflow-hidden"
             >
               <div
-                className={`h-1 w-full ${getBgColorForPackage(pkg.id)}`}
+                className={`h-1 w-full ${getBgColorForPackage(index)}`}
               ></div>
               <CardContent className="p-4">
                 <div className="flex justify-between items-start mb-2">
                   <h3 className="font-bold text-lg text-white">{pkg.name}</h3>
                   <Badge
                     variant="outline"
-                    className={`${getBgColorForPackage(pkg.id, "badge")} border-blue-500/20`}
+                    className={`${getBgColorForPackage(index, "badge")} border-blue-500/20`}
                   >
-                    {pkg.price_per_credit.toFixed(3)} $ / кредит
+                    {pkg.price_per_credit.toFixed(3)} RUB / кредит
                   </Badge>
                 </div>
 
@@ -73,7 +73,7 @@ const CreditPackagesGrid = ({
                   </div>
                   <Button
                     onClick={() => onPurchase(pkg.id)}
-                    className={`${getBgColorForPackage(pkg.id, "button")} text-white`}
+                    className={`${getBgColorForPackage(index, "button")} text-white`}
                   >
                     Купить
                   </Button>
@@ -89,35 +89,35 @@ const CreditPackagesGrid = ({
 
 // Функция для динамического определения цвета пакета
 function getBgColorForPackage(
-  packageId: string,
+  packageId: number,
   type: "bar" | "button" | "badge" = "bar",
 ): string {
   switch (packageId) {
-    case "pkg1":
+    case 0:
       return type === "bar"
         ? "bg-gradient-to-r from-blue-400 to-blue-500"
         : type === "button"
           ? "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
           : "bg-blue-500/10 text-blue-400";
-    case "pkg2":
+    case 1:
       return type === "bar"
         ? "bg-gradient-to-r from-teal-400 to-green-500"
         : type === "button"
           ? "bg-gradient-to-r from-teal-500 to-green-600 hover:from-teal-600 hover:to-green-700"
           : "bg-teal-500/10 text-teal-400";
-    case "pkg3":
+    case 2:
       return type === "bar"
         ? "bg-gradient-to-r from-purple-400 to-blue-500"
         : type === "button"
           ? "bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700"
           : "bg-purple-500/10 text-purple-400";
-    case "pkg4":
+    case 3:
       return type === "bar"
         ? "bg-gradient-to-r from-amber-400 to-orange-500"
         : type === "button"
           ? "bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700"
           : "bg-amber-500/10 text-amber-400";
-    case "pkg5":
+    case 4:
       return type === "bar"
         ? "bg-gradient-to-r from-red-400 to-pink-500"
         : type === "button"
