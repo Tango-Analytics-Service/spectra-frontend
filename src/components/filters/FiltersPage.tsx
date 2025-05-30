@@ -166,30 +166,33 @@ const StatsCard: React.FC<StatsCardProps> = ({
     className={cn(
       createCardStyle(),
       `p-${spacing.md}`,
-      "flex items-start flex-wrap content-between justify-start",
+      "flex flex-col", // Изменено на вертикальную компоновку
       animations.scaleIn,
     )}
   >
+    {/* Заголовок */}
     <div
       className={cn(
         createTextStyle("small", "secondary"),
-        "truncate",
-        `pb-${spacing.sm} pr-${spacing.sm}`,
+        `mb-${spacing.sm}`, // Отступ снизу вместо padding-right
       )}
     >
       {title}
     </div>
-    <div
-      className={cn(
-        "bg-blue-500/10 rounded-full",
-        `p-${spacing.sm} mr-${spacing.md}`,
-        "flex items-center justify-center",
-      )}
-    >
-      {icon}
-    </div>
-    <div className="flex-1 min-w-0">
-      <div className={cn(typography.h2, "font-semibold truncate")}>
+    
+    {/* Иконка и значение */}
+    <div className="flex items-center justify-between">
+      <div
+        className={cn(
+          "bg-blue-500/10 rounded-full",
+          `p-${spacing.sm}`,
+          "flex items-center justify-center",
+        )}
+      >
+        {icon}
+      </div>
+      
+      <div className={cn(typography.h2, "font-semibold")}>
         {loading ? (
           <div className="animate-pulse bg-slate-700 h-6 w-8 rounded"></div>
         ) : (
