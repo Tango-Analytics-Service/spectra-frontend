@@ -1,4 +1,4 @@
-// src/components/analysis/AnalysisTab.tsx
+// src/components/analysis/AnalysisTab.tsx (обновленный)
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -15,16 +15,16 @@ import {
   textColors,
   createTextStyle
 } from "@/lib/design-system";
-import { analysisService } from "@/services/analysisService";
 import {
   AnalysisOptions,
-  AnalysisResults,
   AnalysisTask,
+  AnalysisResultsForCard,
 } from "@/types/analysis";
 import { ChannelSet } from "@/types/channel-sets";
 import StartAnalysisDialog from "./StartAnalysisDialog";
 import AnalysisResultsCard from "./AnalysisResultsCard";
 import { useChannelSets } from "@/contexts/ChannelSetsContext";
+import { useAnalysisTasks } from "@/contexts/AnalysisTasksContext"; // НОВЫЙ ИМПОРТ
 import { toast } from "@/components/ui/use-toast";
 
 interface AnalysisTabProps {
@@ -33,50 +33,69 @@ interface AnalysisTabProps {
 
 const AnalysisTab: React.FC<AnalysisTabProps> = ({ channelSet }) => {
   const [showAnalysisDialog, setShowAnalysisDialog] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [latestTask, setLatestTask] = useState<AnalysisTask | null>(null);
-  const [analysisResults, setAnalysisResults] =
-    useState<AnalysisResults | null>(null);
   const { analyzeChannelSet } = useChannelSets();
+  
+  // Используем контекст задач
+  const {
+    findTasksForChannelSet,
+    refreshTask,
+    fetchTasks,
+  } = useAnalysisTasks();
 
-  // Load latest analysis task for this channel set
+  // Состояние для задачи этого набора каналов
+  const [latestTask, setLatestTask] = useState<AnalysisTask | null>(null);
+  const [isLoadingTask, setIsLoadingTask] = useState(false);
+  
+  // Формируем объект результатов для компонента AnalysisResultsCard
+  const analysisResults: AnalysisResultsForCard | null = latestTask && latestTask.results ? {
+    results: latestTask.results,
+    summary: latestTask.summary!,
+    task_id: latestTask.id,
+    status: latestTask.status,
+    started_at: latestTask.created_at,
+    completed_at: latestTask.completed_at || undefined,
+    // channel_set может быть добавлен отдельно, если нужно
+  } : null;
+
+  // Загружаем задачи для данного набора каналов
   useEffect(() => {
     const loadLatestTask = async () => {
-      setIsLoading(true);
+      setIsLoadingTask(true);
       try {
-        // Get all tasks for the user
-        const tasksResponse = await analysisService.getUserTasks(10, 0);
-
-        // Find the latest task for this channel set
-        const channelSetTasks = tasksResponse.tasks
-          .filter((task) => task.channel_set_id === channelSet.id)
-          .sort(
-            (a, b) =>
-              new Date(b.created_at).getTime() -
-              new Date(a.created_at).getTime(),
+        await fetchTasks();
+        
+        // Пытаемся найти задачи для конкретного набора каналов
+        const tasks = await findTasksForChannelSet(channelSet.id);
+        
+        if (tasks.length > 0) {
+          const latest = tasks.sort(
+            (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          )[0];
+          setLatestTask(latest);
+        } else {
+          // Fallback: Если не можем найти задачи для конкретного набора,
+          // показываем последнюю завершенную задачу пользователя
+          const allDetails = Object.values(taskDetails);
+          const completedTasks = allDetails.filter(task => 
+            task.status === "completed" && task.results && task.results.length > 0
           );
-
-        if (channelSetTasks.length > 0) {
-          const task = channelSetTasks[0];
-          setLatestTask(task);
-
-          // If the task is completed, load the results
-          if (task.status === "completed" && task.results) {
-            setAnalysisResults(task.results);
+          
+          if (completedTasks.length > 0) {
+            const latest = completedTasks.sort(
+              (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+            )[0];
+            setLatestTask(latest);
           }
         }
       } catch (error) {
-        console.error("Error loading latest analysis task:", error);
+        console.error("Error loading latest task:", error);
       } finally {
-        setIsLoading(false);
+        setIsLoadingTask(false);
       }
     };
 
-    if (channelSet.id) {
-      loadLatestTask();
-    }
-  }, [channelSet.id]);
+    loadLatestTask();
+  }, [fetchTasks, findTasksForChannelSet, channelSet.id, taskDetails]);
 
   // Start new analysis
   const handleStartAnalysis = async (
@@ -87,12 +106,21 @@ const AnalysisTab: React.FC<AnalysisTabProps> = ({ channelSet }) => {
       const response = await analyzeChannelSet(
         channelSet.id,
         filterIds,
+        options,
       );
 
       if (response && response.success) {
-        // Load the new task
-        const task = await analysisService.getUserTask(response.task_id);
-        setLatestTask(task);
+        // Обновляем список задач после создания новой
+        await fetchTasks(50, 0, undefined, true);
+        
+        // Перезагружаем задачи для этого набора
+        const tasks = await findTasksForChannelSet(channelSet.id);
+        if (tasks.length > 0) {
+          const latest = tasks.sort(
+            (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          )[0];
+          setLatestTask(latest);
+        }
 
         toast({
           title: "Анализ запущен",
@@ -112,19 +140,16 @@ const AnalysisTab: React.FC<AnalysisTabProps> = ({ channelSet }) => {
   // Refresh task status
   const handleRefreshTask = async () => {
     if (!latestTask) return;
-
-    setIsRefreshing(true);
-    try {
-      const updatedTask = await analysisService.getUserTask(latestTask.id);
-      setLatestTask(updatedTask);
-
-      if (updatedTask.status === "completed" && updatedTask.results) {
-        setAnalysisResults(updatedTask.results);
+    
+    await refreshTask(latestTask.id);
+    
+    // Обновляем локальное состояние
+    const tasks = await findTasksForChannelSet(channelSet.id);
+    if (tasks.length > 0) {
+      const updated = tasks.find(t => t.id === latestTask.id);
+      if (updated) {
+        setLatestTask(updated);
       }
-    } catch (error) {
-      console.error("Error refreshing task:", error);
-    } finally {
-      setIsRefreshing(false);
     }
   };
 
@@ -149,23 +174,27 @@ const AnalysisTab: React.FC<AnalysisTabProps> = ({ channelSet }) => {
 
       {/* Content */}
       <div>
-        {isLoading ? (
+        {isLoadingTask ? (
           // Loading state
           <Card className={createCardStyle()}>
-            <CardContent
-              className={cn("p-8", "flex justify-center", animations.fadeIn)}
-            >
-              <RefreshCw className={cn(textColors.accent, "h-8 w-8 animate-spin")}/>
+            <CardContent className="p-6">
+              <div className="flex flex-col items-center justify-center py-8">
+                <RefreshCw className={cn(textColors.accent,"h-12 w-12 animate-spin mb-4")}/>
+                <h3 className={cn(typography.h3, "mb-2")}>Загрузка...</h3>
+                <p className={cn(typography.small, "text-blue-300")}>
+                  Проверяем наличие задач анализа для этого набора
+                </p>
+              </div>
             </CardContent>
           </Card>
-        ) : latestTask && analysisResults ? (
+        ) : latestTask && latestTask.results ? (
           // Analysis results
           <AnalysisResultsCard
-            results={analysisResults}
+            results={analysisResults!}
             onRefresh={
               latestTask.status !== "completed" ? handleRefreshTask : undefined
             }
-            isRefreshing={isRefreshing}
+            isRefreshing={false}
           />
         ) : latestTask && latestTask.status !== "completed" ? (
           // Task in progress
@@ -178,19 +207,24 @@ const AnalysisTab: React.FC<AnalysisTabProps> = ({ channelSet }) => {
                   Мы анализируем каналы согласно выбранным фильтрам. Это может
                   занять некоторое время.
                 </p>
-                <Button
-                  variant="outline"
-                  onClick={handleRefreshTask}
-                  disabled={isRefreshing}
-                  className={components.button.secondary}
-                >
-                  {isRefreshing ? (
-                    <RefreshCw size={16} className="mr-2 animate-spin" />
-                  ) : (
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={handleRefreshTask}
+                    className={components.button.secondary}
+                  >
                     <RefreshCw size={16} className="mr-2" />
-                  )}
-                  Проверить статус
-                </Button>
+                    Проверить статус
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => window.open('/analysis/tasks', '_blank')}
+                    className={components.button.secondary}
+                  >
+                    <BarChart size={16} className="mr-2" />
+                    Все задачи
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>

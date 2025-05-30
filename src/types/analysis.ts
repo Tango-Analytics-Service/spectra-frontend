@@ -1,4 +1,4 @@
-// src/types/analysis.ts
+// src/types/analysis.ts (исправленные типы)
 import { ChannelSet } from "./channel-sets";
 
 export enum ProcessingMode {
@@ -26,7 +26,7 @@ export interface ChannelAnalysisResponse {
 }
 
 export interface ProblematicPost {
-  post_id: string;
+  post_id: string | number;
   url: string;
   issue: string;
 }
@@ -41,10 +41,10 @@ export interface FilterResult {
 }
 
 export interface ChannelResult {
-  channel_id: string;
+  channel_id: string | number;
   description?: string;
   filter_results: FilterResult[];
-  overall_status: "approved" | "rejected" | "pending";
+  overall_status: string;
 }
 
 export interface AnalysisSummary {
@@ -53,7 +53,45 @@ export interface AnalysisSummary {
   rejected_channels: number;
 }
 
+// ИСПРАВЛЕННЫЙ ТИП: Результаты анализа (соответствуют AnalysisResultsResponse)
 export interface AnalysisResults {
+  results: ChannelResult[];
+  summary: AnalysisSummary;
+}
+
+// НОВЫЙ ТИП: Базовая информация о задаче (из списка)
+export interface AnalysisTaskBasic {
+  id: string;
+  status: "pending" | "processing" | "completed" | "failed";
+  progress: number;
+  created_at: string;
+  updated_at: string;
+  completed_at?: string | null;
+  error?: string | null;
+}
+
+// ИСПРАВЛЕННЫЙ ТИП: Полная информация о задаче (из детального запроса)
+export interface AnalysisTask extends AnalysisTaskBasic {
+  // Результаты анализа встроены прямо в объект задачи
+  results?: ChannelResult[];
+  summary?: AnalysisSummary;
+  
+  // Дополнительные поля, которые могут быть в детальном ответе
+  type?: "channel_analysis";
+  channel_set_id?: string;
+  filter_ids?: string[];
+  options?: AnalysisOptions;
+  channel_usernames?: string[];
+}
+
+// ТИП: Ответ от API со списком задач
+export interface AnalysisTasksListResponse {
+  tasks: AnalysisTaskBasic[];
+  count: number;
+}
+
+// ВСПОМОГАТЕЛЬНЫЙ ТИП: Для компонента AnalysisResultsCard
+export interface AnalysisResultsForCard {
   results: ChannelResult[];
   summary: AnalysisSummary;
   task_id?: string;
@@ -61,17 +99,4 @@ export interface AnalysisResults {
   started_at?: string;
   completed_at?: string;
   channel_set?: ChannelSet;
-}
-
-export interface AnalysisTask {
-  id: string;
-  type: "channel_analysis";
-  status: "pending" | "processing" | "completed" | "failed";
-  created_at: string;
-  updated_at: string;
-  completed_at?: string;
-  channel_set_id?: string;
-  filter_ids?: string[];
-  results?: AnalysisResults;
-  error?: string;
 }

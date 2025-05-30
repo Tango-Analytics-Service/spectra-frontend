@@ -1,7 +1,7 @@
 // src/components/navigation/BottomNavigation.tsx
 import React from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { Home, CreditCard, Search, User } from "lucide-react";
+import { Home, CreditCard, Search, User, BarChart3 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   components,
@@ -78,6 +78,12 @@ const BottomNavigation: React.FC = () => {
           active={currentPath === "/" || currentPath === "/home"}
         />
         <NavItem
+          to="/analysis/tasks"
+          icon={<BarChart3 size={18} />}
+          label="Анализ"
+          active={currentPath.startsWith("/analysis")}
+        />
+        <NavItem
           to="/filters"
           icon={<Search size={18} />}
           label="Фильтры"
@@ -88,12 +94,6 @@ const BottomNavigation: React.FC = () => {
           icon={<CreditCard size={18} />}
           label="Кредиты"
           active={currentPath.startsWith("/credit")}
-        />
-        <NavItem
-          to="/profile"
-          icon={<User size={18} />}
-          label="Профиль"
-          active={currentPath.startsWith("/profile")}
         />
       </div>
     </div>

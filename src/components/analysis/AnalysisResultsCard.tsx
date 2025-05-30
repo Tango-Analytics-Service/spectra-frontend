@@ -1,6 +1,6 @@
 // src/components/analysis/AnalysisResultsCard.tsx
 import React from "react";
-import { AnalysisResults, ChannelResult, FilterResult } from "@/types/analysis";
+import { AnalysisResults, AnalysisTask, ChannelResult, FilterResult } from "@/types/analysis";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -48,7 +48,7 @@ import {
 } from "@/lib/design-system";
 
 interface AnalysisResultsCardProps {
-  results: AnalysisResults;
+  results: AnalysisTask;
   onRefresh?: () => void;
   isRefreshing?: boolean;
 }
@@ -62,7 +62,7 @@ const AnalysisResultsCard: React.FC<AnalysisResultsCardProps> = ({
     summary,
     results: channelResults,
     status,
-    started_at,
+    created_at,
     completed_at,
   } = results;
 
@@ -112,7 +112,7 @@ const AnalysisResultsCard: React.FC<AnalysisResultsCardProps> = ({
         <div className="flex items-center mt-1">
           <StatusBadge status={status || "pending"} />
           <div className={cn("ml-4", createTextStyle("small", "secondary"))}>
-            {started_at && <div>Начат: {formatDate(started_at)}</div>}
+            {created_at && <div>Начат: {formatDate(created_at)}</div>}
             {completed_at && <div>Завершен: {formatDate(completed_at)}</div>}
           </div>
         </div>
@@ -274,7 +274,7 @@ const ChannelResultItem: React.FC<{ channel: ChannelResult }> = ({
       collapsible
       className="border-b border-slate-700/50"
     >
-      <AccordionItem value={channel.channel_id} className="border-0">
+      <AccordionItem value={String(channel.channel_id)} className="border-0">
         <AccordionTrigger
           className={cn(
             `py-${spacing.sm} px-${spacing.md}`,

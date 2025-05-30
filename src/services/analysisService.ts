@@ -1,4 +1,4 @@
-// src/services/analysisService.ts
+// src/services/analysisService.ts (обновленный)
 import { httpClient } from "./httpClient";
 import {
   AnalysisOptions,
@@ -6,6 +6,7 @@ import {
   ChannelAnalysisResponse,
   AnalysisResults,
   AnalysisTask,
+  AnalysisTasksListResponse,
 } from "@/types/analysis";
 import { Filter } from "@/contexts/FilterContext";
 
@@ -34,7 +35,7 @@ export const analysisService = {
 
   /**
    * Get analysis results by task ID
-   * @deprecated Use userService.getUserTask instead
+   * @deprecated Use getUserTask instead
    */
   getAnalysisResults: async (taskId: string): Promise<AnalysisResults> => {
     return httpClient.get<AnalysisResults>(`${API_ENDPOINT}/results/${taskId}`);
@@ -69,22 +70,22 @@ export const analysisService = {
   },
 
   /**
-   * Get task by ID from user's tasks
+   * Get task by ID (ИСПРАВЛЕННЫЙ ENDPOINT)
    */
   getUserTask: async (taskId: string): Promise<AnalysisTask> => {
-    return httpClient.get<AnalysisTask>(`/users/me/tasks/${taskId}`);
+    return httpClient.get<AnalysisTask>(`/tasks/${taskId}`);
   },
 
   /**
-   * Get all user's tasks
+   * Get all user's tasks (ИСПРАВЛЕННЫЙ ENDPOINT с правильным типом ответа)
    */
   getUserTasks: async (
     limit: number = 10,
     offset: number = 0,
     status?: string,
-  ): Promise<{ tasks: AnalysisTask[]; count: number }> => {
-    let url = `/users/me/tasks?limit=${limit}&offset=${offset}`;
+  ): Promise<AnalysisTasksListResponse> => {
+    let url = `/tasks?limit=${limit}&offset=${offset}`;
     if (status) url += `&status=${status}`;
-    return httpClient.get<{ tasks: AnalysisTask[]; count: number }>(url);
+    return httpClient.get<AnalysisTasksListResponse>(url);
   },
 };
