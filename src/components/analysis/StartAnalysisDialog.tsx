@@ -81,9 +81,9 @@ const StartAnalysisDialog: React.FC<StartAnalysisDialogProps> = ({
         setShowFiltersList(true);
         // Reset options to defaults
         setMaxPosts(20);
-        setDetailed(false);
-        setIncludeExamples(false);
-        setProcessingMode(ProcessingMode.BATCH);
+        setDetailed(true);
+        setIncludeExamples(true);
+        setProcessingMode(ProcessingMode.DIRECT);
       }, 300);
     }
   }, [open, clearSelectedFilters]);
@@ -189,165 +189,14 @@ const StartAnalysisDialog: React.FC<StartAnalysisDialogProps> = ({
 
           {/* Content area */}
           <ScrollArea className={cn("flex-1", `pr-${spacing.md}`)}>
-            {showFiltersList ? (
+            {showFiltersList && (
               /* Filters selection */
               <FiltersList
                 onSelectFilter={toggleFilterSelection}
                 selectedFilters={selectedFilters}
                 height="h-[400px]"
               />
-            ) : (
-              /* Analysis options */
-              <div className={cn(`space-y-${spacing.lg} pb-${spacing.md}`)}>
-                <Alert className={cn(createCardStyle(), "bg-slate-900/50")}>
-                  <Info className="h-4 w-4" />
-                  <AlertTitle>О параметрах анализа</AlertTitle>
-                  <AlertDescription>
-                    Настройте параметры анализа каналов в соответствии с вашими
-                    потребностями. Более подробный анализ занимает больше
-                    времени и кредитов.
-                  </AlertDescription>
-                </Alert>
-
-                <div className={`space-y-${spacing.sm}`}>
-                  <Label htmlFor="processing-mode" className={createTextStyle("small", "secondary")}>
-                    Режим обработки
-                  </Label>
-                  <Select
-                    value={processingMode}
-                    onValueChange={(value) =>
-                      setProcessingMode(value as ProcessingMode)
-                    }
-                  >
-                    <SelectTrigger
-                      id="processing-mode"
-                      className={components.input.base}
-                    >
-                      <SelectValue placeholder="Выберите режим обработки" />
-                    </SelectTrigger>
-                    <SelectContent
-                      className={cn(createCardStyle(), "bg-slate-800")}
-                    >
-                      <SelectItem value={ProcessingMode.BATCH}>
-                        Пакетный (асинхронно, дешевле)
-                      </SelectItem>
-                      <SelectItem value={ProcessingMode.DIRECT}>
-                        Прямой (синхронно, быстрее)
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <p className={createTextStyle("tiny", "secondary")}>
-                    Пакетный режим выполняет анализ асинхронно и стоит дешевле.
-                    Прямой режим выполняет анализ сразу и стоит дороже, но
-                    результаты будут доступны быстрее.
-                  </p>
-                </div>
-
-                <div className={`space-y-${spacing.sm}`}>
-                  <div className="flex justify-between items-center">
-                    <Label htmlFor="max-posts" className={createTextStyle("small", "secondary")}>
-                      Количество постов для анализа
-                    </Label>
-                    <span className={createTextStyle("small", "secondary")}>
-                      {maxPosts}
-                    </span>
-                  </div>
-                  <Slider
-                    id="max-posts"
-                    min={5}
-                    max={50}
-                    step={5}
-                    value={[maxPosts]}
-                    onValueChange={(value) => setMaxPosts(value[0])}
-                    className={`py-${spacing.sm}`}
-                  />
-                  <p className={createTextStyle("tiny", "secondary")}>
-                    Количество последних постов, которые будут проанализированы
-                    в каждом канале. Больше постов = более точный анализ, но
-                    дольше и дороже.
-                  </p>
-                </div>
-
-                <Separator className="bg-slate-700/50" />
-
-                <div className={`space-y-${spacing.md}`}>
-                  <Label className={createTextStyle("small", "secondary")}>Дополнительные опции</Label>
-
-                  <div className={cn("flex items-start", `space-x-${spacing.sm}`)}>
-                    <Checkbox
-                      id="detailed"
-                      checked={detailed}
-                      onCheckedChange={(checked) =>
-                        setDetailed(checked as boolean)
-                      }
-                    />
-                    <div className={cn("space-y-1 flex-1")}>
-                      <Label
-                        htmlFor="detailed"
-                        className={cn(
-                          typography.small,
-                          typography.weight.medium,
-                          "leading-none cursor-pointer",
-                        )}
-                      >
-                        Детальные объяснения
-                      </Label>
-                      <p className={createTextStyle("tiny", "muted")}>
-                        Включает подробные объяснения оценок для каждого фильтра
-                      </p>
-                    </div>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <Info size={16} className={textColors.accent} />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p className="max-w-[200px]">
-                          Система предоставит более детальные объяснения по
-                          каждому фильтру. Это может занять больше времени и
-                          кредитов.
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </div>
-
-                  <div className={cn("flex items-start", `space-x-${spacing.sm}`)}>
-                    <Checkbox
-                      id="examples"
-                      checked={includeExamples}
-                      onCheckedChange={(checked) =>
-                        setIncludeExamples(checked as boolean)
-                      }
-                    />
-                    <div className={cn("space-y-1 flex-1")}>
-                      <Label
-                        htmlFor="examples"
-                        className={cn(
-                          typography.small,
-                          typography.weight.medium,
-                          "leading-none cursor-pointer",
-                        )}
-                      >
-                        Примеры проблемных постов
-                      </Label>
-                      <p className={createTextStyle("tiny", "muted")}>
-                        Включает примеры постов, не соответствующих фильтрам
-                      </p>
-                    </div>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <Info size={16} className={textColors.accent} />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p className="max-w-[200px]">
-                          Система будет приводить конкретные примеры постов, не
-                          соответствующих выбранным фильтрам.
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </div>
-                </div>
-              </div>
-            )}
+            ) }
           </ScrollArea>
         </div>
 
