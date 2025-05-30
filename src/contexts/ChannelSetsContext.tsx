@@ -14,6 +14,7 @@ import {
   UpdateChannelSetRequest,
   ChannelDetails,
 } from "@/types/channel-sets";
+import { AnalysisOptions, ChannelAnalysisResponse } from "@/types/analysis";
 
 interface ChannelSetsContextType {
   channelSets: ChannelSet[];
@@ -33,7 +34,7 @@ interface ChannelSetsContextType {
   deleteChannelSet: (id: string) => Promise<boolean>;
   addChannelsToSet: (setId: string, usernames: string[]) => Promise<any>;
   removeChannelsFromSet: (setId: string, usernames: string[]) => Promise<any>;
-  analyzeChannelSet: (setId: string, filterIds: string[]) => Promise<any>;
+  analyzeChannelSet: (setId: string, filterIds: string[], options?: AnalysisOptions ) => Promise<any>;
   refreshChannelSet: (id: string) => Promise<ChannelSet | undefined>;
   searchChannels: (query: string) => Promise<ChannelDetails[]>;
 }

@@ -170,7 +170,7 @@ const CreateFilterDialog: React.FC<CreateFilterDialogProps> = ({
                 <SelectItem
                   key={category.value}
                   value={category.value}
-                  className="hover:bg-blue-500/10 focus:bg-blue-500/10"
+                  className="hover:bg-blue-500/10 focus:bg-blue-500/10 text-white"
                 >
                   {category.label}
                 </SelectItem>

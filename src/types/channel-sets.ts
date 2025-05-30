@@ -1,3 +1,5 @@
+import { AnalysisOptions } from "./analysis";
+
 // src/types/channel-sets.ts
 export interface ChannelInSet {
   username: string;
@@ -46,6 +48,7 @@ export interface RemoveChannelsRequest {
 
 export interface AnalyzeChannelSetRequest {
   filter_ids: string[];
+  options?: AnalysisOptions;
 }
 
 export interface ParsingStatusResponse {

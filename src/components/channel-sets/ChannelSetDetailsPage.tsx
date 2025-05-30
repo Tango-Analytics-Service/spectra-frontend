@@ -51,6 +51,9 @@ import {
   textColors,
   gradients,
 } from "@/lib/design-system";
+import StartAnalysisDialog from "../analysis/StartAnalysisDialog";
+import { AnalysisOptions } from "@/types/analysis";
+import { useAnalysisTasks } from "@/contexts/AnalysisTasksContext";
 
 const ChannelSetDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -76,6 +79,16 @@ const ChannelSetDetailsPage: React.FC = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showAddChannelsDialog, setShowAddChannelsDialog] = useState(false);
   const [analysisDialogOpen, setAnalysisDialogOpen] = useState(false);
+
+  const { analyzeChannelSet } = useChannelSets();
+
+
+  const {
+    findTasksForChannelSet,
+    refreshTask,
+    fetchTasks,
+  } = useAnalysisTasks();
+  
 
   // Загрузка данных набора
   useEffect(() => {
@@ -191,18 +204,32 @@ const ChannelSetDetailsPage: React.FC = () => {
     }
   };
 
-  const handleConfirmAnalysis = async (setId: string) => {
-    // TODO: Реализовать создание задачи анализа
-    console.log("Starting analysis for set:", setId);
-    
-    // Имитация API вызова
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    toast({
-      title: "Анализ запущен",
-      description: "Задача создана и поставлена в очередь",
-    });
+  const handleStartAnalysis = async (
+    filterIds: string[],
+    options?: AnalysisOptions,
+  ) => {
+    try {
+      const response = await analyzeChannelSet(
+        channelSet.id,
+        filterIds,
+        options,
+      );
+
+      toast({
+        title: "Анализ запущен",
+        description: "Результаты анализа будут доступны в скором времени",
+      });
+      
+    } catch (error) {
+      console.error("Error starting analysis:", error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось запустить анализ",
+        variant: "destructive",
+      });
+    }
   };
+
 
   // Состояния загрузки
   if (isLoading) {
@@ -501,12 +528,13 @@ const ChannelSetDetailsPage: React.FC = () => {
         setId={channelSet.id}
       />
 
-      {/* Диалог подтверждения анализа */}
-      <AnalysisConfirmDialog
+      {/* Analysis dialog */}
+      <StartAnalysisDialog
         open={analysisDialogOpen}
         onOpenChange={setAnalysisDialogOpen}
-        channelSet={channelSet}
-        onConfirm={handleConfirmAnalysis}
+        onStart={handleStartAnalysis}
+        setId={channelSet.id}
+        channelCount={channelSet.channel_count}
       />
     </div>
   );

@@ -284,6 +284,12 @@ const AnalysisResultsCard: React.FC<AnalysisResultsCardProps> = ({
               {statusConfig.text}
             </div>
           </div>
+          <button
+            onClick={handleActionsPress}
+            className={cn("p-1 hover:bg-slate-700/50 rounded", textColors.muted)}
+          >
+            <MoreVertical size={16} />
+          </button>
         </div>
 
         {/* Название канала */}
@@ -326,7 +332,7 @@ const AnalysisResultsCard: React.FC<AnalysisResultsCardProps> = ({
     const StatusIcon = statusConfig.icon;
 
     return (
-      <div className="fixed inset-0 backdrop-blur-lg bg-black/50 z-50 flex items-center justify-center p-4 pb-20">
+      <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 pb-20">
         <div className={cn(
           createCardStyle(),
           "rounded-2xl",
@@ -526,31 +532,33 @@ const AnalysisResultsCard: React.FC<AnalysisResultsCardProps> = ({
 
         {/* Фильтры просмотра */}
         <div className={cn(`p-${spacing.md}`, "border-b border-slate-700/50")}>
-          <div className="flex gap-2 overflow-x-auto pb-1">
-            {[
-              { value: "all", label: "Все каналы", count: summary.total_channels },
-              { value: "approved", label: "Подходящие", count: summary.approved_channels },
-              { value: "rejected", label: "Отклоненные", count: summary.rejected_channels }
-            ].map((filter) => (
-              <button
-                key={filter.value}
-                onClick={() => setViewMode(filter.value as any)}
-                className={cn(
-                  "px-3 py-1 rounded-full text-sm whitespace-nowrap transition-all flex items-center space-x-1",
-                  viewMode === filter.value
-                    ? "bg-blue-500 text-white"
-                    : "bg-slate-700/50 text-gray-300 hover:bg-slate-600/50"
-                )}
-              >
-                <span>{filter.label}</span>
-                <span className="text-xs opacity-75">({filter.count})</span>
-              </button>
-            ))}
+          <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+            <div className="flex gap-2 min-w-max">
+              {[
+                { value: "all", label: "Все", count: summary.total_channels },
+                { value: "approved", label: "Подходящие", count: summary.approved_channels },
+                { value: "rejected", label: "Отклоненные", count: summary.rejected_channels }
+              ].map((filter) => (
+                <button
+                  key={filter.value}
+                  onClick={() => setViewMode(filter.value as any)}
+                  className={cn(
+                    "px-3 py-1 rounded-full text-sm whitespace-nowrap transition-all flex items-center space-x-1 flex-shrink-0",
+                    viewMode === filter.value
+                      ? "bg-blue-500 text-white"
+                      : "bg-slate-700/50 text-gray-300 hover:bg-slate-600/50"
+                  )}
+                >
+                  <span>{filter.label}</span>
+                  <span className="text-xs opacity-75">({filter.count})</span>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
         {/* Список каналов */}
-        <ScrollArea className="max-h-[400px]">
+        <ScrollArea className="h-[400px]">
           <div className={`p-${spacing.md}`}>
             {filteredChannels.length === 0 ? (
               <div className={cn("text-center", `py-${spacing.xl}`)}>
