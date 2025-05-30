@@ -32,19 +32,7 @@ const ChannelSetCard: React.FC<ChannelSetCardProps> = ({
 }) => {
   // Определяем доступные действия в зависимости от статуса
   const getContextualActions = () => {
-    if (channelSet.channel_count === 0) {
-      return {
-        primary: {
-          label: "Добавить каналы",
-          action: () => onAddChannels(channelSet.id),
-          variant: "primary" as const,
-          icon: Plus,
-        },
-        secondary: null,
-      };
-    }
 
-    if (!channelSet.all_parsed) {
       return {
         primary: {
           label: "Детали",
@@ -54,22 +42,7 @@ const ChannelSetCard: React.FC<ChannelSetCardProps> = ({
         },
         secondary: null,
       };
-    }
 
-    return {
-      primary: {
-        label: "Анализировать",
-        action: () => onAnalyze(channelSet.id),
-        variant: "primary" as const,
-        icon: null,
-      },
-      secondary: {
-        label: "Детали",
-        action: () => onViewDetails(channelSet.id),
-        variant: "secondary" as const,
-        icon: ArrowRight,
-      },
-    };
   };
 
   const actions = getContextualActions();

@@ -215,9 +215,6 @@ const ChannelsList: React.FC<ChannelsListProps> = ({ channels, setId }) => {
           <p className={cn(createTextStyle("small", "muted"), "mb-4")}>
             Добавьте каналы в этот набор, чтобы начать работу
           </p>
-          <Button className={createButtonStyle("primary")}>
-            Добавить каналы
-          </Button>
         </div>
       </div>
     );

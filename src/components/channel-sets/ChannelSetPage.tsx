@@ -184,21 +184,6 @@ const ChannelSetPage = () => {
           </div>
         </div>
 
-        {/* Кнопка создания */}
-        <Button
-          onClick={() => setIsCreateModalOpen(true)}
-          className={cn(
-            createButtonStyle("primary"),
-            `mt-${spacing.md}`,
-            `py-${spacing.md}`,
-            "w-full",
-            animations.scaleIn
-          )}
-        >
-          <Plus size={18} className={`mr-${spacing.sm}`} />
-          Создать новый набор
-        </Button>
-
         {/* Список наборов */}
         <div className={`mt-${spacing.lg} flex-1`}>
           {isLoading ? (
@@ -225,15 +210,6 @@ const ChannelSetPage = () => {
                   : "Создайте первый набор каналов для анализа"
                 }
               </p>
-              {!searchQuery && (
-                <Button
-                  onClick={() => setIsCreateModalOpen(true)}
-                  className={createButtonStyle("primary")}
-                >
-                  <Plus size={16} className={`mr-${spacing.sm}`} />
-                  Создать набор
-                </Button>
-              )}
             </div>
           ) : (
             <div className={cn(`space-y-${spacing.md}`, animations.fadeIn)}>

@@ -449,13 +449,6 @@ const ChannelSetDetailsPage: React.FC = () => {
             <h3 className={cn(typography.h3, "font-medium")}>
               Каналы в наборе
             </h3>
-            <Button
-              onClick={() => setShowAddChannelsDialog(true)}
-              className={createButtonStyle("primary")}
-            >
-              <Plus size={16} className="mr-1" />
-              Добавить каналы
-            </Button>
           </div>
 
           <ChannelsList channels={channelSet.channels} setId={channelSet.id} />
