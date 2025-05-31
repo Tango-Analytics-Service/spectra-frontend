@@ -284,16 +284,10 @@ const AnalysisResultsCard: React.FC<AnalysisResultsCardProps> = ({
               {statusConfig.text}
             </div>
           </div>
-          <button
-            onClick={handleActionsPress}
-            className={cn("p-1 hover:bg-slate-700/50 rounded", textColors.muted)}
-          >
-            <MoreVertical size={16} />
-          </button>
         </div>
 
         {/* Название канала */}
-        <h3 className={cn(typography.weight.medium, textColors.primary, "mb-2")}>@{channel.channel_id}</h3>
+        <h3 className={cn(typography.weight.medium, textColors.primary, "mb-2")}>@{channel.channel_username}</h3>
 
         {/* Описание (обрезанное) */}
         {channel.description && (
@@ -332,7 +326,7 @@ const AnalysisResultsCard: React.FC<AnalysisResultsCardProps> = ({
     const StatusIcon = statusConfig.icon;
 
     return (
-      <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 pb-20">
+      <div className="fixed inset-0 backdrop-blur-lg bg-black/50 z-50 flex items-center justify-center p-4 pb-20">
         <div className={cn(
           createCardStyle(),
           "rounded-2xl",
@@ -363,7 +357,7 @@ const AnalysisResultsCard: React.FC<AnalysisResultsCardProps> = ({
           <div className={cn(`p-${spacing.md}`, `space-y-${spacing.md}`)}>
             {/* Информация о канале */}
             <div>
-              <h3 className={cn(typography.weight.medium, textColors.primary, "mb-2")}>@{selectedChannel.channel_id}</h3>
+              <h3 className={cn(typography.weight.medium, textColors.primary, "mb-2")}>@{selectedChannel.channel_username}</h3>
               {selectedChannel.description && (
                 <p className={cn(createTextStyle("small", "muted"), "leading-relaxed")}>
                   {selectedChannel.description}

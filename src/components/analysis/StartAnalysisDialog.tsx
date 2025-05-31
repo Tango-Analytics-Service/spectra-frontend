@@ -119,7 +119,7 @@ const StartAnalysisDialog: React.FC<StartAnalysisDialogProps> = ({
       <DialogContent
         className={cn(
           createCardStyle(),
-          "sm:max-w-[750px] max-h-[90vh] overflow-hidden flex flex-col",
+          "sm:max-w-[750px] overflow-hidden flex flex-col",
         )}
       >
         <DialogHeader>
@@ -130,37 +130,6 @@ const StartAnalysisDialog: React.FC<StartAnalysisDialogProps> = ({
         </DialogHeader>
 
         <div className="flex-1 overflow-hidden flex flex-col">
-          {/* Tabs for selections */}
-          <div className={cn("flex border-b border-slate-700", `mb-${spacing.md}`)}>
-            <Button
-              variant="ghost"
-              className={cn(
-                `pb-${spacing.sm} px-${spacing.md}`,
-                "rounded-none",
-                showFiltersList
-                  ? cn(textColors.accent, "border-b-2 border-blue-400")
-                  : textColors.muted,
-              )}
-              onClick={() => setShowFiltersList(true)}
-            >
-              <FilterIcon size={16} className={`mr-${spacing.sm}`} />
-              Выбор фильтров
-            </Button>
-            <Button
-              variant="ghost"
-              className={cn(
-                `pb-${spacing.sm} px-${spacing.md}`,
-                "rounded-none",
-                !showFiltersList
-                  ? cn(textColors.accent, "border-b-2 border-blue-400")
-                  : textColors.muted,
-              )}
-              onClick={() => setShowFiltersList(false)}
-            >
-              <Info size={16} className={`mr-${spacing.sm}`} />
-              Параметры анализа
-            </Button>
-          </div>
 
           {/* Selected filters count */}
           <div className={`mb-${spacing.md}`}>
@@ -200,7 +169,7 @@ const StartAnalysisDialog: React.FC<StartAnalysisDialogProps> = ({
           </ScrollArea>
         </div>
 
-        <DialogFooter className={`pt-${spacing.md}`}>
+        <DialogFooter className={`pt-${spacing.md} gap-${spacing.sm}`}>
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}

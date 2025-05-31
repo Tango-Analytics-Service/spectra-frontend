@@ -42,6 +42,7 @@ export interface FilterResult {
 
 export interface ChannelResult {
   channel_id: string | number;
+  channel_username: string;
   description?: string;
   filter_results: FilterResult[];
   overall_status: string;
