@@ -1,4 +1,4 @@
-// src/components/analysis/StartAnalysisDialog.tsx - улучшенная версия с design-system
+// src/components/analysis/StartAnalysisDialog.tsx - версия со скроллом
 import React, { useState, useEffect } from "react";
 import {
   Dialog,
@@ -119,57 +119,68 @@ const StartAnalysisDialog: React.FC<StartAnalysisDialogProps> = ({
       <DialogContent
         className={cn(
           createCardStyle(),
-          "sm:max-w-[750px] overflow-hidden flex flex-col",
+          "sm:max-w-[750px] max-h-[80vh] flex flex-col p-0",
         )}
       >
-        <DialogHeader>
+        {/* Фиксированный заголовок */}
+        <DialogHeader className={`p-6 pb-0 flex-shrink-0`}>
           <DialogTitle className={typography.h3}>Запуск анализа</DialogTitle>
           <DialogDescription className={textColors.secondary}>
             Выберите фильтры и настройте параметры для анализа каналов
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 overflow-hidden flex flex-col">
-
+        {/* Контент с правильным скроллом */}
+        <div className="flex-1 overflow-auto px-6 pt-4">
           {/* Selected filters count */}
           <div className={`mb-${spacing.md}`}>
             <div className="flex justify-between items-center">
               <div className="flex items-center">
-                <span className={cn(typography.small, textColors.accent, `mr-${spacing.sm}`)}>
+                <span
+                  className={cn(
+                    typography.small,
+                    textColors.accent,
+                    `mr-${spacing.sm}`,
+                  )}
+                >
                   Выбрано фильтров:
                 </span>
-                <span className={cn(
-                  typography.weight.semibold,
-                  "bg-blue-500/20",
-                  `px-${spacing.sm} py-${spacing.xs}`,
-                  "rounded-full",
-                  typography.small,
-                  textColors.accent
-                )}>
+                <span
+                  className={cn(
+                    typography.weight.semibold,
+                    "bg-blue-500/20",
+                    `px-${spacing.sm} py-${spacing.xs}`,
+                    "rounded-full",
+                    typography.small,
+                    textColors.accent,
+                  )}
+                >
                   {selectedFilters.length}
                 </span>
               </div>
               <div className={createTextStyle("small", "secondary")}>
                 Каналов для анализа:{" "}
-                <span className={typography.weight.semibold}>{channelCount}</span>
+                <span className={typography.weight.semibold}>
+                  {channelCount}
+                </span>
               </div>
             </div>
           </div>
 
-          {/* Content area */}
-          <ScrollArea className={cn("flex-1", `pr-${spacing.md}`)}>
-            {showFiltersList && (
-              /* Filters selection */
+          {/* Filters content */}
+          {showFiltersList && (
+            <div className="space-y-4 pb-4">
               <FiltersList
                 onSelectFilter={toggleFilterSelection}
                 selectedFilters={selectedFilters}
-                height="h-[400px]"
+                height="h-[400px]" // Фиксированная высота для внутреннего скролла
               />
-            ) }
-          </ScrollArea>
+            </div>
+          )}
         </div>
 
-        <DialogFooter className={`pt-${spacing.md} gap-${spacing.sm}`}>
+        {/* Фиксированный футер */}
+        <DialogFooter className={`p-6 pt-4 flex-shrink-0 gap-${spacing.sm}`}>
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
