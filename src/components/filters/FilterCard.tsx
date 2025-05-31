@@ -120,7 +120,9 @@ const FilterCard: React.FC<FilterCardProps> = ({
     <div
       className={cn(
         createCardStyle(),
-        "transition-all duration-200 cursor-pointer overflow-hidden",
+        "transition-all duration-200 cursor-pointer",
+        // ИСПРАВЛЕНИЕ: Добавляем overflow-hidden на основной контейнер
+        "overflow-hidden",
         selected
           ? "ring-2 ring-blue-500/50 bg-blue-500/5 border-blue-500/50"
           : "border-slate-700/50 hover:border-blue-500/30",
@@ -135,22 +137,35 @@ const FilterCard: React.FC<FilterCardProps> = ({
       {/* Основной контент карточки */}
       <div className={`p-${spacing.md}`}>
         {/* Заголовок */}
-        <div className="flex items-start justify-between mb-3">
-          <div className="flex items-center gap-3 flex-1 min-w-0">
+        <div className={cn(
+          "flex items-start justify-between mb-3",
+          "overflow-hidden"
+        )}>
+          <div className={cn(
+            "flex items-center gap-3 flex-1",
+            "w-0 overflow-hidden"
+          )}>
             {/* Иконка категории */}
             <div className="flex-shrink-0">
               {getCategoryIcon(filter.category)}
             </div>
 
             {/* Информация о фильтре */}
-            <div className="flex-1 min-w-0">
-              <h3 className={cn(typography.h4, textColors.primary, "truncate")}>
+            <div className={cn(
+              "flex-1",
+              "w-0 overflow-hidden"
+            )}>
+              <h3 className={cn(
+                typography.h4, 
+                textColors.primary, 
+                "truncate w-full block"
+              )}>
                 {filter.name}
               </h3>
               <p
                 className={cn(
                   createTextStyle("small", "muted"),
-                  "line-clamp-1",
+                  "truncate w-full block"
                 )}
               >
                 {filter.criteria}
@@ -167,7 +182,10 @@ const FilterCard: React.FC<FilterCardProps> = ({
         </div>
 
         {/* Метаинформация */}
-        <div className="flex items-center gap-2 flex-wrap mb-3">
+        <div className={cn(
+          "flex items-center gap-2 flex-wrap mb-3",
+          "overflow-hidden"
+        )}>
           {filter.is_custom && (
             <div className={cn(createBadgeStyle("success"), "text-xs")}>
               Мой
@@ -181,11 +199,12 @@ const FilterCard: React.FC<FilterCardProps> = ({
             className={cn(
               "mt-3 pt-3 border-t border-blue-500/20",
               animations.fadeIn,
+              "overflow-hidden"
             )}
           >
             <div className={cn(`space-y-${spacing.sm}`)}>
               {/* Полное описание */}
-              <div>
+              <div className="overflow-hidden">
                 <h4
                   className={cn(
                     typography.small,
@@ -195,14 +214,20 @@ const FilterCard: React.FC<FilterCardProps> = ({
                 >
                   Критерии:
                 </h4>
-                <p className={cn(createTextStyle("small", "primary"))}>
+                <p className={cn(
+                  createTextStyle("small", "primary"),
+                  "break-words overflow-wrap-anywhere"
+                )}>
                   {filter.criteria}
                 </p>
               </div>
 
               {/* Дата создания */}
-              <div>
-                <span className={cn(createTextStyle("tiny", "muted"))}>
+              <div className="overflow-hidden">
+                <span className={cn(
+                  createTextStyle("tiny", "muted"),
+                  "truncate block"
+                )}>
                   Создан: {new Date(filter.created_at).toLocaleDateString()}
                 </span>
               </div>
@@ -217,6 +242,7 @@ const FilterCard: React.FC<FilterCardProps> = ({
           "flex items-center justify-between",
           `px-${spacing.md} pb-${spacing.md}`,
           "border-t border-slate-700/30",
+          "overflow-hidden"
         )}
       >
         {/* Кнопка разворачивания */}
@@ -224,12 +250,18 @@ const FilterCard: React.FC<FilterCardProps> = ({
           variant="ghost"
           size="sm"
           onClick={handleExpandClick}
-          className={cn(createButtonStyle("ghost"), "flex-1 justify-start")}
+          className={cn(
+            createButtonStyle("ghost"), 
+            "flex-1 justify-start",
+            "overflow-hidden"
+          )}
         >
-          {expanded ? "Свернуть" : "Подробнее"}
+          <span className="truncate">
+            {expanded ? "Свернуть" : "Подробнее"}
+          </span>
           <ChevronDown
             className={cn(
-              `ml-${spacing.sm} h-4 w-4 transition-transform`,
+              `ml-${spacing.sm} h-4 w-4 transition-transform flex-shrink-0`,
               expanded && "rotate-180",
             )}
           />
@@ -237,7 +269,7 @@ const FilterCard: React.FC<FilterCardProps> = ({
 
         {/* Меню действий */}
         {showActions && (
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 flex-shrink-0">
             {/* Кнопка детального просмотра */}
             {onViewDetails && (
               <Button

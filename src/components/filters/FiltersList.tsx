@@ -230,7 +230,7 @@ const FiltersList: React.FC<FiltersListProps> = ({
         Найдено фильтров: {filteredFilters.length}
       </div>
       {/* Список фильтров */}
-      <ScrollArea className={cn(height, "pr-4")}>
+      <ScrollArea className={cn(height, "w-full max-w-full overflow-hidden")}>
         {isLoading ? (
           <LoadingState text="Загрузка фильтров..." />
         ) : filteredFilters.length === 0 ? (
