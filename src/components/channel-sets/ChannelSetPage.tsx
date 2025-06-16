@@ -36,12 +36,8 @@ import { ChannelSet } from "@/types/channel-sets";
 
 const ChannelSetPage = () => {
   const navigate = useNavigate();
-  const {
-    channelSets,
-    isLoading,
-    fetchChannelSets,
-    createChannelSet,
-  } = useChannelSets();
+  const { channelSets, isLoading, fetchChannelSets, createChannelSet } =
+    useChannelSets();
 
   // Состояния
   const [searchQuery, setSearchQuery] = useState("");
@@ -49,7 +45,8 @@ const ChannelSetPage = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [createLoading, setCreateLoading] = useState(false);
   const [analysisDialogOpen, setAnalysisDialogOpen] = useState(false);
-  const [selectedSetForAnalysis, setSelectedSetForAnalysis] = useState<ChannelSet>();
+  const [selectedSetForAnalysis, setSelectedSetForAnalysis] =
+    useState<ChannelSet>();
   const [addChannelsDialogOpen, setAddChannelsDialogOpen] = useState(false);
   const [selectedSetForChannels, setSelectedSetForChannels] = useState("");
 
@@ -73,7 +70,7 @@ const ChannelSetPage = () => {
     const filtered = channelSets.filter(
       (set) =>
         set.name.toLowerCase().includes(query) ||
-        set.description.toLowerCase().includes(query)
+        set.description.toLowerCase().includes(query),
     );
     setFilteredSets(filtered);
   }, [searchQuery, channelSets]);
@@ -104,7 +101,7 @@ const ChannelSetPage = () => {
         setNewSetDescription("");
         setNewSetIsPublic(false);
         setIsCreateModalOpen(false);
-        
+
         toast({
           title: "Успешно",
           description: "Набор каналов создан",
@@ -116,7 +113,7 @@ const ChannelSetPage = () => {
   };
 
   const handleAnalyze = (setId: string) => {
-    const set = channelSets.find(s => s.id === setId);
+    const set = channelSets.find((s) => s.id === setId);
     if (set) {
       setSelectedSetForAnalysis(set);
       setAnalysisDialogOpen(true);
@@ -126,10 +123,10 @@ const ChannelSetPage = () => {
   const handleConfirmAnalysis = async (setId: string) => {
     // TODO: Реализовать создание задачи анализа
     console.log("Starting analysis for set:", setId);
-    
+
     // Имитация API вызова
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
     toast({
       title: "Анализ запущен",
       description: "Задача создана и поставлена в очередь",
@@ -150,14 +147,14 @@ const ChannelSetPage = () => {
       className={cn(
         "flex flex-col w-full min-h-screen",
         gradients.background,
-        "text-white"
+        "text-white",
       )}
     >
       <main
         className={cn(
           "flex-1 overflow-hidden flex flex-col",
           `px-${spacing.md} sm:px-${spacing.lg}`,
-          `pb-${spacing.md} sm:pb-${spacing.lg}`
+          `pb-${spacing.md} sm:pb-${spacing.lg}`,
         )}
       >
         {/* Заголовок */}
@@ -184,6 +181,21 @@ const ChannelSetPage = () => {
           </div>
         </div>
 
+        {/* Кнопка создания */}
+        <Button
+          onClick={() => setIsCreateModalOpen(true)}
+          className={cn(
+            createButtonStyle("primary"),
+            `mt-${spacing.md}`,
+            `py-${spacing.md}`,
+            "w-full",
+            animations.scaleIn,
+          )}
+        >
+          <Plus size={18} className={`mr-${spacing.sm}`} />
+          Создать новый набор
+        </Button>
+
         {/* Список наборов */}
         <div className={`mt-${spacing.lg} flex-1`}>
           {isLoading ? (
@@ -198,17 +210,16 @@ const ChannelSetPage = () => {
                 createCardStyle(),
                 "text-center",
                 `py-${spacing.xl}`,
-                animations.fadeIn
+                animations.fadeIn,
               )}
             >
               <h3 className={cn(typography.h3, textColors.primary, "mb-2")}>
                 {searchQuery ? "Наборы не найдены" : "У вас пока нет наборов"}
               </h3>
               <p className={cn(createTextStyle("small", "muted"), "mb-4")}>
-                {searchQuery 
+                {searchQuery
                   ? "Попробуйте изменить поисковый запрос"
-                  : "Создайте первый набор каналов для анализа"
-                }
+                  : "Создайте первый набор каналов для анализа"}
               </p>
             </div>
           ) : (
@@ -231,7 +242,9 @@ const ChannelSetPage = () => {
       <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
         <DialogContent className={createCardStyle()}>
           <DialogHeader>
-            <DialogTitle className={typography.h3}>Создать новый набор</DialogTitle>
+            <DialogTitle className={typography.h3}>
+              Создать новый набор
+            </DialogTitle>
             <DialogDescription className={textColors.secondary}>
               Создайте набор каналов для анализа и мониторинга
             </DialogDescription>
@@ -259,15 +272,6 @@ const ChannelSetPage = () => {
                 className={components.input.base}
               />
             </div>
-
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="is-public"
-                checked={newSetIsPublic}
-                onCheckedChange={setNewSetIsPublic}
-              />
-              <Label htmlFor="is-public">Публичный набор</Label>
-            </div>
           </div>
 
           <DialogFooter>
@@ -281,7 +285,7 @@ const ChannelSetPage = () => {
             </Button>
             <Button
               onClick={handleCreateNewSet}
-              className={createButtonStyle("primary")}
+              className={cn(createButtonStyle("primary"), "mb-2")}
               disabled={createLoading}
             >
               {createLoading ? (

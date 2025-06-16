@@ -1,6 +1,13 @@
-import { AnalysisOptions } from "./analysis";
+// src/types/channel-sets.ts - Обновленные типы с правами доступа
 
-// src/types/channel-sets.ts
+export interface ChannelSetPermissions {
+  can_view: boolean;
+  can_edit: boolean;
+  can_manage_channels: boolean;
+  can_delete: boolean;
+  can_analyze: boolean;
+}
+
 export interface ChannelInSet {
   username: string;
   channel_id?: number;
@@ -14,16 +21,14 @@ export interface ChannelSet {
   description: string;
   is_public: boolean;
   is_predefined: boolean;
+  is_owned_by_user: boolean; // Новое поле
+  owner_id?: string; // Новое поле
   created_at: string;
   updated_at?: string;
   channel_count: number;
   channels: ChannelInSet[];
   all_parsed: boolean;
-}
-
-export interface ChannelSetListResponse {
-  sets: ChannelSet[];
-  count: number;
+  permissions: ChannelSetPermissions; // Новое поле с правами доступа
 }
 
 export interface CreateChannelSetRequest {
@@ -51,6 +56,11 @@ export interface AnalyzeChannelSetRequest {
   options?: AnalysisOptions;
 }
 
+export interface ChannelSetListResponse {
+  sets: ChannelSet[];
+  count: number;
+}
+
 export interface ParsingStatusResponse {
   success: boolean;
   all_parsed: boolean;
@@ -63,27 +73,19 @@ export interface ParsingStatusResponse {
   message?: string;
 }
 
-export enum ChannelParsingStatus {
-  PARSED = "parsed",
-  UNPARSED = "unparsed",
-  PARSING = "parsing",
-  ERROR = "error",
-}
-
-export interface ChannelStats {
-  posts_count: number;
-  subscribers_count: number;
-  average_views: number;
-  average_reactions: number;
-  last_post_date?: string;
-}
-
-export interface ChannelDetails extends ChannelInSet {
+// Дополнительные типы для удобства
+export interface ChannelDetails {
+  username: string;
   title?: string;
-  description?: string;
-  avatar_url?: string;
-  stats?: ChannelStats;
-  category?: string;
-  language?: string;
-  status?: ChannelParsingStatus;
+  stats?: {
+    subscribers_count: number;
+    average_views: number;
+  };
+}
+
+export enum ChannelParsingStatus {
+  PENDING = "pending",
+  PROCESSING = "processing",
+  COMPLETED = "completed",
+  FAILED = "failed",
 }

@@ -1,50 +1,30 @@
 // src/components/channel-sets/ChannelsList.tsx
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
-  CheckCircle2,
-  HourglassIcon,
+  CheckCircle,
+  AlertCircle,
   Trash2,
   ExternalLink,
-  ChevronUp,
-  ChevronDown,
-  SearchIcon,
+  Calendar,
+  Eye,
   Users,
-  AlertCircle,
-  LoaderCircle,
+  Loader2,
+  Edit,
   MoreHorizontal,
-  BarChart2,
+  Check,
+  Search,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import {
-  components,
-  typography,
-  spacing,
-  createCardStyle,
-  createButtonStyle,
-  createBadgeStyle,
-  animations,
-  createTextStyle,
-  textColors,
-} from "@/lib/design-system";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -53,426 +33,552 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { toast } from "@/components/ui/use-toast";
-import { ChannelInSet, ChannelParsingStatus } from "@/types/channel-sets";
 import { useChannelSets } from "@/contexts/ChannelSetsContext";
+import { ChannelInSet } from "@/types/channel-sets";
+import {
+  createCardStyle,
+  createButtonStyle,
+  createBadgeStyle,
+  createTextStyle,
+  typography,
+  spacing,
+  components,
+  animations,
+  textColors,
+} from "@/lib/design-system";
 
 interface ChannelsListProps {
   channels: ChannelInSet[];
   setId: string;
+  canManageChannels?: boolean;
 }
 
-// Sort types
-type SortField = "username" | "added_at" | "is_parsed";
-type SortDirection = "asc" | "desc";
+const ChannelsList: React.FC<ChannelsListProps> = ({
+  channels,
+  setId,
+  canManageChannels = false,
+}) => {
+  const { removeChannelFromSet } = useChannelSets();
 
-// Filter types
-type FilterOptions = {
-  status: "all" | "parsed" | "unparsed";
-  search: string;
-};
+  // Состояния
+  const [editMode, setEditMode] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedChannels, setSelectedChannels] = useState<string[]>([]);
+  const [removingChannels, setRemovingChannels] = useState<string[]>([]);
+  const [showRemoveDialog, setShowRemoveDialog] = useState(false);
+  const [showBulkRemoveDialog, setShowBulkRemoveDialog] = useState(false);
+  const [channelToRemove, setChannelToRemove] = useState<string | null>(null);
 
-const ChannelsList: React.FC<ChannelsListProps> = ({ channels, setId }) => {
-  const { removeChannelsFromSet } = useChannelSets();
+  // Фильтрация каналов
+  const filteredChannels = useMemo(() => {
+    if (!searchQuery) return channels;
+    return channels.filter((channel) =>
+      channel.username.toLowerCase().includes(searchQuery.toLowerCase()),
+    );
+  }, [channels, searchQuery]);
 
-  // State
-  const [sortConfig, setSortConfig] = useState<{
-    field: SortField;
-    direction: SortDirection;
-  }>({
-    field: "added_at",
-    direction: "desc",
-  });
-  const [filters, setFilters] = useState<FilterOptions>({
-    status: "all",
-    search: "",
-  });
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [channelToDelete, setChannelToDelete] = useState<string | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
-
-  // Derived state
-  const filteredAndSortedChannels = useMemo(() => {
-    // Apply filters
-    let result = [...channels];
-
-    // Filter by status
-    if (filters.status === "parsed") {
-      result = result.filter((channel) => channel.is_parsed);
-    } else if (filters.status === "unparsed") {
-      result = result.filter((channel) => !channel.is_parsed);
-    }
-
-    // Filter by search
-    if (filters.search) {
-      const searchLower = filters.search.toLowerCase();
-      result = result.filter((channel) =>
-        channel.username.toLowerCase().includes(searchLower),
-      );
-    }
-
-    // Apply sorting
-    result.sort((a, b) => {
-      // Handle different field types
-      if (sortConfig.field === "username") {
-        return sortConfig.direction === "asc"
-          ? a.username.localeCompare(b.username)
-          : b.username.localeCompare(a.username);
-      } else if (sortConfig.field === "added_at") {
-        return sortConfig.direction === "asc"
-          ? new Date(a.added_at).getTime() - new Date(b.added_at).getTime()
-          : new Date(b.added_at).getTime() - new Date(a.added_at).getTime();
-      } else if (sortConfig.field === "is_parsed") {
-        return sortConfig.direction === "asc"
-          ? (a.is_parsed ? 1 : 0) - (b.is_parsed ? 1 : 0)
-          : (b.is_parsed ? 1 : 0) - (a.is_parsed ? 1 : 0);
-      }
-      return 0;
+  // Форматирование даты
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("ru-RU", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
     });
-
-    return result;
-  }, [channels, sortConfig, filters]);
-
-  // Handlers
-  const handleSort = (field: SortField) => {
-    setSortConfig((prevConfig) => ({
-      field,
-      direction:
-        prevConfig.field === field && prevConfig.direction === "asc"
-          ? "desc"
-          : "asc",
-    }));
   };
 
-  const handleDeleteClick = (username: string) => {
-    setChannelToDelete(username);
-    setShowDeleteDialog(true);
+  // Получение статуса канала
+  const getChannelStatus = (channel: ChannelInSet) => {
+    if (channel.is_parsed) {
+      return {
+        icon: CheckCircle,
+        text: "Готов",
+        variant: "success" as const,
+        color: "text-green-400",
+      };
+    }
+    return {
+      icon: AlertCircle,
+      text: "Обработка",
+      variant: "warning" as const,
+      color: "text-yellow-400",
+    };
   };
 
-  const handleDeleteConfirm = async () => {
-    if (!channelToDelete) return;
+  // Обработчики режима редактирования
+  const handleEditModeToggle = () => {
+    setEditMode(!editMode);
+    if (editMode) {
+      setSelectedChannels([]);
+    }
+  };
 
-    setIsDeleting(true);
+  const handleChannelSelect = (username: string, selected: boolean) => {
+    if (selected) {
+      setSelectedChannels((prev) => [...prev, username]);
+    } else {
+      setSelectedChannels((prev) => prev.filter((u) => u !== username));
+    }
+  };
+
+  const handleSelectAll = () => {
+    if (selectedChannels.length === filteredChannels.length) {
+      setSelectedChannels([]);
+    } else {
+      setSelectedChannels(filteredChannels.map((ch) => ch.username));
+    }
+  };
+
+  // Обработчик удаления одного канала
+  const handleRemoveChannel = async (username: string) => {
+    setRemovingChannels((prev) => [...prev, username]);
     try {
-      const result = await removeChannelsFromSet(setId, [channelToDelete]);
-      if (result.success) {
-        setShowDeleteDialog(false);
+      const success = await removeChannelFromSet(setId, [username]);
+      if (success) {
         toast({
-          title: "Успешно",
-          description: "Канал удален из набора",
+          title: "Канал удален",
+          description: "Канал успешно удален из набора",
         });
       }
     } catch (error) {
+      console.error("Error removing channel:", error);
       toast({
         title: "Ошибка",
         description: "Не удалось удалить канал",
         variant: "destructive",
       });
     } finally {
-      setIsDeleting(false);
+      setRemovingChannels((prev) => prev.filter((u) => u !== username));
+      setShowRemoveDialog(false);
+      setChannelToRemove(null);
     }
   };
 
-  const getStatusIcon = (isParsed: boolean) => {
-    if (isParsed) {
-      return <CheckCircle2 size={16} className={textColors.success} />;
-    } else {
-      return <HourglassIcon size={16} className={textColors.warning} />;
+  // Обработчик массового удаления
+  const handleBulkRemove = async () => {
+    if (selectedChannels.length === 0) return;
+
+    setRemovingChannels([...selectedChannels]);
+    try {
+      const success = await removeChannelFromSet(setId, selectedChannels);
+      if (success) {
+        toast({
+          title: "Каналы удалены",
+          description: `Удалено каналов: ${selectedChannels.length}`,
+        });
+        setSelectedChannels([]);
+      }
+    } catch (error) {
+      console.error("Error removing channels:", error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось удалить каналы",
+        variant: "destructive",
+      });
+    } finally {
+      setRemovingChannels([]);
+      setShowBulkRemoveDialog(false);
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return (
-      date.toLocaleDateString() +
-      " " +
-      date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-    );
-  };
-
-  // Empty state
+  // Состояние пустого списка
   if (channels.length === 0) {
     return (
       <div
         className={cn(
           createCardStyle(),
-          "text-center",
-          `py-${spacing.xl}`,
+          "flex flex-col items-center justify-center text-center",
+          `p-${spacing.xl}`,
+          "border-dashed",
           animations.fadeIn,
         )}
       >
-        <div className="flex flex-col items-center justify-center">
-          <Users size={48} className={cn(textColors.accent, "opacity-50 mb-4")} />
-          <h3 className={cn(typography.h3, textColors.primary, "mb-2")}>
-            Нет каналов в наборе
-          </h3>
-          <p className={cn(createTextStyle("small", "muted"), "mb-4")}>
-            Добавьте каналы в этот набор, чтобы начать работу
-          </p>
-        </div>
+        <Users size={48} className="text-blue-400/50 mb-4" />
+        <h3 className={cn(typography.h3, "mb-2")}>В наборе пока нет каналов</h3>
+        <p className={cn(createTextStyle("small", "muted"), "mb-4")}>
+          {canManageChannels
+            ? "Нажмите 'Добавить каналы', чтобы начать"
+            : "Каналы будут добавлены администратором"}
+        </p>
       </div>
     );
   }
 
   return (
     <>
-      {/* Filters */}
-      <div
-        className={cn(
-          "flex flex-col sm:flex-row",
-          `gap-${spacing.md} mb-${spacing.md}`,
-        )}
-      >
-        <div className="relative flex-1">
-          <SearchIcon
+      {/* Поиск */}
+      <div className={cn("mb-4", animations.fadeIn)}>
+        <div className="relative">
+          <Search
             size={16}
-            className={cn(
-              "absolute left-3 top-1/2 transform -translate-y-1/2",
-              textColors.muted
-            )}
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
           />
           <Input
-            placeholder="Поиск по @username"
-            className={cn(components.input.base, "pl-9")}
-            value={filters.search}
-            onChange={(e) =>
-              setFilters((prev) => ({ ...prev, search: e.target.value }))
-            }
+            placeholder="Поиск каналов..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className={cn(components.input.base, "pl-10")}
           />
         </div>
-
-        <div className="flex gap-2">
-          <Button
-            variant={filters.status === "all" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setFilters((prev) => ({ ...prev, status: "all" }))}
-            className={
-              filters.status === "all"
-                ? createButtonStyle("primary")
-                : createButtonStyle("secondary")
-            }
-          >
-            Все
-          </Button>
-          <Button
-            variant={filters.status === "parsed" ? "default" : "outline"}
-            size="sm"
-            onClick={() =>
-              setFilters((prev) => ({ ...prev, status: "parsed" }))
-            }
-            className={
-              filters.status === "parsed"
-                ? createButtonStyle("success")
-                : createButtonStyle("secondary")
-            }
-          >
-            <CheckCircle2 size={14} className={`mr-${spacing.sm}`} />
-            Обработанные
-          </Button>
-          <Button
-            variant={filters.status === "unparsed" ? "default" : "outline"}
-            size="sm"
-            onClick={() =>
-              setFilters((prev) => ({ ...prev, status: "unparsed" }))
-            }
-            className={
-              filters.status === "unparsed"
-                ? createButtonStyle("warning")
-                : createButtonStyle("secondary")
-            }
-          >
-            <HourglassIcon size={14} className={`mr-${spacing.sm}`} />
-            В процессе
-          </Button>
-        </div>
       </div>
 
-      {/* Results summary */}
-      <div
-        className={cn(
-          "flex justify-between items-center mb-3",
-          createTextStyle("small", "muted")
-        )}
-      >
-        <div>
-          Показано {filteredAndSortedChannels.length} из {channels.length}{" "}
-          каналов
-        </div>
-      </div>
+      {/* Панель управления в режиме редактирования */}
+      {editMode && canManageChannels && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className={cn(
+            createCardStyle(),
+            `p-${spacing.sm} mb-${spacing.sm}`,
+            "flex items-center justify-between flex-wrap gap-2",
+          )}
+        >
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleSelectAll}
+              className={createButtonStyle("secondary")}
+            >
+              {selectedChannels.length === filteredChannels.length
+                ? "Снять выделение"
+                : "Выбрать все"}
+            </Button>
 
-      {/* Channels table */}
-      <div
-        className={cn(
-          createCardStyle(),
-          "border overflow-hidden"
-        )}
-      >
-        <div className="max-h-96 sm:max-h-[500px] overflow-auto">
-          <Table>
-            <TableHeader className={cn(
-              components.table.header,
-              "sticky top-0 z-10"
-            )}>
-              <TableRow>
-                <TableHead
-                  className={cn(
-                    "w-[200px] cursor-pointer",
-                    textColors.muted,
-                    "hover:" + textColors.accent
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleEditModeToggle}
+              className={createButtonStyle("primary")}
+            >
+              <Check size={16} className="mr-1" />
+              Готово
+            </Button>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {selectedChannels.length > 0 && (
+              <>
+                <span className={cn(createTextStyle("small", "muted"))}>
+                  Выбрано: {selectedChannels.length}
+                </span>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => setShowBulkRemoveDialog(true)}
+                  disabled={removingChannels.length > 0}
+                  className={createButtonStyle("danger")}
+                >
+                  <Trash2 size={16} className="mr-1" />
+                  Удалить выбранные
+                </Button>
+              </>
+            )}
+          </div>
+        </motion.div>
+      )}
+
+      {/* Кнопка "Изменить" в обычном режиме */}
+      {!editMode && canManageChannels && filteredChannels.length > 0 && (
+        <div className={cn("flex justify-end", `mb-${spacing.sm}`)}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleEditModeToggle}
+            className={createButtonStyle("secondary")}
+          >
+            <Edit size={16} className="mr-1" />
+            Изменить
+          </Button>
+        </div>
+      )}
+
+      {/* Список каналов */}
+      <div className={cn(`space-y-${spacing.sm}`, animations.fadeIn)}>
+        {filteredChannels.map((channel, index) => {
+          const status = getChannelStatus(channel);
+          const isRemoving = removingChannels.includes(channel.username);
+          const isSelected = selectedChannels.includes(channel.username);
+
+          return (
+            <motion.div
+              key={channel.username}
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.3, delay: index * 0.02 }}
+              className={cn(
+                createCardStyle(),
+                "transition-all duration-200",
+                `p-${spacing.md}`,
+                "group",
+                editMode &&
+                  isSelected &&
+                  "ring-2 ring-blue-500/50 bg-blue-500/5",
+                !editMode && components.card.hover,
+              )}
+            >
+              <div className="flex items-center gap-3">
+                {/* Чекбокс в режиме редактирования */}
+                <AnimatePresence>
+                  {editMode && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.8, width: 0 }}
+                      animate={{ opacity: 1, scale: 1, width: "auto" }}
+                      exit={{ opacity: 0, scale: 0.8, width: 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <Checkbox
+                        checked={isSelected}
+                        onCheckedChange={(checked) =>
+                          handleChannelSelect(
+                            channel.username,
+                            checked as boolean,
+                          )
+                        }
+                        disabled={isRemoving}
+                      />
+                    </motion.div>
                   )}
-                  onClick={() => handleSort("username")}
-                >
-                  <div className="flex items-center">
-                    Канал
-                    {sortConfig.field === "username" && (
-                      sortConfig.direction === "asc" ? (
-                        <ChevronUp size={14} className={`ml-${spacing.sm}`} />
-                      ) : (
-                        <ChevronDown size={14} className={`ml-${spacing.sm}`} />
-                      )
-                    )}
-                  </div>
-                </TableHead>
-                <TableHead
+                </AnimatePresence>
+
+                {/* Аватар канала */}
+                <div
                   className={cn(
-                    "cursor-pointer",
-                    textColors.muted,
-                    "hover:" + textColors.accent
+                    "w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0",
+                    "bg-gradient-to-br from-blue-500 to-blue-600",
                   )}
-                  onClick={() => handleSort("is_parsed")}
                 >
-                  <div className="flex items-center">
-                    Статус
-                    {sortConfig.field === "is_parsed" && (
-                      sortConfig.direction === "asc" ? (
-                        <ChevronUp size={14} className={`ml-${spacing.sm}`} />
-                      ) : (
-                        <ChevronDown size={14} className={`ml-${spacing.sm}`} />
-                      )
-                    )}
-                  </div>
-                </TableHead>
-                <TableHead
-                  className={cn(
-                    "cursor-pointer",
-                    textColors.muted,
-                    "hover:" + textColors.accent
-                  )}
-                  onClick={() => handleSort("added_at")}
-                >
-                  <div className="flex items-center">
-                    Добавлен
-                    {sortConfig.field === "added_at" && (
-                      sortConfig.direction === "asc" ? (
-                        <ChevronUp size={14} className={`ml-${spacing.sm}`} />
-                      ) : (
-                        <ChevronDown size={14} className={`ml-${spacing.sm}`} />
-                      )
-                    )}
-                  </div>
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredAndSortedChannels.map((channel, index) => (
-                <TableRow
-                  key={channel.username}
-                  className="hover:bg-slate-800/30 transition-colors duration-200"
-                >
-                  <TableCell className={typography.weight.medium}>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
+                  {channel.username.charAt(0).toUpperCase()}
+                </div>
+
+                {/* Основная информация */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h4
+                      className={cn(
+                        typography.h4,
+                        "text-white truncate flex items-center gap-1",
+                      )}
+                    >
+                      {channel.channel_id ? (
                         <a
                           href={`https://t.me/${channel.username}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className={cn(
-                            "flex items-center",
-                            textColors.primary,
-                            "hover:" + textColors.accent
-                          )}
+                          className="text-blue-400 hover:text-blue-300 transition-colors hover:underline"
+                          onClick={(e) => e.stopPropagation()}
                         >
                           @{channel.username}
-                          <ExternalLink size={12} className={`ml-${spacing.sm}`} />
                         </a>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Открыть канал в Telegram</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center">
-                      {getStatusIcon(channel.is_parsed)}
-                      <span className={cn(textColors.primary, `ml-${spacing.sm}`)}>
-                        {channel.is_parsed ? "Обработан" : "Обработка"}
-                      </span>
+                      ) : (
+                        `@${channel.username}`
+                      )}
+                    </h4>
+
+                    {/* Статус */}
+                    <span
+                      className={cn(
+                        createBadgeStyle(status.variant),
+                        "flex items-center gap-1 text-[10px]",
+                      )}
+                    >
+                      <status.icon size={10} />
+                      <span>{status.text}</span>
+                    </span>
+                  </div>
+
+                  {/* Дополнительная информация - только в обычном режиме */}
+                  <AnimatePresence>
+                    {!editMode && (
+                      <motion.div
+                        initial={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="flex items-center gap-4 text-xs text-gray-400"
+                      >
+                        <div className="flex items-center gap-1">
+                          <Calendar size={12} />
+                          <span>Добавлен: {formatDate(channel.added_at)}</span>
+                        </div>
+
+                        {channel.channel_id && (
+                          <div className="flex items-center gap-1">
+                            <Eye size={12} />
+                            <span>ID: {channel.channel_id}</span>
+                          </div>
+                        )}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                {/* Действия */}
+                <div className="flex items-center gap-1">
+                  {isRemoving ? (
+                    <div className="flex items-center gap-2 text-gray-400">
+                      <Loader2 size={16} className="animate-spin" />
+                      <span className="text-xs">Удаление...</span>
                     </div>
-                  </TableCell>
-                  <TableCell className={textColors.muted}>
-                    {formatDate(channel.added_at)}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+                  ) : (
+                    <>
+                      {/* В обычном режиме показываем контекстное меню */}
+                      {!editMode && canManageChannels && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className={cn(
+                                createButtonStyle("ghost"),
+                                "opacity-0 group-hover:opacity-100 transition-opacity",
+                                "text-gray-400 hover:text-white hover:bg-slate-800/50",
+                              )}
+                            >
+                              <MoreHorizontal size={16} />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() => {
+                                setChannelToRemove(channel.username);
+                                setShowRemoveDialog(true);
+                              }}
+                              className="text-red-400 focus:text-red-300"
+                            >
+                              <Trash2 size={14} className="mr-2" />
+                              Удалить канал
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
+
+                      {/* В режиме редактирования показываем кнопку удаления */}
+                      <AnimatePresence>
+                        {editMode && canManageChannels && (
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.8, width: 0 }}
+                            animate={{ opacity: 1, scale: 1, width: "auto" }}
+                            exit={{ opacity: 0, scale: 0.8, width: 0 }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setChannelToRemove(channel.username);
+                                setShowRemoveDialog(true);
+                              }}
+                              className={cn(
+                                createButtonStyle("danger"),
+                                "opacity-70 hover:opacity-100",
+                              )}
+                            >
+                              <Trash2 size={16} />
+                            </Button>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          );
+        })}
       </div>
 
-      {/* No results after filtering */}
-      {filteredAndSortedChannels.length === 0 && (
-        <Alert className={cn("mt-4", createCardStyle())}>
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Ничего не найдено</AlertTitle>
-          <AlertDescription className={textColors.muted}>
-            По вашему запросу не найдено каналов. Попробуйте изменить параметры
-            поиска.
-          </AlertDescription>
-        </Alert>
+      {/* Информация о результатах поиска */}
+      {searchQuery && (
+        <div
+          className={cn("mt-4 text-center", createTextStyle("small", "muted"))}
+        >
+          {filteredChannels.length === 0
+            ? "Каналы не найдены"
+            : `Найдено каналов: ${filteredChannels.length} из ${channels.length}`}
+        </div>
       )}
 
-      {/* Delete channel confirmation dialog */}
-      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+      {/* Диалог удаления одного канала */}
+      <Dialog open={showRemoveDialog} onOpenChange={setShowRemoveDialog}>
         <DialogContent className={createCardStyle()}>
           <DialogHeader>
             <DialogTitle className={typography.h3}>Удаление канала</DialogTitle>
             <DialogDescription className={textColors.secondary}>
-              Вы действительно хотите удалить канал @{channelToDelete} из
-              набора?
+              Вы уверены, что хотите удалить канал "@{channelToRemove}" из
+              набора? Этот канал можно будет добавить обратно в любое время.
             </DialogDescription>
           </DialogHeader>
-
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => setShowDeleteDialog(false)}
+              onClick={() => {
+                setShowRemoveDialog(false);
+                setChannelToRemove(null);
+              }}
               className={createButtonStyle("secondary")}
-              disabled={isDeleting}
+              disabled={removingChannels.length > 0}
             >
               Отмена
             </Button>
             <Button
               variant="destructive"
-              onClick={handleDeleteConfirm}
-              disabled={isDeleting}
+              onClick={() =>
+                channelToRemove && handleRemoveChannel(channelToRemove)
+              }
+              disabled={removingChannels.length > 0}
               className={createButtonStyle("danger")}
             >
-              {isDeleting ? (
+              {removingChannels.length > 0 ? (
                 <>
-                  <LoaderCircle
-                    size={16}
-                    className={cn(`mr-${spacing.sm}`, "animate-spin")}
-                  />
+                  <Loader2 size={16} className="mr-1 animate-spin" />
                   Удаление...
                 </>
               ) : (
                 "Удалить"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Диалог массового удаления */}
+      <Dialog
+        open={showBulkRemoveDialog}
+        onOpenChange={setShowBulkRemoveDialog}
+      >
+        <DialogContent className={createCardStyle()}>
+          <DialogHeader>
+            <DialogTitle className={typography.h3}>
+              Удаление каналов
+            </DialogTitle>
+            <DialogDescription className={textColors.secondary}>
+              Вы уверены, что хотите удалить {selectedChannels.length} выбранных
+              каналов из набора? Эти каналы можно будет добавить обратно в любое
+              время.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowBulkRemoveDialog(false)}
+              className={createButtonStyle("secondary")}
+              disabled={removingChannels.length > 0}
+            >
+              Отмена
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleBulkRemove}
+              disabled={removingChannels.length > 0}
+              className={createButtonStyle("danger")}
+            >
+              {removingChannels.length > 0 ? (
+                <>
+                  <Loader2 size={16} className="mr-1 animate-spin" />
+                  Удаление...
+                </>
+              ) : (
+                `Удалить ${selectedChannels.length} каналов`
               )}
             </Button>
           </DialogFooter>

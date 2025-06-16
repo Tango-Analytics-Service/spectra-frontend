@@ -32,17 +32,15 @@ const ChannelSetCard: React.FC<ChannelSetCardProps> = ({
 }) => {
   // Определяем доступные действия в зависимости от статуса
   const getContextualActions = () => {
-
-      return {
-        primary: {
-          label: "Детали",
-          action: () => onViewDetails(channelSet.id),
-          variant: "secondary" as const,
-          icon: ArrowRight,
-        },
-        secondary: null,
-      };
-
+    return {
+      primary: {
+        label: "Детали",
+        action: () => onViewDetails(channelSet.id),
+        variant: "secondary" as const,
+        icon: ArrowRight,
+      },
+      secondary: null,
+    };
   };
 
   const actions = getContextualActions();
@@ -53,7 +51,7 @@ const ChannelSetCard: React.FC<ChannelSetCardProps> = ({
         createCardStyle(),
         `p-${spacing.md}`,
         animations.fadeIn,
-        className
+        className,
       )}
     >
       <div className="relative z-10">
@@ -62,7 +60,7 @@ const ChannelSetCard: React.FC<ChannelSetCardProps> = ({
           <h3 className={cn(typography.h4, textColors.primary, "mb-1")}>
             {channelSet.name}
           </h3>
-          
+
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-1">
@@ -72,7 +70,7 @@ const ChannelSetCard: React.FC<ChannelSetCardProps> = ({
                 </span>
               </div>
             </div>
-            
+
             <ChannelSetStatus
               channelCount={channelSet.channel_count}
               allParsed={channelSet.all_parsed}
@@ -86,7 +84,7 @@ const ChannelSetCard: React.FC<ChannelSetCardProps> = ({
             className={cn(
               createTextStyle("small", "muted"),
               `mb-${spacing.md}`,
-              "line-clamp-2"
+              "line-clamp-2",
             )}
           >
             {channelSet.description}
@@ -97,10 +95,7 @@ const ChannelSetCard: React.FC<ChannelSetCardProps> = ({
         <div className="flex items-center gap-2">
           <Button
             onClick={actions.primary.action}
-            className={cn(
-              createButtonStyle(actions.primary.variant),
-              "flex-1"
-            )}
+            className={cn(createButtonStyle(actions.primary.variant), "flex-1")}
           >
             {actions.primary.icon && (
               <actions.primary.icon size={16} className={`mr-${spacing.sm}`} />
@@ -115,9 +110,7 @@ const ChannelSetCard: React.FC<ChannelSetCardProps> = ({
               size="sm"
               className={createButtonStyle("ghost")}
             >
-              {actions.secondary.icon && (
-                <actions.secondary.icon size={16} />
-              )}
+              {actions.secondary.icon && <actions.secondary.icon size={16} />}
             </Button>
           )}
         </div>

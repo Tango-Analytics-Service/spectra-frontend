@@ -17,6 +17,8 @@ import {
   Star,
   AlertCircle,
   LoaderCircle,
+  Crown,
+  Eye,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -82,13 +84,8 @@ const ChannelSetDetailsPage: React.FC = () => {
 
   const { analyzeChannelSet } = useChannelSets();
 
-
-  const {
-    findTasksForChannelSet,
-    refreshTask,
-    fetchTasks,
-  } = useAnalysisTasks();
-  
+  const { findTasksForChannelSet, refreshTask, fetchTasks } =
+    useAnalysisTasks();
 
   // Загрузка данных набора
   useEffect(() => {
@@ -219,7 +216,6 @@ const ChannelSetDetailsPage: React.FC = () => {
         title: "Анализ запущен",
         description: "Результаты анализа будут доступны в скором времени",
       });
-      
     } catch (error) {
       console.error("Error starting analysis:", error);
       toast({
@@ -230,6 +226,32 @@ const ChannelSetDetailsPage: React.FC = () => {
     }
   };
 
+  // Получение статуса доступа для отображения
+  const getAccessStatusInfo = () => {
+    if (!channelSet) return null;
+
+    if (channelSet.is_owned_by_user) {
+      return {
+        icon: Crown,
+        text: "Владелец",
+        color: "text-yellow-400",
+      };
+    }
+
+    if (channelSet.permissions.can_edit) {
+      return {
+        icon: Edit,
+        text: "Редактор",
+        color: "text-blue-400",
+      };
+    }
+
+    return {
+      icon: Eye,
+      text: "Просмотр",
+      color: "text-gray-400",
+    };
+  };
 
   // Состояния загрузки
   if (isLoading) {
@@ -238,7 +260,7 @@ const ChannelSetDetailsPage: React.FC = () => {
         className={cn(
           "container mx-auto",
           `py-${spacing.lg} px-${spacing.md}`,
-          "max-w-5xl"
+          "max-w-5xl",
         )}
       >
         <div className={`mb-${spacing.lg}`}>
@@ -256,17 +278,16 @@ const ChannelSetDetailsPage: React.FC = () => {
         className={cn(
           "container mx-auto",
           `py-${spacing.lg} px-${spacing.md}`,
-          "max-w-5xl"
+          "max-w-5xl",
         )}
       >
-
         <Card className={cn(createCardStyle(), `p-${spacing.lg}`)}>
           <div className="text-center py-12">
             <AlertCircle
               className={cn(
                 "mx-auto h-12 w-12",
                 `mb-${spacing.md}`,
-                textColors.warning
+                textColors.warning,
               )}
             />
             <p className={cn(typography.h3, `mb-${spacing.md}`)}>
@@ -284,20 +305,20 @@ const ChannelSetDetailsPage: React.FC = () => {
     );
   }
 
+  const accessInfo = getAccessStatusInfo();
+
   return (
     <div
       className={cn(
         "container mx-auto",
         `py-${spacing.lg} px-${spacing.md}`,
         "max-w-5xl",
-        animations.fadeIn
+        animations.fadeIn,
       )}
     >
-
       {/* Заголовок */}
       <div className={cn(`mb-${spacing.lg}`)}>
         <div className="flex items-center mb-4">
-
           {isEditing ? (
             <div className="flex items-center flex-1">
               <Input
@@ -312,7 +333,7 @@ const ChannelSetDetailsPage: React.FC = () => {
                 size="sm"
                 className={cn(
                   createButtonStyle("ghost"),
-                  "mr-1 text-green-400 hover:text-green-300"
+                  "mr-1 text-green-400 hover:text-green-300",
                 )}
                 onClick={handleSaveEditing}
               >
@@ -324,7 +345,7 @@ const ChannelSetDetailsPage: React.FC = () => {
                 size="sm"
                 className={cn(
                   createButtonStyle("ghost"),
-                  "text-red-400 hover:text-red-300"
+                  "text-red-400 hover:text-red-300",
                 )}
                 onClick={handleCancelEditing}
               >
@@ -333,58 +354,84 @@ const ChannelSetDetailsPage: React.FC = () => {
               </Button>
             </div>
           ) : (
-            <h1 className={cn(typography.h1, "flex items-center")}>
-              {channelSet.name}
-              {channelSet.is_predefined && (
-                <Star size={16} className={cn("ml-2 text-yellow-400")} />
+            <div className="flex items-center justify-between w-full">
+              <h1 className={cn(typography.h1, "flex items-center")}>
+                {channelSet.name}
+                {channelSet.is_predefined && (
+                  <Star size={16} className={cn("ml-2 text-yellow-400")} />
+                )}
+                {channelSet.is_public ? (
+                  <Globe size={16} className={cn("ml-2 text-blue-400")} />
+                ) : (
+                  <Lock size={16} className={cn("ml-2 text-gray-400")} />
+                )}
+              </h1>
+
+              {/* Индикатор уровня доступа */}
+              {accessInfo && (
+                <div className="flex items-center gap-2">
+                  <accessInfo.icon size={16} className={cn(accessInfo.color)} />
+                  <span
+                    className={cn(
+                      createTextStyle("small", "muted"),
+                      accessInfo.color,
+                    )}
+                  >
+                    {accessInfo.text}
+                  </span>
+                </div>
               )}
-              {channelSet.is_public ? (
-                <Globe size={16} className={cn("ml-2 text-blue-400")} />
-              ) : (
-                <Lock size={16} className={cn("ml-2 text-gray-400")} />
-              )}
-            </h1>
+            </div>
           )}
         </div>
 
         <div className={cn("flex flex-wrap items-center gap-2")}>
-
-          {!isEditing && !channelSet.is_predefined && (
+          {!isEditing && (
             <>
-              <Button
-                variant="outline"
-                size="sm"
-                className={createButtonStyle("secondary")}
-                onClick={handleRefresh}
-                disabled={isRefreshing}
-              >
-                {isRefreshing ? (
-                  <LoaderCircle size={16} className="mr-1 animate-spin" />
-                ) : (
-                  <RefreshCw size={16} className="mr-1" />
-                )}
-                Обновить
-              </Button>
+              {/* Кнопка обновления - доступна если можно редактировать или управлять каналами */}
+              {(channelSet.permissions.can_edit ||
+                channelSet.permissions.can_manage_channels) && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className={createButtonStyle("secondary")}
+                  onClick={handleRefresh}
+                  disabled={isRefreshing}
+                >
+                  {isRefreshing ? (
+                    <LoaderCircle size={16} className="mr-1 animate-spin" />
+                  ) : (
+                    <RefreshCw size={16} className="mr-1" />
+                  )}
+                  Обновить
+                </Button>
+              )}
 
-              <Button
-                variant="outline"
-                size="sm"
-                className={createButtonStyle("secondary")}
-                onClick={handleStartEditing}
-              >
-                <Edit size={16} className="mr-1" />
-                Редактировать
-              </Button>
+              {/* Кнопка редактирования - доступна если можно редактировать */}
+              {channelSet.permissions.can_edit && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className={createButtonStyle("secondary")}
+                  onClick={handleStartEditing}
+                >
+                  <Edit size={16} className="mr-1" />
+                  Редактировать
+                </Button>
+              )}
 
-              <Button
-                variant="outline"
-                size="sm"
-                className={createButtonStyle("danger")}
-                onClick={() => setShowDeleteDialog(true)}
-              >
-                <Trash2 size={16} className="mr-1" />
-                Удалить
-              </Button>
+              {/* Кнопка удаления - доступна если можно удалять */}
+              {channelSet.permissions.can_delete && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className={createButtonStyle("danger")}
+                  onClick={() => setShowDeleteDialog(true)}
+                >
+                  <Trash2 size={16} className="mr-1" />
+                  Удалить
+                </Button>
+              )}
             </>
           )}
         </div>
@@ -417,7 +464,6 @@ const ChannelSetDetailsPage: React.FC = () => {
                   onCheckedChange={(value) =>
                     setEditForm((prev) => ({ ...prev, is_public: value }))
                   }
-                  disabled={channelSet.is_predefined}
                 />
                 <Label htmlFor="is-public">Публичный набор</Label>
               </div>
@@ -428,7 +474,7 @@ const ChannelSetDetailsPage: React.FC = () => {
                 <p className={cn(createTextStyle("body", "muted"), "mb-3")}>
                   {channelSet.description}
                 </p>
-                
+
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                     <div className="flex items-center gap-2">
@@ -437,7 +483,7 @@ const ChannelSetDetailsPage: React.FC = () => {
                         {channelSet.channel_count} каналов
                       </span>
                     </div>
-                    
+
                     <div className="flex items-center gap-2">
                       <Calendar size={14} className={textColors.muted} />
                       <span className={createTextStyle("small", "muted")}>
@@ -452,33 +498,56 @@ const ChannelSetDetailsPage: React.FC = () => {
                       channelCount={channelSet.channel_count}
                       allParsed={channelSet.all_parsed}
                     />
-                    
-                    {channelSet.all_parsed && channelSet.channel_count > 0 && (
-                      <Button
-                        onClick={handleAnalyze}
-                        className={createButtonStyle("primary")}
-                      >
-                        Анализировать
-                      </Button>
-                    )}
+
+                    {/* Кнопка анализа - доступна если можно анализировать */}
+                    {channelSet.permissions.can_analyze &&
+                      channelSet.all_parsed &&
+                      channelSet.channel_count > 0 && (
+                        <Button
+                          onClick={handleAnalyze}
+                          className={createButtonStyle("primary")}
+                        >
+                          Анализировать
+                        </Button>
+                      )}
                   </div>
                 </div>
               </div>
-            </>          
-            )}
+            </>
+          )}
         </div>
       </div>
 
       {/* Управление каналами */}
       <div className={cn(createCardStyle())}>
         <div className={`p-${spacing.md}`}>
-          <div className={cn("flex justify-between items-center", `mb-${spacing.md}`)}>
+          <div
+            className={cn(
+              "flex justify-between items-center",
+              `mb-${spacing.md}`,
+            )}
+          >
             <h3 className={cn(typography.h3, "font-medium")}>
               Каналы в наборе
             </h3>
+
+            {/* Кнопка добавления каналов - доступна если можно управлять каналами */}
+            {channelSet.permissions.can_manage_channels && (
+              <Button
+                onClick={() => setShowAddChannelsDialog(true)}
+                className={createButtonStyle("primary")}
+              >
+                <Plus size={16} className="mr-1" />
+                Добавить каналы
+              </Button>
+            )}
           </div>
 
-          <ChannelsList channels={channelSet.channels} setId={channelSet.id} />
+          <ChannelsList
+            channels={channelSet.channels}
+            setId={channelSet.id}
+            canManageChannels={channelSet.permissions.can_manage_channels}
+          />
         </div>
       </div>
 
@@ -521,21 +590,25 @@ const ChannelSetDetailsPage: React.FC = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Диалог добавления каналов */}
-      <AddChannelsDialog
-        open={showAddChannelsDialog}
-        onOpenChange={setShowAddChannelsDialog}
-        setId={channelSet.id}
-      />
+      {/* Диалог добавления каналов - показывается только если можно управлять каналами */}
+      {channelSet.permissions.can_manage_channels && (
+        <AddChannelsDialog
+          open={showAddChannelsDialog}
+          onOpenChange={setShowAddChannelsDialog}
+          setId={channelSet.id}
+        />
+      )}
 
-      {/* Analysis dialog */}
-      <StartAnalysisDialog
-        open={analysisDialogOpen}
-        onOpenChange={setAnalysisDialogOpen}
-        onStart={handleStartAnalysis}
-        setId={channelSet.id}
-        channelCount={channelSet.channel_count}
-      />
+      {/* Диалог анализа - показывается только если можно анализировать */}
+      {channelSet.permissions.can_analyze && (
+        <StartAnalysisDialog
+          open={analysisDialogOpen}
+          onOpenChange={setAnalysisDialogOpen}
+          onStart={handleStartAnalysis}
+          setId={channelSet.id}
+          channelCount={channelSet.channel_count}
+        />
+      )}
     </div>
   );
 };

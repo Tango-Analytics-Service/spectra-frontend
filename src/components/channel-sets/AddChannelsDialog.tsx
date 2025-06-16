@@ -1,168 +1,170 @@
-// src/components/channel-sets/AddChannelsDialog.tsx
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
-  AlertCircle,
-  Check,
   Plus,
-  Search,
+  Upload,
+  X,
+  AlertCircle,
   ExternalLink,
-  Users,
-  Eye,
-  Trash2,
+  CheckCircle,
+  Copy,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "@/components/ui/use-toast";
 import { useChannelSets } from "@/contexts/ChannelSetsContext";
-import { ChannelDetails } from "@/types/channel-sets";
 import { cn } from "@/lib/utils";
 import {
   createButtonStyle,
+  createCardStyle,
+  createTextStyle,
   components,
   typography,
   spacing,
-  animations,
   textColors,
-  createTextStyle,
+  animations,
 } from "@/lib/design-system";
 import {
   DialogWrapper,
   FormField,
   ActionButtons,
-  SelectionCounter,
   EmptyState,
-  LoadingState,
 } from "@/components/ui/dialog-components";
+
+interface Channel {
+  id: string;
+  original: string;
+  username: string;
+  isValid: boolean;
+  isDuplicate?: boolean;
+  isFormatValid?: boolean;
+}
 
 interface AddChannelsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   setId: string;
+  existingChannels?: string[]; // Список уже существующих каналов в наборе
 }
 
 const AddChannelsDialog: React.FC<AddChannelsDialogProps> = ({
   open,
   onOpenChange,
   setId,
+  existingChannels = [],
 }) => {
-  const { addChannelsToSet, searchChannels } = useChannelSets();
+  const { addChannelsToSet } = useChannelSets();
 
   // State
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<ChannelDetails[]>([]);
-  const [selectedChannels, setSelectedChannels] = useState<string[]>([]);
-  const [manualChannels, setManualChannels] = useState<string[]>([]);
-  const [manualInput, setManualInput] = useState("");
+  const [bulkInput, setBulkInput] = useState("");
   const [isAdding, setIsAdding] = useState(false);
-  const [searchLoading, setSearchLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<"search" | "manual">("search");
 
-  // Refs
-  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  // Парсинг каналов в реальном времени
+  const parsedChannels = useMemo(() => {
+    if (!bulkInput.trim()) return [];
 
-  // Effect to search channels when query changes
-  useEffect(() => {
-    if (searchQuery.trim().length < 2) {
-      setSearchResults([]);
-      setSearchLoading(false);
-      return;
-    }
+    const lines = bulkInput
+      .split(/[\n,;]+/)
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0);
 
-    // Debounce search
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current);
-    }
+    const processed = lines.map((line) => {
+      const original = line;
+      let username = line;
 
-    setSearchLoading(true);
-
-    searchTimeoutRef.current = setTimeout(async () => {
-      try {
-        const results = await searchChannels(searchQuery);
-        setSearchResults(results);
-      } catch (error) {
-        console.error("Error searching channels:", error);
-      } finally {
-        setSearchLoading(false);
+      // Извлекаем username из различных форматов
+      if (line.includes("t.me/")) {
+        const match = line.match(/t\.me\/([a-zA-Z0-9_]+)/);
+        username = match ? match[1] : line;
+      } else if (line.startsWith("@")) {
+        username = line.substring(1);
       }
-    }, 500);
 
-    return () => {
-      if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current);
-      }
-    };
-  }, [searchQuery, searchChannels]);
+      // Валидация username (5-32 символа, только буквы, цифры и _)
+      const isValid = /^[a-zA-Z0-9_]{5,32}$/.test(username);
 
-  // Reset state when dialog closes
-  useEffect(() => {
-    if (!open) {
-      // Small delay to avoid flashing during close animation
-      setTimeout(() => {
-        setSearchQuery("");
-        setSearchResults([]);
-        setSelectedChannels([]);
-        setManualChannels([]);
-        setManualInput("");
-        setActiveTab("search");
-      }, 300);
-    }
-  }, [open]);
+      // Проверка на дубликаты с существующими каналами
+      const isDuplicate = existingChannels.includes(username);
 
-  // Handlers
-  const handleTabChange = (tab: "search" | "manual") => {
-    setActiveTab(tab);
-  };
+      return {
+        id: Math.random().toString(36).substr(2, 9),
+        original,
+        username,
+        isValid: isValid && !isDuplicate,
+        isDuplicate,
+        isFormatValid: isValid,
+      };
+    });
 
-  const handleToggleChannel = (username: string) => {
-    setSelectedChannels((prev) =>
-      prev.includes(username)
-        ? prev.filter((c) => c !== username)
-        : [...prev, username],
+    // Удаляем дубликаты по username внутри введенного списка
+    const unique = processed.filter(
+      (channel, index, self) =>
+        index === self.findIndex((c) => c.username === channel.username),
     );
+
+    return unique;
+  }, [bulkInput, existingChannels]);
+
+  const validChannels = parsedChannels.filter((ch) => ch.isValid);
+  const invalidChannels = parsedChannels.filter((ch) => !ch.isValid);
+  const duplicateChannels = parsedChannels.filter((ch) => ch.isDuplicate);
+
+  // Обработчики
+  const handleInputChange = (value: string) => {
+    setBulkInput(value);
   };
 
-  const handleAddManualChannel = () => {
-    const username = manualInput.trim().replace(/^@/, "");
-    if (username && !manualChannels.includes(username)) {
-      setManualChannels((prev) => [...prev, username]);
-      setManualInput("");
-    }
+  const handlePasteExample = () => {
+    const example = `@durov
+https://t.me/telegram
+breakingmash
+tginfo`;
+    setBulkInput(example);
   };
 
-  const handleRemoveManualChannel = (username: string) => {
-    setManualChannels((prev) => prev.filter((c) => c !== username));
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && manualInput.trim()) {
-      e.preventDefault();
-      handleAddManualChannel();
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && file.type === "text/plain") {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setBulkInput((e.target?.result as string) || "");
+      };
+      reader.readAsText(file);
     }
   };
 
   const handleAddChannels = async () => {
-    // Collect all selected channels
-    const channelsToAdd = [...selectedChannels, ...manualChannels];
-
-    if (channelsToAdd.length === 0) {
-      toast({
-        title: "Ошибка",
-        description: "Выберите или добавьте хотя бы один канал",
-        variant: "destructive",
-      });
-      return;
-    }
+    if (validChannels.length === 0) return;
 
     setIsAdding(true);
     try {
-      const result = await addChannelsToSet(setId, channelsToAdd);
+      const usernames = validChannels.map((ch) => ch.username);
+      const result = await addChannelsToSet(setId, usernames);
 
       if (result.success) {
-        toast({
-          title: "Успешно",
-          description: `Добавлено ${channelsToAdd.length} каналов в набор`,
-        });
+        // Проверяем, были ли частичные ошибки
+        if (result.added && result.failed) {
+          const addedCount = result.added.length;
+          const failedCount = result.failed.length;
+
+          if (addedCount > 0 && failedCount > 0) {
+            toast({
+              title: "Частично выполнено",
+              description: `Добавлено ${addedCount} ${getChannelWord(addedCount)}. ${failedCount} не удалось добавить.`,
+            });
+          } else if (addedCount > 0) {
+            toast({
+              title: "Успешно",
+              description: `Добавлено ${addedCount} ${getChannelWord(addedCount)} в набор`,
+            });
+          }
+        } else {
+          toast({
+            title: "Успешно",
+            description: `Добавлено ${validChannels.length} ${getChannelWord(validChannels.length)} в набор`,
+          });
+        }
         onOpenChange(false);
       } else {
         toast({
@@ -183,310 +185,269 @@ const AddChannelsDialog: React.FC<AddChannelsDialogProps> = ({
     }
   };
 
-  // Derived state
-  const totalSelected = selectedChannels.length + manualChannels.length;
+  // Сброс при закрытии
+  useEffect(() => {
+    if (!open) {
+      setTimeout(() => {
+        setBulkInput("");
+      }, 300);
+    }
+  }, [open]);
+
+  const isFormValid = validChannels.length > 0;
 
   return (
     <DialogWrapper
       open={open}
       onOpenChange={onOpenChange}
       title="Добавление каналов"
-      description="Найдите или введите каналы, которые хотите добавить в набор"
-      maxWidth="max-w-4xl"
+      description="Добавьте каналы в набор, используя различные форматы"
+      maxWidth="max-w-3xl"
     >
-      {/* Tabs */}
-      <div className={cn("flex", `space-x-${spacing.sm} mb-${spacing.md}`)}>
-        <Button
-          variant={activeTab === "search" ? "default" : "outline"}
-          size="sm"
-          onClick={() => handleTabChange("search")}
-          className={
-            activeTab === "search"
-              ? createButtonStyle("primary")
-              : createButtonStyle("secondary")
-          }
-        >
-          <Search size={16} className={`mr-${spacing.sm}`} />
-          Поиск каналов
-        </Button>
-        <Button
-          variant={activeTab === "manual" ? "default" : "outline"}
-          size="sm"
-          onClick={() => handleTabChange("manual")}
-          className={
-            activeTab === "manual"
-              ? createButtonStyle("primary")
-              : createButtonStyle("secondary")
-          }
-        >
-          <Plus size={16} className={`mr-${spacing.sm}`} />
-          Добавить вручную
-        </Button>
-      </div>
+      <div
+        className={cn("flex flex-col", `gap-${spacing.lg}`, `py-${spacing.sm}`)}
+      >
+        {/* Поле ввода */}
+        <FormField label="Список каналов">
+          <div className={`space-y-${spacing.sm}`}>
+            <Textarea
+              placeholder={`Введите каналы в любом формате:
 
-      <div className="h-[400px] flex flex-col">
-        {/* Search Tab */}
-        {activeTab === "search" && (
-          <>
-            <FormField label="Поиск каналов">
-              <div className="relative">
-                <Search
-                  size={16}
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                />
-                <Input
-                  placeholder="Поиск каналов по названию или @username"
-                  className={cn(components.input.base, "pl-9")}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-            </FormField>
+@username
+https://t.me/channel
+channel_name
 
-            <ScrollArea
-              className={cn(
-                "flex-1 border border-blue-500/20 rounded-md bg-slate-900/30",
-                `mt-${spacing.sm}`,
-              )}
-            >
-              {searchLoading ? (
-                <LoadingState />
-              ) : searchResults.length === 0 ? (
-                <EmptyState
-                  icon={
-                    searchQuery.length < 2 ? (
-                      <Search size={12} />
-                    ) : (
-                      <AlertCircle size={12} />
-                    )
-                  }
-                  title={
-                    searchQuery.length < 2
-                      ? "Введите не менее 2 символов для поиска"
-                      : "Каналы не найдены"
-                  }
-                  description={
-                    searchQuery.length >= 2
-                      ? "Попробуйте другой запрос или добавьте канал вручную"
-                      : undefined
-                  }
-                />
-              ) : (
-                <div className="p-1">
-                  {searchResults.map((channel) => (
-                    <div
-                      key={channel.username}
-                      className={cn(
-                        "flex items-center justify-between",
-                        `p-${spacing.sm}`,
-                        "rounded-md cursor-pointer",
-                        selectedChannels.includes(channel.username)
-                          ? "bg-blue-500/20 hover:bg-blue-500/30"
-                          : "hover:bg-slate-800/70",
-                      )}
-                      onClick={() => handleToggleChannel(channel.username)}
-                    >
-                      <div className="flex items-center">
-                        {selectedChannels.includes(channel.username) ? (
-                          <Check
-                            size={16}
-                            className={cn(
-                              textColors.accent,
-                              `mr-${spacing.sm}`,
-                            )}
-                          />
-                        ) : (
-                          <div
-                            className={cn(
-                              "w-4 h-4 border rounded-sm",
-                              `mr-${spacing.sm}`,
-                              textColors.muted,
-                            )}
-                          />
-                        )}
-                        <div>
-                          <div
-                            className={cn(
-                              "font-medium flex items-center",
-                              typography.body,
-                            )}
-                          >
-                            @{channel.username}
-                            <a
-                              href={`https://t.me/${channel.username}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="ml-1 text-gray-400 hover:text-blue-400"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <ExternalLink size={12} />
-                            </a>
-                          </div>
-                          {channel.title && (
-                            <div className={createTextStyle("small", "muted")}>
-                              {channel.title}
-                            </div>
-                          )}
-                        </div>
-                      </div>
+Разделяйте каналы новыми строками или запятыми`}
+              value={bulkInput}
+              onChange={(e) => handleInputChange(e.target.value)}
+              className={cn(components.input.base, "min-h-[120px] resize-none")}
+              rows={6}
+            />
 
-                      {channel.stats && (
-                        <div className={createTextStyle("small", "muted")}>
-                          <div
-                            className={cn(
-                              "flex items-center",
-                              `space-x-${spacing.sm}`,
-                            )}
-                          >
-                            <span
-                              title="Подписчики"
-                              className="flex items-center"
-                            >
-                              <Users size={12} className="mr-1" />
-                              {formatNumber(channel.stats.subscribers_count)}
-                            </span>
-                            <span
-                              title="Просмотры"
-                              className="flex items-center"
-                            >
-                              <Eye size={12} className="mr-1" />
-                              {formatNumber(channel.stats.average_views)}
-                            </span>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </ScrollArea>
-          </>
-        )}
+            {/* Вспомогательные кнопки */}
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handlePasteExample}
+                className={createButtonStyle("secondary")}
+              >
+                <Copy size={14} className={`mr-${spacing.sm}`} />
+                Пример
+              </Button>
 
-        {/* Manual Tab */}
-        {activeTab === "manual" && (
-          <>
-            <FormField label="Добавить канал вручную">
-              <div className={cn("flex", `gap-${spacing.sm}`)}>
-                <Input
-                  placeholder="Введите @username канала"
-                  className={cn(components.input.base, "flex-1")}
-                  value={manualInput}
-                  onChange={(e) => setManualInput(e.target.value)}
-                  onKeyDown={handleKeyDown}
+              <label className="cursor-pointer">
+                <input
+                  type="file"
+                  accept=".txt"
+                  onChange={handleFileUpload}
+                  className="hidden"
                 />
-                <Button
-                  onClick={handleAddManualChannel}
-                  disabled={!manualInput.trim()}
-                  className={createButtonStyle("primary")}
+                <div
+                  className={cn(
+                    createButtonStyle("secondary"),
+                    "inline-flex items-center gap-2 px-3 py-1.5 text-sm",
+                  )}
                 >
-                  Добавить
-                </Button>
-              </div>
-            </FormField>
+                  <Upload size={14} />
+                  Загрузить файл
+                </div>
+              </label>
+            </div>
+          </div>
+        </FormField>
 
-            <div
-              className={cn(
-                createTextStyle("tiny", "muted"),
-                `mb-${spacing.sm}`,
-              )}
-            >
-              <AlertCircle size={12} className="inline mr-1" />
-              Вводите юзернеймы каналов с @ или без, например: @channel_name
-              или channel_name
+        {/* Подсказка по форматам */}
+        <div
+          className={cn(
+            createCardStyle(),
+            "bg-blue-500/5 border-blue-500/20",
+            `p-${spacing.md}`,
+          )}
+        >
+          <div className="flex items-start gap-3">
+            <AlertCircle
+              size={16}
+              className={cn(textColors.accent, "mt-0.5 flex-shrink-0")}
+            />
+            <div className={createTextStyle("small", "secondary")}>
+              <div className="font-medium mb-1">Поддерживаемые форматы:</div>
+              <ul className="space-y-1 text-gray-400">
+                <li>• @username или username</li>
+                <li>• https://t.me/username или t.me/username</li>
+                <li>
+                  • Разделение новыми строками, запятыми или точками с запятой
+                </li>
+                {existingChannels.length > 0 && (
+                  <li className="text-amber-400">
+                    • Дубликаты с существующими каналами будут пропущены
+                  </li>
+                )}
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* Предпросмотр каналов */}
+        {parsedChannels.length > 0 && (
+          <div className={`space-y-${spacing.sm}`}>
+            <div className="flex items-center justify-between">
+              <h3 className={cn(typography.h4, textColors.primary)}>
+                Предпросмотр
+              </h3>
+              <div className="flex items-center gap-4">
+                {validChannels.length > 0 && (
+                  <span className={cn(createTextStyle("small", "success"))}>
+                    ✓ {validChannels.length} готово
+                  </span>
+                )}
+                {invalidChannels.length > 0 && (
+                  <span className={cn(createTextStyle("small", "error"))}>
+                    ✗ {invalidChannels.length} ошибок
+                  </span>
+                )}
+                {duplicateChannels.length > 0 && (
+                  <span className="text-amber-400 text-sm">
+                    ⚠ {duplicateChannels.length} дубликатов
+                  </span>
+                )}
+              </div>
             </div>
 
-            <ScrollArea
-              className={cn(
-                "flex-1 border border-blue-500/20 rounded-md bg-slate-900/30",
-                `p-${spacing.md}`,
-              )}
+            <div
+              className={cn(createCardStyle(), "bg-slate-900/30", "max-h-48")}
             >
-              {manualChannels.length === 0 ? (
-                <EmptyState
-                  icon={<Plus size={12} />}
-                  title="Добавьте каналы, введя их @username"
-                />
-              ) : (
-                <div className={`space-y-${spacing.sm}`}>
-                  {manualChannels.map((username) => (
-                    <div
-                      key={username}
-                      className={cn(
-                        "flex items-center justify-between",
-                        `px-${spacing.sm} py-${spacing.sm}`,
-                        "bg-slate-800/70 rounded-md",
-                      )}
-                    >
-                      <div className="flex items-center">
-                        <div
-                          className={cn(
-                            typography.weight.medium,
-                            typography.body,
-                          )}
-                        >
-                          @{username}
-                        </div>
-                        <a
-                          href={`https://t.me/${username}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={cn(
-                            textColors.muted,
-                            "ml-1 hover:text-blue-400",
-                          )}
-                        >
-                          <ExternalLink size={12} />
-                        </a>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleRemoveManualChannel(username)}
-                        className={createButtonStyle("danger")}
-                      >
-                        <Trash2 size={14} />
-                      </Button>
-                    </div>
+              <ScrollArea className="h-full max-h-48">
+                <div className={`p-${spacing.sm} space-y-2`}>
+                  {parsedChannels.map((channel) => (
+                    <ChannelPreviewItem key={channel.id} channel={channel} />
                   ))}
                 </div>
-              )}
-            </ScrollArea>
-          </>
+              </ScrollArea>
+            </div>
+          </div>
         )}
 
-        {/* Selection counter */}
-        <SelectionCounter
-          count={totalSelected}
-          itemName="Выбрано каналов"
-          getItemWord={getChannelWord}
-        />
+        {/* Пустое состояние когда нет каналов */}
+        {bulkInput.trim() && parsedChannels.length === 0 && (
+          <EmptyState
+            icon={<AlertCircle size={32} />}
+            title="Каналы не распознаны"
+            description="Проверьте формат введенных данных"
+          />
+        )}
       </div>
 
       <ActionButtons
         onCancel={() => onOpenChange(false)}
         onConfirm={handleAddChannels}
-        confirmText={`Добавить ${totalSelected} ${getChannelWord(totalSelected)}`}
-        confirmDisabled={totalSelected === 0}
+        confirmText={`Добавить ${validChannels.length} ${getChannelWord(validChannels.length)}`}
+        confirmDisabled={!isFormValid}
         isLoading={isAdding}
-        loadingText="Добавление..."
+        loadingText="Добавляем каналы..."
         confirmIcon={<Plus size={16} />}
       />
     </DialogWrapper>
   );
 };
 
-// Helper functions
-const formatNumber = (num: number): string => {
-  if (num >= 1000000) {
-    return (num / 1000000).toFixed(1) + "M";
-  } else if (num >= 1000) {
-    return (num / 1000).toFixed(1) + "K";
-  } else {
-    return num.toString();
-  }
+// Компонент для предпросмотра отдельного канала
+interface ChannelPreviewItemProps {
+  channel: Channel;
+}
+
+const ChannelPreviewItem: React.FC<ChannelPreviewItemProps> = ({ channel }) => {
+  const getStatusIcon = () => {
+    if (channel.isValid) {
+      return <CheckCircle size={16} className="text-green-400 flex-shrink-0" />;
+    } else if (channel.isDuplicate) {
+      return (
+        <AlertCircle size={16} className="text-yellow-400 flex-shrink-0" />
+      );
+    } else {
+      return <AlertCircle size={16} className="text-red-400 flex-shrink-0" />;
+    }
+  };
+
+  const getStatusColor = () => {
+    if (channel.isValid) {
+      return "bg-green-500/10 border border-green-500/20";
+    } else if (channel.isDuplicate) {
+      return "bg-yellow-500/10 border border-yellow-500/20";
+    } else {
+      return "bg-red-500/10 border border-red-500/20";
+    }
+  };
+
+  const getTextColor = () => {
+    if (channel.isValid) {
+      return "text-green-100";
+    } else if (channel.isDuplicate) {
+      return "text-yellow-100";
+    } else {
+      return "text-red-100";
+    }
+  };
+
+  const getErrorMessage = () => {
+    if (channel.isDuplicate) {
+      return "Канал уже есть в наборе";
+    } else if (!channel.isFormatValid) {
+      return "Неверный формат (5-32 символа, только буквы, цифры и _)";
+    }
+    return null;
+  };
+
+  return (
+    <div
+      className={cn(
+        "flex items-center justify-between",
+        `p-${spacing.sm}`,
+        "rounded-md transition-colors",
+        getStatusColor(),
+      )}
+    >
+      <div className="flex items-center gap-3 flex-1 min-w-0">
+        {getStatusIcon()}
+
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <span className={cn("font-medium truncate", getTextColor())}>
+              @{channel.username}
+            </span>
+            <a
+              href={`https://t.me/${channel.username}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-400 hover:text-blue-400 transition-colors flex-shrink-0"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <ExternalLink size={12} />
+            </a>
+          </div>
+
+          {getErrorMessage() && (
+            <div
+              className="text-xs mt-0.5"
+              style={{ color: channel.isDuplicate ? "#fbbf24" : "#f87171" }}
+            >
+              {getErrorMessage()}
+            </div>
+          )}
+
+          {channel.original !== channel.username && (
+            <div className="text-xs text-gray-500 mt-0.5 truncate">
+              Из: {channel.original}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 };
 
+// Вспомогательная функция для склонения слова "канал"
 const getChannelWord = (count: number): string => {
   const lastDigit = count % 10;
   const lastTwoDigits = count % 100;
