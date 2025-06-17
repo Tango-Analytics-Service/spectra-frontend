@@ -8,6 +8,7 @@ import {
   CheckCircle,
   Copy,
   AlertTriangle,
+  LoaderCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +17,15 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "@/components/ui/use-toast";
 import { useChannelSets } from "@/contexts/ChannelSetsContext";
 import { cn } from "@/lib/utils";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import {
   createButtonStyle,
   createCardStyle,
@@ -26,15 +36,9 @@ import {
   textColors,
   animations,
 } from "@/lib/design-system";
-import {
-  DialogWrapper,
-  FormField,
-  ActionButtons,
-  EmptyState,
-} from "@/components/ui/dialog-components";
 
 // Максимальное количество каналов в наборе
-const MAX_CHANNELS_PER_SET = 2;
+const MAX_CHANNELS_PER_SET = 20;
 
 interface Channel {
   id: string;
@@ -211,247 +215,320 @@ tginfo`;
   // Если достигнут лимит каналов, показываем предупреждение
   if (!canAddChannels) {
     return (
-      <DialogWrapper
-        open={open}
-        onOpenChange={onOpenChange}
-        title="Лимит каналов достигнут"
-        description="В наборе может быть максимум 20 каналов"
-        maxWidth="max-w-md"
-      >
-        <div className={`space-y-${spacing.lg}`}>
-          <div
-            className={cn(
-              createCardStyle(),
-              "bg-amber-500/5 border-amber-500/20",
-              `p-${spacing.md}`,
-              "text-center",
-            )}
-          >
-            <AlertTriangle
-              size={48}
-              className={cn(textColors.warning, "mx-auto mb-3")}
-            />
-            <h3 className={cn(typography.h4, textColors.primary, "mb-2")}>
-              Достигнут максимум каналов
-            </h3>
-            <p className={cn(createTextStyle("small", "muted"))}>
-              В наборе уже находится {existingChannels.length} каналов из{" "}
-              {MAX_CHANNELS_PER_SET} возможных. Удалите некоторые каналы, чтобы
-              добавить новые.
-            </p>
-          </div>
-        </div>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent
+          className={cn(
+            createCardStyle(),
+            "sm:max-w-md max-h-[80vh] flex flex-col p-0",
+          )}
+        >
+          {/* Фиксированный заголовок */}
+          <DialogHeader className={`p-6 pb-0 flex-shrink-0`}>
+            <DialogTitle className={typography.h3}>
+              Лимит каналов достигнут
+            </DialogTitle>
+            <DialogDescription className={textColors.secondary}>
+              В наборе может быть максимум {MAX_CHANNELS_PER_SET} каналов
+            </DialogDescription>
+          </DialogHeader>
 
-        <ActionButtons
-          onCancel={() => onOpenChange(false)}
-          confirmText="Понятно"
-          onConfirm={() => onOpenChange(false)}
-          hideCancel={true}
-        />
-      </DialogWrapper>
+          {/* Контент */}
+          <div className="flex-1 overflow-auto px-6 pt-4">
+            <div
+              className={cn(
+                createCardStyle(),
+                "bg-amber-500/5 border-amber-500/20",
+                `p-${spacing.md}`,
+                "text-center",
+              )}
+            >
+              <AlertTriangle
+                size={48}
+                className={cn(textColors.warning, "mx-auto mb-3")}
+              />
+              <h3 className={cn(typography.h4, textColors.primary, "mb-2")}>
+                Достигнут максимум каналов
+              </h3>
+              <p className={cn(createTextStyle("small", "muted"))}>
+                В наборе уже находится {existingChannels.length} каналов из{" "}
+                {MAX_CHANNELS_PER_SET} возможных. Удалите некоторые каналы,
+                чтобы добавить новые.
+              </p>
+            </div>
+          </div>
+
+          {/* Фиксированный футер */}
+          <DialogFooter className={`p-6 pt-4 flex-shrink-0`}>
+            <Button
+              onClick={() => onOpenChange(false)}
+              className={createButtonStyle("primary")}
+            >
+              Понятно
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     );
   }
 
   return (
-    <DialogWrapper
-      open={open}
-      onOpenChange={onOpenChange}
-      title="Добавление каналов"
-      description={`Добавьте каналы в набор (осталось мест: ${remainingSlots}/${MAX_CHANNELS_PER_SET})`}
-      maxWidth="max-w-3xl"
-    >
-      <div
-        className={cn("flex flex-col", `gap-${spacing.lg}`, `py-${spacing.sm}`)}
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent
+        className={cn(
+          createCardStyle(),
+          "sm:max-w-3xl max-h-[80vh] flex flex-col p-0",
+        )}
       >
-        {/* Поле ввода */}
-        <FormField label="Список каналов">
-          <div className={`space-y-${spacing.sm}`}>
-            <Textarea
-              placeholder={`Введите каналы в любом формате (максимум ${remainingSlots}):
+        {/* Фиксированный заголовок */}
+        <DialogHeader className={`p-6 pb-0 flex-shrink-0`}>
+          <DialogTitle className={typography.h3}>
+            Добавление каналов
+          </DialogTitle>
+          <DialogDescription className={textColors.secondary}>
+            Добавьте каналы в набор (осталось мест: {remainingSlots}/
+            {MAX_CHANNELS_PER_SET})
+          </DialogDescription>
+        </DialogHeader>
+
+        {/* Контент с правильным скроллом */}
+        <div className="flex-1 overflow-auto px-6 pt-4">
+          <div className={cn("flex flex-col", `gap-${spacing.lg}`)}>
+            {/* Поле ввода */}
+            <div className={`space-y-${spacing.sm}`}>
+              <Label
+                htmlFor="channels-input"
+                className={cn(typography.small, textColors.secondary)}
+              >
+                Список каналов
+              </Label>
+              <Textarea
+                id="channels-input"
+                placeholder={`Введите каналы в любом формате (максимум ${remainingSlots}):
 
 @username
 https://t.me/channel
 channel_name
 
 Разделяйте каналы новыми строками или запятыми`}
-              value={bulkInput}
-              onChange={(e) => handleInputChange(e.target.value)}
-              className={cn(components.input.base, "min-h-[120px] resize-none")}
-              rows={6}
-            />
+                value={bulkInput}
+                onChange={(e) => handleInputChange(e.target.value)}
+                className={cn(
+                  components.input.base,
+                  "min-h-[120px] resize-none",
+                )}
+                rows={6}
+              />
 
-            {/* Вспомогательные кнопки */}
-            <div className="flex items-center gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handlePasteExample}
-                className={createButtonStyle("secondary")}
-              >
-                <Copy size={14} className={`mr-${spacing.sm}`} />
-                Пример
-              </Button>
+              {/* Вспомогательные кнопки */}
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handlePasteExample}
+                  className={createButtonStyle("secondary")}
+                >
+                  <Copy size={14} className={`mr-${spacing.sm}`} />
+                  Пример
+                </Button>
 
-              <label className="cursor-pointer">
-                <input
-                  type="file"
-                  accept=".txt"
-                  onChange={handleFileUpload}
-                  className="hidden"
+                <label className="cursor-pointer">
+                  <input
+                    type="file"
+                    accept=".txt"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                  />
+                  <div
+                    className={cn(
+                      createButtonStyle("secondary"),
+                      "inline-flex items-center gap-2 px-3 py-1.5 text-sm",
+                    )}
+                  >
+                    <Upload size={14} />
+                    Загрузить файл
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            {/* Информация о лимитах */}
+            <div
+              className={cn(
+                createCardStyle(),
+                "bg-blue-500/5 border-blue-500/20",
+                `p-${spacing.md}`,
+              )}
+            >
+              <div className="flex items-start gap-3">
+                <AlertCircle
+                  size={16}
+                  className={cn(textColors.accent, "mt-0.5 flex-shrink-0")}
                 />
+                <div className={createTextStyle("small", "secondary")}>
+                  <div className="font-medium mb-1">Ограничения:</div>
+                  <ul className="space-y-1 text-gray-400">
+                    <li>• Максимум {MAX_CHANNELS_PER_SET} каналов в наборе</li>
+                    <li>• Можно добавить еще {remainingSlots} каналов</li>
+                    <li>• @username или username</li>
+                    <li>• https://t.me/username или t.me/username</li>
+                    <li>
+                      • Разделение новыми строками, запятыми или точками с
+                      запятой
+                    </li>
+                    {existingChannels.length > 0 && (
+                      <li className="text-amber-400">
+                        • Дубликаты с существующими каналами будут пропущены
+                      </li>
+                    )}
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Предупреждение о превышении лимита */}
+            {exceededChannels.length > 0 && (
+              <div
+                className={cn(
+                  createCardStyle(),
+                  "bg-amber-500/5 border-amber-500/20",
+                  `p-${spacing.md}`,
+                )}
+              >
+                <div className="flex items-start gap-3">
+                  <AlertTriangle
+                    size={16}
+                    className={cn(textColors.warning, "mt-0.5 flex-shrink-0")}
+                  />
+                  <div className={createTextStyle("small", "warning")}>
+                    <div className="font-medium mb-1">Превышен лимит!</div>
+                    <p className="text-amber-400">
+                      {exceededChannels.length} каналов будет пропущено из-за
+                      ограничения в {MAX_CHANNELS_PER_SET} каналов на набор.
+                      Будут добавлены только первые {remainingSlots} каналов.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Предпросмотр каналов */}
+            {limitedChannels.length > 0 && (
+              <div className={`space-y-${spacing.sm}`}>
+                <div className="flex items-center justify-between">
+                  <h3 className={cn(typography.h4, textColors.primary)}>
+                    Предпросмотр ({limitedChannels.length}/{remainingSlots})
+                  </h3>
+                  <div className="flex items-center gap-4">
+                    {validChannels.length > 0 && (
+                      <span className={cn(createTextStyle("small", "success"))}>
+                        ✓ {validChannels.length} готово
+                      </span>
+                    )}
+                    {invalidChannels.length > 0 && (
+                      <span className={cn(createTextStyle("small", "error"))}>
+                        ✗ {invalidChannels.length} ошибок
+                      </span>
+                    )}
+                    {duplicateChannels.length > 0 && (
+                      <span className="text-amber-400 text-sm">
+                        ⚠ {duplicateChannels.length} дубликатов
+                      </span>
+                    )}
+                    {exceededChannels.length > 0 && (
+                      <span className="text-red-400 text-sm">
+                        🚫 {exceededChannels.length} превышено
+                      </span>
+                    )}
+                  </div>
+                </div>
+
                 <div
                   className={cn(
-                    createButtonStyle("secondary"),
-                    "inline-flex items-center gap-2 px-3 py-1.5 text-sm",
+                    createCardStyle(),
+                    "bg-slate-900/30",
+                    "max-h-48",
                   )}
                 >
-                  <Upload size={14} />
-                  Загрузить файл
+                  <ScrollArea className="h-full max-h-48">
+                    <div className={`p-${spacing.sm} space-y-2`}>
+                      {limitedChannels.map((channel) => (
+                        <ChannelPreviewItem
+                          key={channel.id}
+                          channel={channel}
+                        />
+                      ))}
+                      {exceededChannels.length > 0 && (
+                        <div
+                          className={cn(
+                            "flex items-center justify-center",
+                            `p-${spacing.sm}`,
+                            "rounded-md",
+                            "bg-red-500/10 border border-red-500/20",
+                            "text-red-400 text-sm",
+                          )}
+                        >
+                          + {exceededChannels.length} каналов превышает лимит и
+                          будет пропущено
+                        </div>
+                      )}
+                    </div>
+                  </ScrollArea>
                 </div>
-              </label>
-            </div>
-          </div>
-        </FormField>
+              </div>
+            )}
 
-        {/* Информация о лимитах */}
-        <div
-          className={cn(
-            createCardStyle(),
-            "bg-blue-500/5 border-blue-500/20",
-            `p-${spacing.md}`,
-          )}
-        >
-          <div className="flex items-start gap-3">
-            <AlertCircle
-              size={16}
-              className={cn(textColors.accent, "mt-0.5 flex-shrink-0")}
-            />
-            <div className={createTextStyle("small", "secondary")}>
-              <div className="font-medium mb-1">Ограничения:</div>
-              <ul className="space-y-1 text-gray-400">
-                <li>• Максимум {MAX_CHANNELS_PER_SET} каналов в наборе</li>
-                <li>• Можно добавить еще {remainingSlots} каналов</li>
-                <li>• @username или username</li>
-                <li>• https://t.me/username или t.me/username</li>
-                <li>
-                  • Разделение новыми строками, запятыми или точками с запятой
-                </li>
-                {existingChannels.length > 0 && (
-                  <li className="text-amber-400">
-                    • Дубликаты с существующими каналами будут пропущены
-                  </li>
-                )}
-              </ul>
-            </div>
+            {/* Пустое состояние когда нет каналов */}
+            {bulkInput.trim() && limitedChannels.length === 0 && (
+              <div className={cn("text-center", `py-${spacing.xl}`)}>
+                <AlertCircle
+                  className={cn("mx-auto h-12 w-12 mb-3", textColors.muted)}
+                />
+                <h3 className={cn(typography.h4, textColors.primary, "mb-2")}>
+                  Каналы не распознаны
+                </h3>
+                <p className={createTextStyle("small", "muted")}>
+                  Проверьте формат введенных данных
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Предупреждение о превышении лимита */}
-        {exceededChannels.length > 0 && (
-          <div
-            className={cn(
-              createCardStyle(),
-              "bg-amber-500/5 border-amber-500/20",
-              `p-${spacing.md}`,
-            )}
+        {/* Фиксированный футер */}
+        <DialogFooter className={`p-6 pt-4 flex-shrink-0 gap-${spacing.sm}`}>
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            className={createButtonStyle("secondary")}
+            disabled={isAdding}
           >
-            <div className="flex items-start gap-3">
-              <AlertTriangle
-                size={16}
-                className={cn(textColors.warning, "mt-0.5 flex-shrink-0")}
-              />
-              <div className={createTextStyle("small", "warning")}>
-                <div className="font-medium mb-1">Превышен лимит!</div>
-                <p className="text-amber-400">
-                  {exceededChannels.length} каналов будет пропущено из-за
-                  ограничения в {MAX_CHANNELS_PER_SET} каналов на набор. Будут
-                  добавлены только первые {remainingSlots} каналов.
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Предпросмотр каналов */}
-        {limitedChannels.length > 0 && (
-          <div className={`space-y-${spacing.sm}`}>
-            <div className="flex items-center justify-between">
-              <h3 className={cn(typography.h4, textColors.primary)}>
-                Предпросмотр ({limitedChannels.length}/{remainingSlots})
-              </h3>
-              <div className="flex items-center gap-4">
-                {validChannels.length > 0 && (
-                  <span className={cn(createTextStyle("small", "success"))}>
-                    ✓ {validChannels.length} готово
-                  </span>
-                )}
-                {invalidChannels.length > 0 && (
-                  <span className={cn(createTextStyle("small", "error"))}>
-                    ✗ {invalidChannels.length} ошибок
-                  </span>
-                )}
-                {duplicateChannels.length > 0 && (
-                  <span className="text-amber-400 text-sm">
-                    ⚠ {duplicateChannels.length} дубликатов
-                  </span>
-                )}
-                {exceededChannels.length > 0 && (
-                  <span className="text-red-400 text-sm">
-                    🚫 {exceededChannels.length} превышено
-                  </span>
-                )}
-              </div>
-            </div>
-
-            <div
-              className={cn(createCardStyle(), "bg-slate-900/30", "max-h-48")}
-            >
-              <ScrollArea className="h-full max-h-48">
-                <div className={`p-${spacing.sm} space-y-2`}>
-                  {limitedChannels.map((channel) => (
-                    <ChannelPreviewItem key={channel.id} channel={channel} />
-                  ))}
-                  {exceededChannels.length > 0 && (
-                    <div
-                      className={cn(
-                        "flex items-center justify-center",
-                        `p-${spacing.sm}`,
-                        "rounded-md",
-                        "bg-red-500/10 border border-red-500/20",
-                        "text-red-400 text-sm",
-                      )}
-                    >
-                      + {exceededChannels.length} каналов превышает лимит и
-                      будет пропущено
-                    </div>
-                  )}
-                </div>
-              </ScrollArea>
-            </div>
-          </div>
-        )}
-
-        {/* Пустое состояние когда нет каналов */}
-        {bulkInput.trim() && limitedChannels.length === 0 && (
-          <EmptyState
-            icon={<AlertCircle size={32} />}
-            title="Каналы не распознаны"
-            description="Проверьте формат введенных данных"
-          />
-        )}
-      </div>
-
-      <ActionButtons
-        onCancel={() => onOpenChange(false)}
-        onConfirm={handleAddChannels}
-        confirmText={`Добавить ${validChannels.length} ${getChannelWord(validChannels.length)}`}
-        confirmDisabled={!isFormValid}
-        isLoading={isAdding}
-        loadingText="Добавляем каналы..."
-        confirmIcon={<Plus size={16} />}
-      />
-    </DialogWrapper>
+            Отмена
+          </Button>
+          <Button
+            onClick={handleAddChannels}
+            className={createButtonStyle("primary")}
+            disabled={!isFormValid || isAdding}
+          >
+            {isAdding ? (
+              <>
+                <LoaderCircle
+                  size={16}
+                  className={`mr-${spacing.sm} animate-spin`}
+                />
+                Добавляем каналы...
+              </>
+            ) : (
+              <>
+                <Plus size={16} className={`mr-${spacing.sm}`} />
+                Добавить {validChannels.length}{" "}
+                {getChannelWord(validChannels.length)}
+              </>
+            )}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
 
