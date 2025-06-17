@@ -48,7 +48,8 @@ const ChannelSetPage = () => {
   const [selectedSetForAnalysis, setSelectedSetForAnalysis] =
     useState<ChannelSet>();
   const [addChannelsDialogOpen, setAddChannelsDialogOpen] = useState(false);
-  const [selectedSetForChannels, setSelectedSetForChannels] = useState("");
+  const [selectedSetForChannels, setSelectedSetForChannels] =
+    useState<ChannelSet | null>(null);
 
   // Форма создания набора
   const [newSetName, setNewSetName] = useState("");
@@ -138,8 +139,11 @@ const ChannelSetPage = () => {
   };
 
   const handleAddChannels = (setId: string) => {
-    setSelectedSetForChannels(setId);
-    setAddChannelsDialogOpen(true);
+    const set = channelSets.find((s) => s.id === setId);
+    if (set) {
+      setSelectedSetForChannels(set);
+      setAddChannelsDialogOpen(true);
+    }
   };
 
   return (
@@ -161,7 +165,8 @@ const ChannelSetPage = () => {
         <div className={`mt-${spacing.sm} sm:mt-${spacing.md}`}>
           <h1 className={typography.h1}>Наборы каналов</h1>
           <p className={cn(createTextStyle("small", "secondary"), "mt-1")}>
-            Управляйте группами каналов для аналитики
+            Управляйте группами каналов для аналитики (максимум 20 каналов в
+            наборе)
           </p>
         </div>
 
@@ -246,7 +251,8 @@ const ChannelSetPage = () => {
               Создать новый набор
             </DialogTitle>
             <DialogDescription className={textColors.secondary}>
-              Создайте набор каналов для анализа и мониторинга
+              Создайте набор каналов для анализа и мониторинга (максимум 20
+              каналов)
             </DialogDescription>
           </DialogHeader>
 
@@ -316,7 +322,10 @@ const ChannelSetPage = () => {
       <AddChannelsDialog
         open={addChannelsDialogOpen}
         onOpenChange={setAddChannelsDialogOpen}
-        setId={selectedSetForChannels}
+        setId={selectedSetForChannels?.id || ""}
+        existingChannels={
+          selectedSetForChannels?.channels?.map((ch) => ch.username) || []
+        }
       />
     </div>
   );

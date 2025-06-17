@@ -7,6 +7,7 @@ import {
   ExternalLink,
   CheckCircle,
   Copy,
+  AlertTriangle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,6 +32,9 @@ import {
   ActionButtons,
   EmptyState,
 } from "@/components/ui/dialog-components";
+
+// Максимальное количество каналов в наборе
+const MAX_CHANNELS_PER_SET = 2;
 
 interface Channel {
   id: string;
@@ -59,6 +63,10 @@ const AddChannelsDialog: React.FC<AddChannelsDialogProps> = ({
   // State
   const [bulkInput, setBulkInput] = useState("");
   const [isAdding, setIsAdding] = useState(false);
+
+  // Вычисляем, сколько каналов можно еще добавить
+  const remainingSlots = MAX_CHANNELS_PER_SET - existingChannels.length;
+  const canAddChannels = remainingSlots > 0;
 
   // Парсинг каналов в реальном времени
   const parsedChannels = useMemo(() => {
@@ -106,9 +114,13 @@ const AddChannelsDialog: React.FC<AddChannelsDialogProps> = ({
     return unique;
   }, [bulkInput, existingChannels]);
 
-  const validChannels = parsedChannels.filter((ch) => ch.isValid);
-  const invalidChannels = parsedChannels.filter((ch) => !ch.isValid);
-  const duplicateChannels = parsedChannels.filter((ch) => ch.isDuplicate);
+  // Ограничиваем количество каналов для добавления
+  const limitedChannels = parsedChannels.slice(0, remainingSlots);
+  const exceededChannels = parsedChannels.slice(remainingSlots);
+
+  const validChannels = limitedChannels.filter((ch) => ch.isValid);
+  const invalidChannels = limitedChannels.filter((ch) => !ch.isValid);
+  const duplicateChannels = limitedChannels.filter((ch) => ch.isDuplicate);
 
   // Обработчики
   const handleInputChange = (value: string) => {
@@ -194,14 +206,58 @@ tginfo`;
     }
   }, [open]);
 
-  const isFormValid = validChannels.length > 0;
+  const isFormValid = validChannels.length > 0 && canAddChannels;
+
+  // Если достигнут лимит каналов, показываем предупреждение
+  if (!canAddChannels) {
+    return (
+      <DialogWrapper
+        open={open}
+        onOpenChange={onOpenChange}
+        title="Лимит каналов достигнут"
+        description="В наборе может быть максимум 20 каналов"
+        maxWidth="max-w-md"
+      >
+        <div className={`space-y-${spacing.lg}`}>
+          <div
+            className={cn(
+              createCardStyle(),
+              "bg-amber-500/5 border-amber-500/20",
+              `p-${spacing.md}`,
+              "text-center",
+            )}
+          >
+            <AlertTriangle
+              size={48}
+              className={cn(textColors.warning, "mx-auto mb-3")}
+            />
+            <h3 className={cn(typography.h4, textColors.primary, "mb-2")}>
+              Достигнут максимум каналов
+            </h3>
+            <p className={cn(createTextStyle("small", "muted"))}>
+              В наборе уже находится {existingChannels.length} каналов из{" "}
+              {MAX_CHANNELS_PER_SET} возможных. Удалите некоторые каналы, чтобы
+              добавить новые.
+            </p>
+          </div>
+        </div>
+
+        <ActionButtons
+          onCancel={() => onOpenChange(false)}
+          confirmText="Понятно"
+          onConfirm={() => onOpenChange(false)}
+          hideCancel={true}
+        />
+      </DialogWrapper>
+    );
+  }
 
   return (
     <DialogWrapper
       open={open}
       onOpenChange={onOpenChange}
       title="Добавление каналов"
-      description="Добавьте каналы в набор, используя различные форматы"
+      description={`Добавьте каналы в набор (осталось мест: ${remainingSlots}/${MAX_CHANNELS_PER_SET})`}
       maxWidth="max-w-3xl"
     >
       <div
@@ -211,7 +267,7 @@ tginfo`;
         <FormField label="Список каналов">
           <div className={`space-y-${spacing.sm}`}>
             <Textarea
-              placeholder={`Введите каналы в любом формате:
+              placeholder={`Введите каналы в любом формате (максимум ${remainingSlots}):
 
 @username
 https://t.me/channel
@@ -258,7 +314,7 @@ channel_name
           </div>
         </FormField>
 
-        {/* Подсказка по форматам */}
+        {/* Информация о лимитах */}
         <div
           className={cn(
             createCardStyle(),
@@ -272,8 +328,10 @@ channel_name
               className={cn(textColors.accent, "mt-0.5 flex-shrink-0")}
             />
             <div className={createTextStyle("small", "secondary")}>
-              <div className="font-medium mb-1">Поддерживаемые форматы:</div>
+              <div className="font-medium mb-1">Ограничения:</div>
               <ul className="space-y-1 text-gray-400">
+                <li>• Максимум {MAX_CHANNELS_PER_SET} каналов в наборе</li>
+                <li>• Можно добавить еще {remainingSlots} каналов</li>
                 <li>• @username или username</li>
                 <li>• https://t.me/username или t.me/username</li>
                 <li>
@@ -289,12 +347,38 @@ channel_name
           </div>
         </div>
 
+        {/* Предупреждение о превышении лимита */}
+        {exceededChannels.length > 0 && (
+          <div
+            className={cn(
+              createCardStyle(),
+              "bg-amber-500/5 border-amber-500/20",
+              `p-${spacing.md}`,
+            )}
+          >
+            <div className="flex items-start gap-3">
+              <AlertTriangle
+                size={16}
+                className={cn(textColors.warning, "mt-0.5 flex-shrink-0")}
+              />
+              <div className={createTextStyle("small", "warning")}>
+                <div className="font-medium mb-1">Превышен лимит!</div>
+                <p className="text-amber-400">
+                  {exceededChannels.length} каналов будет пропущено из-за
+                  ограничения в {MAX_CHANNELS_PER_SET} каналов на набор. Будут
+                  добавлены только первые {remainingSlots} каналов.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Предпросмотр каналов */}
-        {parsedChannels.length > 0 && (
+        {limitedChannels.length > 0 && (
           <div className={`space-y-${spacing.sm}`}>
             <div className="flex items-center justify-between">
               <h3 className={cn(typography.h4, textColors.primary)}>
-                Предпросмотр
+                Предпросмотр ({limitedChannels.length}/{remainingSlots})
               </h3>
               <div className="flex items-center gap-4">
                 {validChannels.length > 0 && (
@@ -312,6 +396,11 @@ channel_name
                     ⚠ {duplicateChannels.length} дубликатов
                   </span>
                 )}
+                {exceededChannels.length > 0 && (
+                  <span className="text-red-400 text-sm">
+                    🚫 {exceededChannels.length} превышено
+                  </span>
+                )}
               </div>
             </div>
 
@@ -320,9 +409,23 @@ channel_name
             >
               <ScrollArea className="h-full max-h-48">
                 <div className={`p-${spacing.sm} space-y-2`}>
-                  {parsedChannels.map((channel) => (
+                  {limitedChannels.map((channel) => (
                     <ChannelPreviewItem key={channel.id} channel={channel} />
                   ))}
+                  {exceededChannels.length > 0 && (
+                    <div
+                      className={cn(
+                        "flex items-center justify-center",
+                        `p-${spacing.sm}`,
+                        "rounded-md",
+                        "bg-red-500/10 border border-red-500/20",
+                        "text-red-400 text-sm",
+                      )}
+                    >
+                      + {exceededChannels.length} каналов превышает лимит и
+                      будет пропущено
+                    </div>
+                  )}
                 </div>
               </ScrollArea>
             </div>
@@ -330,7 +433,7 @@ channel_name
         )}
 
         {/* Пустое состояние когда нет каналов */}
-        {bulkInput.trim() && parsedChannels.length === 0 && (
+        {bulkInput.trim() && limitedChannels.length === 0 && (
           <EmptyState
             icon={<AlertCircle size={32} />}
             title="Каналы не распознаны"

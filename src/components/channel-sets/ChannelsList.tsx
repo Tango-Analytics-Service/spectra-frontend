@@ -59,7 +59,7 @@ const ChannelsList: React.FC<ChannelsListProps> = ({
   setId,
   canManageChannels = false,
 }) => {
-  const { removeChannelFromSet } = useChannelSets();
+  const { removeChannelsFromSet } = useChannelSets();
 
   // Состояния
   const [editMode, setEditMode] = useState(false);
@@ -134,7 +134,7 @@ const ChannelsList: React.FC<ChannelsListProps> = ({
   const handleRemoveChannel = async (username: string) => {
     setRemovingChannels((prev) => [...prev, username]);
     try {
-      const success = await removeChannelFromSet(setId, [username]);
+      const success = await removeChannelsFromSet(setId, [username]);
       if (success) {
         toast({
           title: "Канал удален",
@@ -161,7 +161,7 @@ const ChannelsList: React.FC<ChannelsListProps> = ({
 
     setRemovingChannels([...selectedChannels]);
     try {
-      const success = await removeChannelFromSet(setId, selectedChannels);
+      const success = await removeChannelsFromSet(setId, selectedChannels);
       if (success) {
         toast({
           title: "Каналы удалены",

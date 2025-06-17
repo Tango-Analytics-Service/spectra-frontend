@@ -596,6 +596,7 @@ const ChannelSetDetailsPage: React.FC = () => {
           open={showAddChannelsDialog}
           onOpenChange={setShowAddChannelsDialog}
           setId={channelSet.id}
+          existingChannels={channelSet.channels}
         />
       )}
 
