@@ -17,8 +17,7 @@ const LoginPage: React.FC = () => {
   const navigate = useNavigate();
 
   const telegramBotUrl =
-    import.meta.env.VITE_TELEGRAM_BOT_URL ||
-    "https://t.me/tango_development_personal_bot";
+    import.meta.env.VITE_TELEGRAM_BOT_URL;
 
   useEffect(() => {
     if (isAuthenticated) {

@@ -1,5 +1,5 @@
 // src/utils/telegramWebApp.ts
-import { WebAppInitData } from "../types/telegram";
+import { WebAppInitData } from "@/types/telegram";
 
 export const isTelegramWebApp = (): boolean => {
   return !!window.Telegram?.WebApp;
