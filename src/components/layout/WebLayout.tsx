@@ -1,5 +1,5 @@
 // src/components/layout/WebLayout.tsx
-import React, { ReactNode } from "react";
+import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import {
     typography,
@@ -8,12 +8,13 @@ import {
 } from "@/lib/design-system";
 import WebNavigation from "../navigation/WebNavigation";
 import { useAuth } from "@/contexts/AuthContext";
+import SidebarLink from "./SidebarLink";
 
-interface WebLayoutProps {
+export interface WebLayoutProps {
     children: ReactNode;
 }
 
-const WebLayout: React.FC<WebLayoutProps> = ({ children }) => {
+export default function WebLayout({ children }: WebLayoutProps) {
     const { isAuthenticated } = useAuth();
 
     return (
@@ -65,29 +66,4 @@ const WebLayout: React.FC<WebLayoutProps> = ({ children }) => {
             </footer>
         </div>
     );
-};
-
-// Sidebar link component
-interface SidebarLinkProps {
-    href: string;
-    label: string;
-    active?: boolean;
 }
-
-const SidebarLink: React.FC<SidebarLinkProps> = ({ href, label, active }) => {
-    return (
-        <a
-            href={href}
-            className={cn(
-                "flex items-center px-4 py-2 rounded-lg transition-colors",
-                active
-                    ? "bg-[#4395d3]/10 text-[#4395d3] font-medium"
-                    : "text-gray-300 hover:bg-blue-900/20 hover:text-[#4395d3]",
-            )}
-        >
-            {label}
-        </a>
-    );
-};
-
-export default WebLayout;

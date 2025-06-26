@@ -1,13 +1,13 @@
 // src/components/layout/PageTransition.tsx
-import React, { ReactNode } from "react";
+import { ReactNode } from "react";
 import { motion } from "framer-motion";
 import { useLocation } from "react-router-dom";
 
-interface PageTransitionProps {
+export interface PageTransitionProps {
     children: ReactNode;
 }
 
-const PageTransition: React.FC<PageTransitionProps> = ({ children }) => {
+export default function PageTransition({ children }: PageTransitionProps) {
     const location = useLocation();
 
     return (
@@ -26,6 +26,4 @@ const PageTransition: React.FC<PageTransitionProps> = ({ children }) => {
             {children}
         </motion.div>
     );
-};
-
-export default PageTransition;
+}
