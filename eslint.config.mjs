@@ -3,12 +3,18 @@ import eslintPluginReactHooks from 'eslint-plugin-react-hooks';
 import eslintPluginJsxA11y from 'eslint-plugin-jsx-a11y';
 import typescriptEslint from '@typescript-eslint/eslint-plugin';
 import typescriptEslintParser from '@typescript-eslint/parser';
+import stylistic from '@stylistic/eslint-plugin';
 import { defineConfig } from 'eslint/config';
 
 export default defineConfig([
     {
         files: ['**/*.{js,jsx,ts,tsx}'],
-        ignores: ["tailwind.config.js", "vite.config.ts"],
+        ignores: [
+            "dist/**",
+            "tailwind.config.js",
+            "vite.config.ts",
+            "postcss.config.js",
+        ],
         languageOptions: {
             parser: typescriptEslintParser,
             parserOptions: {
@@ -22,6 +28,7 @@ export default defineConfig([
         },
         plugins: {
             react: eslintPluginReact,
+            "@stylistic": stylistic,
             'react-hooks': eslintPluginReactHooks,
             'jsx-a11y': eslintPluginJsxA11y,
             '@typescript-eslint': typescriptEslint,
@@ -35,9 +42,9 @@ export default defineConfig([
             // React
             "react/react-in-jsx-scope": "off",
             // Stylistic
-            semi: ["error", "always"],
-            indent: ['error', 4],
-            quotes: ["error", "double"],
+            "@stylistic/semi": ["error", "always"],
+            "@stylistic/indent": ['error', 4],
+            "@stylistic/quotes": ["error", "double"],
         },
         settings: {
             react: {
