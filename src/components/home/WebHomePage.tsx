@@ -1,5 +1,4 @@
 // src/components/home/WebHomePage.tsx
-import React from "react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
@@ -7,11 +6,10 @@ import {
     animations,
 } from "@/lib/design-system";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart2, Users, Filter, CreditCard } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
-const WebHomePage: React.FC = () => {
+export default function WebHomePage() {
     const { isAuthenticated } = useAuth();
 
     return (
@@ -123,31 +121,4 @@ const WebHomePage: React.FC = () => {
             </section>
         </div>
     );
-};
-
-// Feature card component
-interface FeatureCardProps {
-    icon: React.ReactNode;
-    title: string;
-    description: string;
 }
-
-const FeatureCard: React.FC<FeatureCardProps> = ({
-    icon,
-    title,
-    description,
-}) => {
-    return (
-        <Card className="bg-[#0a2a5e]/50 border-[#4395d3]/20 hover:border-[#4395d3]/40 transition-all">
-            <CardHeader className="pb-2">
-                <div className="mb-4">{icon}</div>
-                <CardTitle className="text-xl">{title}</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <p className="text-gray-300">{description}</p>
-            </CardContent>
-        </Card>
-    );
-};
-
-export default WebHomePage;
