@@ -1,18 +1,14 @@
 // src/components/common/AppHeader.tsx
-import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { gradients, spacing, typography } from "@/lib/design-system";
 
-interface AppHeaderProps {
+export interface AppHeaderProps {
     className?: string;
     showBadge?: boolean;
 }
 
-const AppHeader: React.FC<AppHeaderProps> = ({ 
-    className, 
-    showBadge = true 
-}) => {
+export default function AppHeader({ className, showBadge = true }: AppHeaderProps) {
     return (
         <header
             className={cn(
@@ -37,6 +33,4 @@ const AppHeader: React.FC<AppHeaderProps> = ({
             </div>
         </header>
     );
-};
-
-export default AppHeader;
+}
