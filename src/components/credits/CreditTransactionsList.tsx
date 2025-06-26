@@ -50,8 +50,7 @@ export default function CreditTransactionsList({ transactions, }: CreditTransact
                                     <div
                                         className={`p-2 rounded-full ${transaction.amount > 0
                                             ? "bg-green-500/10 text-green-400"
-                                            : "bg-amber-500/10 text-amber-400"
-                                            } mr-3`}
+                                            : "bg-amber-500/10 text-amber-400"} mr-3`}
                                     >
                                         {transaction.amount > 0 ? (
                                             <ArrowUpRight size={16} />

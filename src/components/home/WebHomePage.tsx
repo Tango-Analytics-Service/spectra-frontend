@@ -8,6 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { BarChart2, Users, Filter, CreditCard } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import FeatureCard from "./FeatureCard";
 
 export default function WebHomePage() {
     const { isAuthenticated } = useAuth();
