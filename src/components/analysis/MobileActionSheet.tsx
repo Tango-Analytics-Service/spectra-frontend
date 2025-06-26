@@ -1,49 +1,25 @@
-import { BarChart3, ChevronRight, Download } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createCardStyle, createTextStyle, spacing, textColors, typography } from "@/lib/design-system";
-import { ChannelResult } from "@/types/analysis";
 
 export interface MobileActionSheetProps {
     isOpen: boolean;
-    selectedChannel: ChannelResult;
+    actions: {
+        icon: React.ElementType;
+        title: string;
+        subtitle: string;
+        onPress: () => void;
+        color: string;
+        iconColor: string;
+        disabled: boolean;
+    }[];
     onClose: () => void;
 }
 
-function getChannelActions(channel: ChannelResult | null) {
-    if (!channel) return [];
-
-    return [
-        {
-            icon: BarChart3,
-            title: "Детальная аналитика",
-            subtitle: "Посмотреть подробную статистику",
-            onPress: () => {
-                console.log("View analytics for", channel!.channel_id);
-            },
-            color: "bg-blue-500/20",
-            iconColor: textColors.accent,
-            disabled: false,
-        },
-        {
-            icon: Download,
-            title: "Экспорт данных канала",
-            subtitle: "Скачать данные о канале",
-            onPress: () => {
-                console.log("Export channel data", channel!.channel_id);
-            },
-            color: "bg-purple-500/20",
-            iconColor: "text-purple-400",
-            disabled: false,
-        }
-    ];
-}
-
-export default function MobileActionSheet({ isOpen, selectedChannel, onClose }: MobileActionSheetProps) {
+export default function MobileActionSheet({ isOpen, actions = [], onClose }: MobileActionSheetProps) {
     if (!isOpen) {
-        return (<></>);
+        return null;
     }
-
-    const actions = getChannelActions(selectedChannel);
 
     return (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-end justify-center">

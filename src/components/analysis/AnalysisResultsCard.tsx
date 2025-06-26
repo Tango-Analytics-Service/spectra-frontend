@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { AlertCircle, RefreshCw, Filter, } from "lucide-react";
+import { AlertCircle, RefreshCw, Filter, BarChart3, Download, } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createCardStyle, createButtonStyle, createTextStyle, typography, spacing, animations, textColors, } from "@/lib/design-system";
 import ChannelCard from "./ChannelCard";
@@ -28,6 +28,36 @@ function formatDate(dateString?: string) {
         hour: "2-digit",
         minute: "2-digit",
     });
+}
+
+
+function getChannelActions(channel: ChannelResult | null) {
+    if (!channel) return [];
+
+    return [
+        {
+            icon: BarChart3,
+            title: "Детальная аналитика",
+            subtitle: "Посмотреть подробную статистику",
+            onPress: () => {
+                console.log("View analytics for", channel!.channel_id);
+            },
+            color: "bg-blue-500/20",
+            iconColor: textColors.accent,
+            disabled: false,
+        },
+        {
+            icon: Download,
+            title: "Экспорт данных канала",
+            subtitle: "Скачать данные о канале",
+            onPress: () => {
+                console.log("Export channel data", channel!.channel_id);
+            },
+            color: "bg-purple-500/20",
+            iconColor: "text-purple-400",
+            disabled: false,
+        }
+    ];
 }
 
 export default function AnalysisResultsCard({ results, onRefresh, isRefreshing = false }: AnalysisResultsCardProps) {
@@ -203,7 +233,7 @@ export default function AnalysisResultsCard({ results, onRefresh, isRefreshing =
             {/* ActionSheet для действий с каналом */}
             <MobileActionSheet
                 isOpen={showActionSheet}
-                selectedChannel={selectedChannelForActions}
+                actions={getChannelActions(selectedChannelForActions)}
                 onClose={() => setShowActionSheet(false)}
             />
         </Card>

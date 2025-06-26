@@ -1,30 +1,24 @@
 // src/components/analysis/AnalysisTasksPage.tsx - улучшенная версия с design-system
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
     RefreshCw,
     Search,
-    Clock,
     CheckCircle,
-    XCircle,
     AlertCircle,
     BarChart3,
-    ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatsCard } from "@/components/ui/stats-card";
 import { useAnalysisTasks } from "@/contexts/AnalysisTasksContext";
 import { useChannelSets } from "@/contexts/ChannelSetsContext";
-import { AnalysisTaskBasic } from "@/types/analysis";
-import AnalysisResultsCard from "./AnalysisResultsCard";
+import { AnalysisTask, AnalysisTaskBasic } from "@/types/analysis";
 import {
     createCardStyle,
     createButtonStyle,
-    createBadgeStyle,
     createTextStyle,
     typography,
     spacing,
@@ -33,92 +27,66 @@ import {
     gradients,
     components,
 } from "@/lib/design-system";
+import TaskCard from "./TaskCard";
+import MobileActionSheet from "./MobileActionSheet";
+import { ChannelSet } from "@/types/channel-sets";
+import TaskDetailsModal from "./TaskDetailsModal";
 
-// Компонент MobileActionSheet
-const MobileActionSheet: React.FC<{
-    isOpen: boolean,
-    onClose: () => void,
-    actions: {
-        icon: React.ElementType,
-        iconColor: string,
-        title: string,
-        subtitle: string,
-        color: string,
-        onPress: () => void,
-        disabled: boolean,
-    }[],
-}> = ({ isOpen, onClose, actions = [] }) => {
-    if (!isOpen) return null;
+function filterDate(taskDate: Date, dateFilter: string) {
+    if (dateFilter === "all") {
+        return true;
+    }
+    const now = new Date();
+    switch (dateFilter) {
+        case "today":
+            if (taskDate.toDateString() !== now.toDateString()) return false;
+        case "week":
+            const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            if (taskDate < weekAgo) return false;
+        case "month":
+            const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            if (taskDate < monthAgo) return false;
+    }
+}
 
-    return (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-end justify-center">
-            <div
-                className={cn(
-                    createCardStyle(),
-                    "border-t rounded-t-2xl",
-                    "w-full max-w-md animate-in slide-in-from-bottom duration-300"
-                )}
-            >
-                {/* Индикатор */}
-                <div className="flex justify-center pt-2 pb-1">
-                    <div className="w-10 h-1 bg-gray-600 rounded-full" />
-                </div>
+/// Search filter (по ID задачи или названию набора каналов)
+function filterQuery(task: AnalysisTaskBasic, details: AnalysisTask, searchQuery: string | undefined, channelSets: ChannelSet[]) {
+    if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        // Проверяем ID задачи
+        if (task.id.toLowerCase().includes(query)) {
+            return true;
+        }
+        // Проверяем название канала из деталей, если они есть
+        if (details?.channel_set_id) {
+            const channelSet = channelSets.find(set => set.id === details.channel_set_id);
+            if (channelSet?.name.toLowerCase().includes(query)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    return true;
+}
 
-                {/* Заголовок */}
-                <div className={cn("flex items-center justify-between", `p-${spacing.md}`, "border-b border-slate-700/50")}>
-                    <h3 className={cn(typography.h4, textColors.primary)}>Действия</h3>
-                    <button
-                        onClick={onClose}
-                        className={cn(textColors.muted, "hover:" + textColors.primary, "p-1")}
-                    >
-                        ✕
-                    </button>
-                </div>
-
-                {/* Действия */}
-                <div className={cn(`p-${spacing.md}`, `space-y-${spacing.sm}`)}>
-                    {actions.map((action, index) => (
-                        <button
-                            key={index}
-                            onClick={() => {
-                                action.onPress();
-                                onClose();
-                            }}
-                            disabled={action.disabled}
-                            className={cn(
-                                "w-full flex items-center justify-between",
-                                `p-${spacing.sm}`,
-                                "rounded-lg transition-all duration-200",
-                                action.disabled
-                                    ? "bg-slate-700/50 text-gray-500 cursor-not-allowed"
-                                    : "bg-slate-700/50 text-white hover:bg-slate-600/50 active:scale-[0.98]"
-                            )}
-                        >
-                            <div className={cn("flex items-center", `space-x-${spacing.sm}`)}>
-                                <div className={cn(
-                                    `p-${spacing.sm}`,
-                                    "rounded-lg",
-                                    action.disabled ? "bg-slate-600/50" : action.color || "bg-blue-500/20"
-                                )}>
-                                    <action.icon size={18} className={action.disabled ? "text-gray-500" : action.iconColor || textColors.accent} />
-                                </div>
-                                <div className="text-left">
-                                    <div className={typography.weight.medium}>{action.title}</div>
-                                    {action.subtitle && (
-                                        <div className={createTextStyle("tiny", "muted")}>{action.subtitle}</div>
-                                    )}
-                                </div>
-                            </div>
-                            <ChevronRight size={16} className={textColors.muted} />
-                        </button>
-                    ))}
-                </div>
-            </div>
-        </div>
-    );
+// Действия для ActionSheet
+function getTaskActions(task: AnalysisTaskBasic | null, onPress: () => void) {
+    if (!task) return [];
+    const actions = [
+        {
+            icon: RefreshCw,
+            title: "Обновить статус",
+            subtitle: "Проверить текущий статус задачи",
+            onPress,
+            color: "bg-blue-500/20",
+            iconColor: textColors.accent,
+            disabled: false,
+        }
+    ];
+    return actions;
 };
 
-const AnalysisTasksPage: React.FC = () => {
+export default function AnalysisTasksPage() {
     const { channelSets } = useChannelSets();
     const {
         tasks,
@@ -133,17 +101,18 @@ const AnalysisTasksPage: React.FC = () => {
     // UI состояния
     const [showTaskDetails, setShowTaskDetails] = useState(false);
     const [showActionSheet, setShowActionSheet] = useState(false);
-    const [selectedTaskForActions] = useState(null);
+    const selectedTaskForActions = null;
 
     // Фильтры
     const [statusFilter, setStatusFilter] = useState("all");
     const [searchQuery, setSearchQuery] = useState("");
-    const [dateFilter] = useState("all");
+    const dateFilter = "all";
 
     // Загрузка задач при монтировании
     useEffect(() => {
+
         fetchTasks();
-    }, [fetchTasks]);
+    }, []);
 
     // Обработчик обновления
     const handleRefresh = () => {
@@ -156,272 +125,9 @@ const AnalysisTasksPage: React.FC = () => {
         if (statusFilter !== "all" && task.status !== statusFilter) {
             return false;
         }
-
-        // Search filter (по ID задачи или названию набора каналов)
-        if (searchQuery) {
-            const query = searchQuery.toLowerCase();
-
-            // Проверяем ID задачи
-            if (task.id.toLowerCase().includes(query)) {
-                return true;
-            }
-
-            // Проверяем название канала из деталей, если они есть
-            const details = taskDetails[task.id];
-            if (details?.channel_set_id) {
-                const channelSet = channelSets.find(set => set.id === details.channel_set_id);
-                if (channelSet?.name.toLowerCase().includes(query)) {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        // Date filter
-        if (dateFilter !== "all") {
-            const taskDate = new Date(task.created_at);
-            const now = new Date();
-
-            switch (dateFilter) {
-                case "today":
-                    if (taskDate.toDateString() !== now.toDateString()) return false;
-                    break;
-                case "week":
-                    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-                    if (taskDate < weekAgo) return false;
-                    break;
-                case "month":
-                    const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-                    if (taskDate < monthAgo) return false;
-                    break;
-            }
-        }
-
-        return true;
+        return filterQuery(task, taskDetails[task.id], searchQuery, channelSets)
+            && filterDate(new Date(task.created_at), dateFilter);
     });
-
-    // Получение иконки статуса
-    const getStatusIcon = (status: string) => {
-        switch (status) {
-            case "completed":
-                return <CheckCircle size={16} className={textColors.success} />;
-            case "failed":
-                return <XCircle size={16} className={textColors.error} />;
-            case "processing":
-                return <RefreshCw size={16} className={cn(textColors.accent, "animate-spin")} />;
-            default:
-                return <Clock size={16} className={textColors.warning} />;
-        }
-    };
-
-    // Получение текста статуса
-    const getStatusText = (status: string) => {
-        switch (status) {
-            case "completed": return "Завершен";
-            case "failed": return "Ошибка";
-            case "processing": return "Выполняется";
-            default: return "Ожидание";
-        }
-    };
-
-    // Получение варианта статуса
-    const getStatusVariant = (status: string): "success" | "error" | "primary" | "warning" => {
-        switch (status) {
-            case "completed": return "success";
-            case "failed": return "error";
-            case "processing": return "primary";
-            default: return "warning";
-        }
-    };
-
-    // Форматирование даты
-    const formatDate = (dateString: string) => {
-        const date = new Date(dateString);
-        const now = new Date();
-        const diffMs = now.getTime() - date.getTime();
-        const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-
-        if (diffHours < 1) return "Только что";
-        if (diffHours < 24) return `${diffHours}ч назад`;
-        return date.toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit" });
-    };
-
-    // Компонент карточки задачи
-    const TaskCard = ({ task }: { task: AnalysisTaskBasic }) => {
-        const details = taskDetails[task.id];
-
-        const successRate = details?.summary
-            ? Math.round((details.summary.approved_channels / details.summary.total_channels) * 100)
-            : null;
-
-        const handleTaskPress = () => {
-            selectTaskById(task.id);
-            setShowTaskDetails(true);
-        };
-
-        return (
-            <button
-                className={cn(
-                    createCardStyle(),
-                    `p-${spacing.md}`,
-                    "transition-all duration-200 active:scale-[0.98]",
-                    "hover:border-blue-500/30 hover:bg-slate-800/70",
-                    "cursor-pointer"
-                )}
-                onClick={handleTaskPress}
-            >
-                {/* Заголовок и действия */}
-                <div className={cn("flex items-center justify-between", `mb-${spacing.sm}`)}>
-                    <div className={cn("flex items-center", `space-x-${spacing.sm}`)}>
-                        <Badge
-                            variant="outline"
-                            className={createBadgeStyle(getStatusVariant(task.status))}
-                        >
-                            {getStatusIcon(task.status)}
-                            <span className="ml-1">{getStatusText(task.status)}</span>
-                        </Badge>
-                        <span className={createTextStyle("tiny", "muted")}>{formatDate(task.created_at)}</span>
-                    </div>
-                </div>
-
-                {/* Основная информация */}
-                <div className={cn("grid grid-cols-2", `gap-${spacing.sm} mb-${spacing.sm}`)}>
-                    <div className={cn("bg-slate-900/50 rounded-lg", `p-${spacing.sm}`)}>
-                        <div className={createTextStyle("tiny", "accent")}>Каналов</div>
-                        <div className={cn(typography.weight.semibold, textColors.primary)}>{details?.summary?.total_channels || "-"}</div>
-                    </div>
-
-                    {task.status === "completed" && successRate !== null && (
-                        <div className={cn("bg-slate-900/50 rounded-lg", `p-${spacing.sm}`)}>
-                            <div className={createTextStyle("tiny", "success")}>Успешность</div>
-                            <div className={cn(typography.weight.semibold, textColors.primary)}>{successRate}%</div>
-                        </div>
-                    )}
-
-                    {task.status === "processing" && task.progress > 0 && (
-                        <div className={cn("bg-slate-900/50 rounded-lg", `p-${spacing.sm}`)}>
-                            <div className={createTextStyle("tiny", "accent")}>Прогресс</div>
-                            <div className={cn(typography.weight.semibold, textColors.primary)}>{task.progress}%</div>
-                        </div>
-                    )}
-                </div>
-
-                {/* Прогресс бар для выполняющихся задач */}
-                {task.status === "processing" && task.progress > 0 && (
-                    <div className="w-full bg-slate-700 rounded-full h-1.5">
-                        <div
-                            className="bg-blue-500 h-1.5 rounded-full transition-all duration-300"
-                            style={{ width: `${task.progress}%` }}
-                        />
-                    </div>
-                )}
-
-                {/* ID задачи */}
-                <div className={cn("mt-2", createTextStyle("tiny", "muted"))}>
-                    ID: {task.id.slice(0, 8)}...
-                </div>
-            </button>
-        );
-    };
-
-    // Модальное окно с деталями задачи
-    const TaskDetailsModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
-        if (!isOpen || !selectedTask) return null;
-
-        return (
-            <div className="fixed inset-0 backdrop-blur-lg bg-black/50 z-50 flex items-center justify-center p-4 pb-20">
-                <div
-                    className={cn(
-                        createCardStyle(),
-                        "rounded-2xl",
-                        "w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col",
-                        animations.slideIn
-                    )}
-                >
-                    {/* Заголовок */}
-                    <div className={cn(`p-${spacing.md}`, "border-b border-slate-700/50")}>
-                        <div className="flex items-center justify-between">
-                            <h2 className={cn(typography.h3, textColors.primary)}>Детали задачи</h2>
-                            <button
-                                onClick={onClose}
-                                className={cn(textColors.muted, "hover:" + textColors.primary, "p-1")}
-                            >
-                                ✕
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Содержимое */}
-                    <div className="flex-1 overflow-y-auto">
-                        {selectedTask.status === "completed" && selectedTask.results ? (
-                            <AnalysisResultsCard
-                                results={selectedTask}
-                                onRefresh={selectedTask.status !== "completed" ? () => refreshTask(selectedTask.id) : undefined}
-                                isRefreshing={false}
-                            />
-                        ) : (
-                            <div className={`p-${spacing.lg}`}>
-                                <div className={cn("flex flex-col items-center justify-center", `py-${spacing.xl}`)}>
-                                    {selectedTask.status === "processing" ? (
-                                        <>
-                                            <RefreshCw className={cn(textColors.accent, "h-12 w-12 animate-spin mb-4")} />
-                                            <h3 className={cn(typography.h3, "mb-2")}>Анализ выполняется</h3>
-                                            <p className={cn(createTextStyle("small", "secondary"), "mb-4 text-center")}>
-                                                Задача выполняется. Результаты будут доступны после завершения анализа.
-                                            </p>
-                                            <Button
-                                                onClick={() => refreshTask(selectedTask.id)}
-                                                className={createButtonStyle("secondary")}
-                                            >
-                                                <RefreshCw size={16} className="mr-2" />
-                                                Проверить статус
-                                            </Button>
-                                        </>
-                                    ) : selectedTask.status === "failed" ? (
-                                        <>
-                                            <XCircle className={cn(textColors.error, "h-12 w-12 mb-4")} />
-                                            <h3 className={cn(typography.h3, "mb-2")}>Ошибка выполнения</h3>
-                                            <p className={cn(createTextStyle("small", "secondary"), "mb-4 text-center")}>
-                                                &quot;Произошла ошибка при выполнении анализа&quot;
-                                            </p>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Clock className={cn(textColors.warning, "h-12 w-12 mb-4")} />
-                                            <h3 className={cn(typography.h3, "mb-2")}>Задача в очереди</h3>
-                                            <p className={cn(createTextStyle("small", "secondary"), "mb-4 text-center")}>
-                                                Задача ожидает выполнения. Результаты появятся после завершения анализа.
-                                            </p>
-                                        </>
-                                    )}
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </div>
-        );
-    };
-
-    // Действия для ActionSheet
-    const getTaskActions = (task: AnalysisTaskBasic | null) => {
-        if (!task) return [];
-
-        const actions = [
-            {
-                icon: RefreshCw,
-                title: "Обновить статус",
-                subtitle: "Проверить текущий статус задачи",
-                onPress: () => refreshTask(task.id),
-                color: "bg-blue-500/20",
-                iconColor: textColors.accent,
-                disabled: false,
-            }
-        ];
-
-        return actions;
-    };
 
     return (
         <div
@@ -550,7 +256,10 @@ const AnalysisTasksPage: React.FC = () => {
                     ) : (
                         <div className={`space-y-${spacing.sm}`}>
                             {filteredTasks.map((task) => (
-                                <TaskCard key={task.id} task={task} />
+                                <TaskCard key={task.id} task={task} details={taskDetails[task.id]} onTaskPress={() => {
+                                    selectTaskById(task.id);
+                                    setShowTaskDetails(true);
+                                }} />
                             ))}
                         </div>
                     )}
@@ -559,18 +268,18 @@ const AnalysisTasksPage: React.FC = () => {
 
             {/* Модальное окно с деталями */}
             <TaskDetailsModal
+                selectedTask={selectedTask}
                 isOpen={showTaskDetails}
                 onClose={() => setShowTaskDetails(false)}
+                refresh={() => refreshTask(selectedTask.id)}
             />
 
             {/* ActionSheet для действий с задачей */}
             <MobileActionSheet
                 isOpen={showActionSheet}
                 onClose={() => setShowActionSheet(false)}
-                actions={getTaskActions(selectedTaskForActions)}
+                actions={getTaskActions(selectedTaskForActions, () => refreshTask(selectedTaskForActions.id))}
             />
         </div>
     );
 };
-
-export default AnalysisTasksPage;
