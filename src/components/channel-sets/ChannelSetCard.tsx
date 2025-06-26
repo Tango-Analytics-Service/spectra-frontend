@@ -1,5 +1,4 @@
 // src/components/channel-sets/ChannelSetCard.tsx
-import React from "react";
 import { ArrowRight, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -15,7 +14,7 @@ import {
 import { ChannelSet } from "@/types/channel-sets";
 import ChannelSetStatus from "./ChannelSetStatus";
 
-interface ChannelSetCardProps {
+export interface ChannelSetCardProps {
     channelSet: ChannelSet;
     onAnalyze: (setId: string) => void;
     onViewDetails: (setId: string) => void;
@@ -23,25 +22,17 @@ interface ChannelSetCardProps {
     className?: string;
 }
 
-const ChannelSetCard: React.FC<ChannelSetCardProps> = ({
-    channelSet,
-    onViewDetails,
-    className,
-}) => {
+export default function ChannelSetCard({ channelSet, onViewDetails, className }: ChannelSetCardProps) {
     // Определяем доступные действия в зависимости от статуса
-    const getContextualActions = () => {
-        return {
-            primary: {
-                label: "Детали",
-                action: () => onViewDetails(channelSet.id),
-                variant: "secondary" as const,
-                icon: ArrowRight,
-            },
-            secondary: null,
-        };
+    const actions = {
+        primary: {
+            label: "Детали",
+            action: () => onViewDetails(channelSet.id),
+            variant: "secondary" as const,
+            icon: ArrowRight,
+        },
+        secondary: null,
     };
-
-    const actions = getContextualActions();
 
     return (
         <div
@@ -115,6 +106,4 @@ const ChannelSetCard: React.FC<ChannelSetCardProps> = ({
             </div>
         </div>
     );
-};
-
-export default ChannelSetCard;
+}

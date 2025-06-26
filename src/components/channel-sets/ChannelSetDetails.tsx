@@ -40,19 +40,14 @@ interface ChannelSet {
     all_parsed: boolean;
 }
 
-interface ChannelSetDetailsProps {
+export interface ChannelSetDetailsProps {
     selectedSet?: ChannelSet;
     onShare?: (setId: string) => void;
     onEdit?: (setId: string) => void;
     onAnalyze?: (setId: string) => void;
 }
 
-const ChannelSetDetails = ({
-    selectedSet,
-    onShare = () => {},
-    onEdit = () => {},
-    onAnalyze = () => {},
-}: ChannelSetDetailsProps) => {
+export default function ChannelSetDetails({ selectedSet, onShare = () => { }, onEdit = () => { }, onAnalyze = () => { }, }: ChannelSetDetailsProps) {
     // Default set for when no set is selected
     const defaultSet: ChannelSet = {
         id: "default",
@@ -169,6 +164,4 @@ const ChannelSetDetails = ({
             </CardContent>
         </Card>
     );
-};
-
-export default ChannelSetDetails;
+}

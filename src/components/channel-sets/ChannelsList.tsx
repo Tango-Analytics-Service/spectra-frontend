@@ -1,5 +1,5 @@
 // src/components/channel-sets/ChannelsList.tsx
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     CheckCircle,
@@ -53,11 +53,11 @@ interface ChannelsListProps {
     canManageChannels?: boolean;
 }
 
-const ChannelsList: React.FC<ChannelsListProps> = ({
+export default function ChannelsList({
     channels,
     setId,
     canManageChannels = false,
-}) => {
+}: ChannelsListProps) {
     const { removeChannelsFromSet } = useChannelSets();
 
     // Состояния
@@ -367,9 +367,7 @@ const ChannelsList: React.FC<ChannelsListProps> = ({
                                                     rel="noopener noreferrer"
                                                     className="text-blue-400 hover:text-blue-300 transition-colors hover:underline"
                                                     onClick={(e) => e.stopPropagation()}
-                                                >
-                                                    @{channel.username}
-                                                </a>
+                                                >@{channel.username}</a>
                                             ) : (
                                                 `@${channel.username}`
                                             )}
@@ -585,6 +583,4 @@ const ChannelsList: React.FC<ChannelsListProps> = ({
             </Dialog>
         </>
     );
-};
-
-export default ChannelsList;
+}

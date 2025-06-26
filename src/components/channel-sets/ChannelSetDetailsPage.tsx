@@ -51,7 +51,7 @@ import {
 } from "@/lib/design-system";
 import StartAnalysisDialog from "../analysis/StartAnalysisDialog";
 
-const ChannelSetDetailsPage: React.FC = () => {
+export default function ChannelSetDetailsPage() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const {
@@ -369,8 +369,7 @@ const ChannelSetDetailsPage: React.FC = () => {
                     {!isEditing && (
                         <>
                             {/* Кнопка обновления - доступна если можно редактировать или управлять каналами */}
-                            {(channelSet.permissions.can_edit ||
-                                channelSet.permissions.can_manage_channels) && (
+                            {(channelSet.permissions.can_edit || channelSet.permissions.can_manage_channels) && (
                                 <Button
                                     variant="outline"
                                     size="sm"
@@ -480,9 +479,7 @@ const ChannelSetDetailsPage: React.FC = () => {
                                         />
 
                                         {/* Кнопка анализа - доступна если можно анализировать */}
-                                        {channelSet.permissions.can_analyze &&
-                                            channelSet.all_parsed &&
-                                            channelSet.channel_count > 0 && (
+                                        {channelSet.permissions.can_analyze && channelSet.all_parsed && channelSet.channel_count > 0 && (
                                             <Button
                                                 onClick={handleAnalyze}
                                                 className={createButtonStyle("primary")}
@@ -592,6 +589,4 @@ const ChannelSetDetailsPage: React.FC = () => {
             )}
         </div>
     );
-};
-
-export default ChannelSetDetailsPage;
+}
