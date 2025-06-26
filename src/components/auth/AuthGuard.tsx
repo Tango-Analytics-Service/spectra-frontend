@@ -1,5 +1,5 @@
 // src/components/auth/AuthGuard.tsx
-import React, { ReactNode } from "react";
+import { ReactNode } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import LoadingScreen from "./LoadingScreen";
@@ -8,7 +8,7 @@ interface AuthGuardProps {
     children: ReactNode;
 }
 
-const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
+export default function AuthGuard({ children }: AuthGuardProps) {
     const { isAuthenticated, isLoading } = useAuth();
 
     if (isLoading) {
@@ -20,6 +20,4 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
     }
 
     return <>{children}</>;
-};
-
-export default AuthGuard;
+}
