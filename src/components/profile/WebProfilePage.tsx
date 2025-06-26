@@ -1,5 +1,4 @@
 // src/components/profile/WebProfilePage.tsx
-import React from "react";
 import { cn } from "@/lib/utils";
 import {
     typography,
@@ -9,8 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { User, Settings, LogOut, Bell, Shield, CreditCard } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import ProfileNavButton from "./ProfileNavButton";
 
-const WebProfilePage: React.FC = () => {
+export default function WebProfilePage() {
     const { user, logout } = useAuth();
 
     return (
@@ -156,33 +156,4 @@ const WebProfilePage: React.FC = () => {
             </div>
         </div>
     );
-};
-
-// Profile navigation button
-interface ProfileNavButtonProps {
-    icon: React.ReactNode;
-    label: string;
-    active?: boolean;
 }
-
-const ProfileNavButton: React.FC<ProfileNavButtonProps> = ({
-    icon,
-    label,
-    active,
-}) => {
-    return (
-        <button
-            className={cn(
-                "flex items-center w-full px-3 py-2 rounded-lg transition-colors text-left",
-                active
-                    ? "bg-[#4395d3]/10 text-[#4395d3] font-medium"
-                    : "text-gray-300 hover:bg-blue-900/20 hover:text-[#4395d3]",
-            )}
-        >
-            <span className="mr-3">{icon}</span>
-            {label}
-        </button>
-    );
-};
-
-export default WebProfilePage;
