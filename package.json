@@ -9,6 +9,7 @@
         "build-no-errors": "tsc ; vite build",
         "lint": "eslint .",
         "lint:fix": "eslint . --fix",
+        "check": "tsc",
         "preview": "vite preview",
         "types:supabase": "npx supabase gen types typescript --project-id $SUPABASE_PROJECT_ID > src/types/supabase.ts"
     },
