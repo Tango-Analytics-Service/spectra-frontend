@@ -1,5 +1,5 @@
 // src/components/analysis/StartAnalysisDialog.tsx - версия со скроллом
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
     Dialog,
     DialogContent,
@@ -32,12 +32,7 @@ interface StartAnalysisDialogProps {
     channelCount: number;
 }
 
-const StartAnalysisDialog: React.FC<StartAnalysisDialogProps> = ({
-    open,
-    onOpenChange,
-    onStart,
-    channelCount,
-}) => {
+export default function StartAnalysisDialog({ open, onOpenChange, onStart, channelCount, }: StartAnalysisDialogProps) {
     const { selectedFilters, toggleFilterSelection, clearSelectedFilters } =
         useFilters();
     const [isStarting, setIsStarting] = useState(false);
@@ -190,5 +185,3 @@ const StartAnalysisDialog: React.FC<StartAnalysisDialogProps> = ({
         </Dialog>
     );
 };
-
-export default StartAnalysisDialog;
