@@ -18,11 +18,11 @@ import {
 import { EmptyState, LoadingState } from "@/components/ui/dialog-components";
 
 interface FiltersListProps {
-  onSelectFilter?: (id: string) => void;
-  selectedFilters?: string[];
-  showActions?: boolean;
-  height?: string;
-  multiSelect?: boolean;
+    onSelectFilter?: (id: string) => void;
+    selectedFilters?: string[];
+    showActions?: boolean;
+    height?: string;
+    multiSelect?: boolean;
 }
 
 // Типы фильтров для быстрого доступа
@@ -84,12 +84,12 @@ const FiltersList: React.FC<FiltersListProps> = ({
     // Фильтрация по типу
     const filteredByType = useMemo(() => {
         switch (activeType) {
-        case "my":
-            return allFilters.filter((filter) => filter.is_custom);
-        case "system":
-            return allFilters.filter((filter) => !filter.is_custom);
-        default:
-            return allFilters;
+            case "my":
+                return allFilters.filter((filter) => filter.is_custom);
+            case "system":
+                return allFilters.filter((filter) => !filter.is_custom);
+            default:
+                return allFilters;
         }
     }, [allFilters, activeType]);
 
@@ -200,7 +200,7 @@ const FiltersList: React.FC<FiltersListProps> = ({
                             : createButtonStyle("secondary"),
                     )}
                 >
-          Все категории
+                    Все категории
                 </Button>
 
                 {CATEGORIES.map((category) => (
@@ -222,7 +222,7 @@ const FiltersList: React.FC<FiltersListProps> = ({
             </div>
             {/* Счетчик результатов */}
             <div className={createTextStyle("small", "muted")}>
-        Найдено фильтров: {filteredFilters.length}
+                Найдено фильтров: {filteredFilters.length}
             </div>
             {/* Список фильтров */}
             <ScrollArea className={cn(height, "w-full max-w-full overflow-hidden")}>
@@ -252,7 +252,7 @@ const FiltersList: React.FC<FiltersListProps> = ({
                                         onClick={() => setShowCreateDialog(true)}
                                         className={createButtonStyle("primary")}
                                     >
-                  Создать фильтр
+                                        Создать фильтр
                                     </Button>
                                 ) : undefined
                         }

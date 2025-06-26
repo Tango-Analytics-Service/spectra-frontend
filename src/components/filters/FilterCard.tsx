@@ -40,16 +40,16 @@ const getCategoryIcon = (category?: string) => {
     const iconProps = { size: 20 };
 
     switch (category) {
-    case "Содержание":
-        return <Tag {...iconProps} className={textColors.primary} />;
-    case "Качество":
-        return <CheckCircle2 {...iconProps} className={textColors.success} />;
-    case "Безопасность":
-        return <Info {...iconProps} className={textColors.error} />;
-    case "Вовлеченность":
-        return <Settings {...iconProps} className={textColors.warning} />;
-    default:
-        return <Tag {...iconProps} className={textColors.muted} />;
+        case "Содержание":
+            return <Tag {...iconProps} className={textColors.primary} />;
+        case "Качество":
+            return <CheckCircle2 {...iconProps} className={textColors.success} />;
+        case "Безопасность":
+            return <Info {...iconProps} className={textColors.error} />;
+        case "Вовлеченность":
+            return <Settings {...iconProps} className={textColors.warning} />;
+        default:
+            return <Tag {...iconProps} className={textColors.muted} />;
     }
 };
 

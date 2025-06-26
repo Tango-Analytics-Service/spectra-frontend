@@ -14,7 +14,7 @@ import {
 import AppHeader from "../common/AppHeader";
 
 interface MainLayoutProps {
-  children: ReactNode;
+    children: ReactNode;
 }
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
@@ -71,7 +71,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                         typography.small,
                     )}
                 >
-          SPECTRA © 2025 - Аналитика и управление телеграм-каналами
+                    SPECTRA © 2025 - Аналитика и управление телеграм-каналами
                 </div>
             )}
         </div>

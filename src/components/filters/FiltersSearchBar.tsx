@@ -13,10 +13,10 @@ import {
 export type FilterType = "all" | "system" | "custom";
 
 interface QuickFilterChipProps {
-  label: string;
-  count?: number;
-  active: boolean;
-  onClick: () => void;
+    label: string;
+    count?: number;
+    active: boolean;
+    onClick: () => void;
 }
 
 const QuickFilterChip: React.FC<QuickFilterChipProps> = ({
@@ -54,13 +54,13 @@ const QuickFilterChip: React.FC<QuickFilterChipProps> = ({
 };
 
 interface FiltersSearchBarProps {
-  searchQuery: string;
-  onSearchChange: (query: string) => void;
-  activeFilter: FilterType;
-  onFilterChange: (filter: FilterType) => void;
-  systemFiltersCount: number;
-  customFiltersCount: number;
-  totalFilters: number;
+    searchQuery: string;
+    onSearchChange: (query: string) => void;
+    activeFilter: FilterType;
+    onFilterChange: (filter: FilterType) => void;
+    systemFiltersCount: number;
+    customFiltersCount: number;
+    totalFilters: number;
 }
 
 const FiltersSearchBar: React.FC<FiltersSearchBarProps> = ({

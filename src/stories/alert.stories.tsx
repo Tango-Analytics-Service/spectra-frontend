@@ -19,7 +19,7 @@ export const Default = {
                 <RocketIcon className="h-4 w-4" />
                 <AlertTitle>Heads up!</AlertTitle>
                 <AlertDescription>
-          You can add components to your app using the cli.
+                    You can add components to your app using the cli.
                 </AlertDescription>
             </Alert>
         );
@@ -34,7 +34,7 @@ export const Destructive = {
                 <ExclamationTriangleIcon className="h-4 w-4" />
                 <AlertTitle>Error</AlertTitle>
                 <AlertDescription>
-          Your session has expired. Please log in again.
+                    Your session has expired. Please log in again.
                 </AlertDescription>
             </Alert>
         );

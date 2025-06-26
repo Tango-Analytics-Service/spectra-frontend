@@ -39,7 +39,7 @@ export const Base = {
                     <SelectItem value="aubergine">Aubergine</SelectItem>
                     <SelectItem value="broccoli">Broccoli</SelectItem>
                     <SelectItem value="carrot" disabled>
-            Carrot
+                        Carrot
                     </SelectItem>
                     <SelectItem value="courgette">Courgette</SelectItem>
                     <SelectItem value="leek">Leek</SelectItem>

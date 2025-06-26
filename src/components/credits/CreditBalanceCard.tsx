@@ -6,7 +6,7 @@ import { CreditBalance } from "@/types/credits";
 import { textColors } from "@/lib/design-system";
 
 interface CreditBalanceCardProps {
-  balance: CreditBalance;
+    balance: CreditBalance;
 }
 
 const CreditBalanceCard = ({ balance }: CreditBalanceCardProps) => {
@@ -27,7 +27,7 @@ const CreditBalanceCard = ({ balance }: CreditBalanceCardProps) => {
             <CardContent className="p-4 sm:p-6">
                 <div className="flex justify-between items-center mb-4">
                     <div className="text-xs sm:text-sm text-blue-300">
-            Ваш баланс кредитов
+                        Ваш баланс кредитов
                     </div>
                     <div className="flex items-center text-blue-300">
                         <Coins size={16} className="mr-1" />

@@ -21,30 +21,30 @@ import {
 } from "@/lib/design-system";
 
 interface Channel {
-  username: string;
-  channel_id: number;
-  is_parsed: boolean;
-  added_at: string;
+    username: string;
+    channel_id: number;
+    is_parsed: boolean;
+    added_at: string;
 }
 
 interface ChannelSet {
-  id: string;
-  name: string;
-  description: string;
-  is_public: boolean;
-  is_predefined: boolean;
-  created_at: string;
-  updated_at: string;
-  channel_count: number;
-  channels: Channel[];
-  all_parsed: boolean;
+    id: string;
+    name: string;
+    description: string;
+    is_public: boolean;
+    is_predefined: boolean;
+    created_at: string;
+    updated_at: string;
+    channel_count: number;
+    channels: Channel[];
+    all_parsed: boolean;
 }
 
 interface ChannelSetDetailsProps {
-  selectedSet?: ChannelSet;
-  onShare?: (setId: string) => void;
-  onEdit?: (setId: string) => void;
-  onAnalyze?: (setId: string) => void;
+    selectedSet?: ChannelSet;
+    onShare?: (setId: string) => void;
+    onEdit?: (setId: string) => void;
+    onAnalyze?: (setId: string) => void;
 }
 
 const ChannelSetDetails = ({
@@ -84,7 +84,7 @@ const ChannelSetDetails = ({
             <CardContent className={`p-${spacing.sm} sm:p-${spacing.md}`}>
                 <div className="flex justify-between items-center mb-2 sm:mb-3">
                     <div className={cn(typography.small, "text-blue-300")}>
-            Выбранный набор
+                        Выбранный набор
                     </div>
                     <div className="flex space-x-1">
                         {set.is_public && (
@@ -163,7 +163,7 @@ const ChannelSetDetails = ({
                         )}
                         onClick={() => onAnalyze(set.id)}
                     >
-            Анализировать
+                        Анализировать
                     </Button>
                 </div>
             </CardContent>

@@ -66,7 +66,7 @@ const FiltersPage: React.FC = () => {
                         <div>
                             <h1 className={typography.h1}>Фильтры</h1>
                             <p className={cn(createTextStyle("small", "secondary"), "mt-1")}>
-                Управление фильтрами для анализа каналов
+                                Управление фильтрами для анализа каналов
                             </p>
                         </div>
 
@@ -129,7 +129,7 @@ const FiltersPage: React.FC = () => {
                                 className={createButtonStyle("primary")}
                             >
                                 <Plus size={16} className={`mr-${spacing.sm}`} />
-                Создать фильтр
+                                Создать фильтр
                             </Button>
                         </div>
                     </div>

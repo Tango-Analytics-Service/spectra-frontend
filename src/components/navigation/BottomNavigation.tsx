@@ -10,10 +10,10 @@ import {
 } from "@/lib/design-system";
 
 interface NavItemProps {
-  to: string;
-  icon: React.ReactNode;
-  label: string;
-  active: boolean;
+    to: string;
+    icon: React.ReactNode;
+    label: string;
+    active: boolean;
 }
 
 const NavItem: React.FC<NavItemProps> = ({ to, icon, label, active }) => {

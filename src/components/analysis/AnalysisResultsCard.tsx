@@ -170,30 +170,30 @@ const AnalysisResultsCard: React.FC<AnalysisResultsCardProps> = ({
 
     const getStatusConfig = (status: string) => {
         switch (status) {
-        case "approved":
-            return {
-                icon: CheckCircle,
-                text: "Подходит",
-                color: textColors.success,
-                bg: "bg-green-500/10",
-                border: "border-green-500/20"
-            };
-        case "rejected":
-            return {
-                icon: XCircle,
-                text: "Не подходит",
-                color: textColors.error,
-                bg: "bg-red-500/10",
-                border: "border-red-500/20"
-            };
-        default:
-            return {
-                icon: AlertCircle,
-                text: "Неизвестно",
-                color: textColors.warning,
-                bg: "bg-amber-500/10",
-                border: "border-amber-500/20"
-            };
+            case "approved":
+                return {
+                    icon: CheckCircle,
+                    text: "Подходит",
+                    color: textColors.success,
+                    bg: "bg-green-500/10",
+                    border: "border-green-500/20"
+                };
+            case "rejected":
+                return {
+                    icon: XCircle,
+                    text: "Не подходит",
+                    color: textColors.error,
+                    bg: "bg-red-500/10",
+                    border: "border-red-500/20"
+                };
+            default:
+                return {
+                    icon: AlertCircle,
+                    text: "Неизвестно",
+                    color: textColors.warning,
+                    bg: "bg-amber-500/10",
+                    border: "border-amber-500/20"
+                };
         }
     };
 
@@ -211,25 +211,25 @@ const AnalysisResultsCard: React.FC<AnalysisResultsCardProps> = ({
         let variant: "success" | "primary" | "error" | "warning" = "warning";
 
         switch (status) {
-        case "completed":
-            icon = <CheckCircle size={12} className="mr-1" />;
-            text = "Завершен";
-            variant = "success";
-            break;
-        case "processing":
-            icon = <RefreshCw size={12} className="mr-1 animate-spin" />;
-            text = "Выполняется";
-            variant = "primary";
-            break;
-        case "failed":
-            icon = <XCircle size={12} className="mr-1" />;
-            text = "Ошибка";
-            variant = "error";
-            break;
-        default:
-            icon = <Clock size={12} className="mr-1" />;
-            text = "Ожидание";
-            variant = "warning";
+            case "completed":
+                icon = <CheckCircle size={12} className="mr-1" />;
+                text = "Завершен";
+                variant = "success";
+                break;
+            case "processing":
+                icon = <RefreshCw size={12} className="mr-1 animate-spin" />;
+                text = "Выполняется";
+                variant = "primary";
+                break;
+            case "failed":
+                icon = <XCircle size={12} className="mr-1" />;
+                text = "Ошибка";
+                variant = "error";
+                break;
+            default:
+                icon = <Clock size={12} className="mr-1" />;
+                text = "Ожидание";
+                variant = "warning";
         }
 
         return (

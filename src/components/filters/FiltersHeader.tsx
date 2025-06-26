@@ -12,11 +12,11 @@ import {
 } from "@/lib/design-system";
 
 interface FiltersHeaderProps {
-  totalFilters: number;
-  systemFiltersCount: number;
-  customFiltersCount: number;
-  onCreateFilter: () => void;
-  onBack?: () => void;
+    totalFilters: number;
+    systemFiltersCount: number;
+    customFiltersCount: number;
+    onCreateFilter: () => void;
+    onBack?: () => void;
 }
 
 const FiltersHeader: React.FC<FiltersHeaderProps> = ({

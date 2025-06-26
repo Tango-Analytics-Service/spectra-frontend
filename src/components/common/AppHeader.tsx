@@ -5,8 +5,8 @@ import { cn } from "@/lib/utils";
 import { gradients, spacing, typography } from "@/lib/design-system";
 
 interface AppHeaderProps {
-  className?: string;
-  showBadge?: boolean;
+    className?: string;
+    showBadge?: boolean;
 }
 
 const AppHeader: React.FC<AppHeaderProps> = ({ 
@@ -24,14 +24,14 @@ const AppHeader: React.FC<AppHeaderProps> = ({
         >
             <div className={cn(typography.h2, "tracking-tight")}>
                 <span className={cn(gradients.logo, "bg-clip-text text-transparent")}>
-          SPECTRA
+                    SPECTRA
                 </span>
                 {showBadge && (
                     <Badge
                         className="ml-2 bg-gradient-to-r from-[#358ee4] to-[#3b82f6] shadow-[0_0_8px_rgba(53,142,228,0.3)]"
                         variant="default"
                     >
-            BETA
+                        BETA
                     </Badge>
                 )}
             </div>

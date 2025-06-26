@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { useLocation } from "react-router-dom";
 
 interface PageTransitionProps {
-  children: ReactNode;
+    children: ReactNode;
 }
 
 const PageTransition: React.FC<PageTransitionProps> = ({ children }) => {

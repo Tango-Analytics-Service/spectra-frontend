@@ -184,17 +184,17 @@ const AnalysisTasksPage: React.FC = () => {
             const now = new Date();
 
             switch (dateFilter) {
-            case "today":
-                if (taskDate.toDateString() !== now.toDateString()) return false;
-                break;
-            case "week":
-                const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-                if (taskDate < weekAgo) return false;
-                break;
-            case "month":
-                const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-                if (taskDate < monthAgo) return false;
-                break;
+                case "today":
+                    if (taskDate.toDateString() !== now.toDateString()) return false;
+                    break;
+                case "week":
+                    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    if (taskDate < weekAgo) return false;
+                    break;
+                case "month":
+                    const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                    if (taskDate < monthAgo) return false;
+                    break;
             }
         }
 
@@ -204,34 +204,34 @@ const AnalysisTasksPage: React.FC = () => {
     // Получение иконки статуса
     const getStatusIcon = (status: string) => {
         switch (status) {
-        case "completed":
-            return <CheckCircle size={16} className={textColors.success} />;
-        case "failed":
-            return <XCircle size={16} className={textColors.error} />;
-        case "processing":
-            return <RefreshCw size={16} className={cn(textColors.accent, "animate-spin")} />;
-        default:
-            return <Clock size={16} className={textColors.warning} />;
+            case "completed":
+                return <CheckCircle size={16} className={textColors.success} />;
+            case "failed":
+                return <XCircle size={16} className={textColors.error} />;
+            case "processing":
+                return <RefreshCw size={16} className={cn(textColors.accent, "animate-spin")} />;
+            default:
+                return <Clock size={16} className={textColors.warning} />;
         }
     };
 
     // Получение текста статуса
     const getStatusText = (status: string) => {
         switch (status) {
-        case "completed": return "Завершен";
-        case "failed": return "Ошибка";
-        case "processing": return "Выполняется";
-        default: return "Ожидание";
+            case "completed": return "Завершен";
+            case "failed": return "Ошибка";
+            case "processing": return "Выполняется";
+            default: return "Ожидание";
         }
     };
 
     // Получение варианта статуса
     const getStatusVariant = (status: string): "success" | "error" | "primary" | "warning" => {
         switch (status) {
-        case "completed": return "success";
-        case "failed": return "error";
-        case "processing": return "primary";
-        default: return "warning";
+            case "completed": return "success";
+            case "failed": return "error";
+            case "processing": return "primary";
+            default: return "warning";
         }
     };
 

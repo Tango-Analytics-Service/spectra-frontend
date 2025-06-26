@@ -74,10 +74,10 @@ const CreditsPage = () => {
                 {/* Title */}
                 <div className={`mt-${spacing.sm} sm:mt-${spacing.md}`}>
                     <h1 className={cn(typography.h1, "text-white")}>
-            Управление кредитами
+                        Управление кредитами
                     </h1>
                     <p className={cn(typography.small, "text-blue-300 mt-1")}>
-            Просматривайте баланс, пополняйте кредиты и следите за расходами
+                        Просматривайте баланс, пополняйте кредиты и следите за расходами
                     </p>
                 </div>
 
@@ -91,7 +91,7 @@ const CreditsPage = () => {
                         <CreditBalanceCard balance={balance} />
                     ) : (
                         <div className={cn(createCardStyle(), "p-6 text-center")}>
-              Не удалось загрузить баланс
+                            Не удалось загрузить баланс
                         </div>
                     )}
                 </div>
@@ -113,10 +113,10 @@ const CreditsPage = () => {
                                     <AlertCircle className="h-5 w-5 text-amber-400 flex-shrink-0" />
                                     <div>
                                         <div className="text-amber-400 font-medium text-sm">
-                      Платежная система в разработке
+                                            Платежная система в разработке
                                         </div>
                                         <div className="text-amber-300/80 text-xs mt-1">
-                      Функция покупки кредитов временно недоступна. Мы активно работаем над интеграцией платежных систем.
+                                            Функция покупки кредитов временно недоступна. Мы активно работаем над интеграцией платежных систем.
                                         </div>
                                     </div>
                                 </div>
@@ -129,7 +129,7 @@ const CreditsPage = () => {
                         </>
                     ) : (
                         <div className={cn(createCardStyle(), "p-6 text-center")}>
-              Нет доступных пакетов кредитов
+                            Нет доступных пакетов кредитов
                         </div>
                     )}
                 </div>
@@ -151,7 +151,7 @@ const CreditsPage = () => {
                         <CreditTransactionsList transactions={transactions} />
                     ) : (
                         <div className={cn(createCardStyle(), "p-6 text-center")}>
-              Нет истории транзакций
+                            Нет истории транзакций
                         </div>
                     )}
 
@@ -164,7 +164,7 @@ const CreditsPage = () => {
                         <CreditCostsList costs={costs} />
                     ) : (
                         <div className={cn(createCardStyle(), "p-6 text-center")}>
-              Не удалось загрузить стоимость действий
+                            Не удалось загрузить стоимость действий
                         </div>
                     )}
                 </div>

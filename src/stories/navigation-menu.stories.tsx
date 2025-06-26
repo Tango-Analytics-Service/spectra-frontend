@@ -35,11 +35,11 @@ export const Base = {
                                         >
                                             <MoonIcon className="h-6 w-6" />
                                             <div className="mb-2 mt-4 text-lg font-medium">
-                        shadcn/ui
+                                                shadcn/ui
                                             </div>
                                             <p className="text-sm leading-tight text-muted-foreground">
-                        Beautifully designed components built with Radix UI and
-                        Tailwind CSS.
+                                                Beautifully designed components built with Radix UI and
+                                                Tailwind CSS.
                                             </p>
                                         </a>
                                     </NavigationMenuLink>
@@ -54,11 +54,11 @@ export const Base = {
                                             title="Introduction"
                                         >
                                             <div className="text-sm font-medium leading-none">
-                        Introduction
+                                                Introduction
                                             </div>
                                             <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                        Re-usable components built using Radix UI and Tailwind
-                        CSS.
+                                                Re-usable components built using Radix UI and Tailwind
+                                                CSS.
                                             </p>
                                         </a>
                                     </NavigationMenuLink>
@@ -73,10 +73,10 @@ export const Base = {
                                             title="Installation"
                                         >
                                             <div className="text-sm font-medium leading-none">
-                        Installation
+                                                Installation
                                             </div>
                                             <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                        How to install dependencies and structure your app.
+                                                How to install dependencies and structure your app.
                                             </p>
                                         </a>
                                     </NavigationMenuLink>
@@ -91,10 +91,10 @@ export const Base = {
                                             title="Typography"
                                         >
                                             <div className="text-sm font-medium leading-none">
-                        Typography
+                                                Typography
                                             </div>
                                             <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                        Styles for headings, paragraphs, lists...etc
+                                                Styles for headings, paragraphs, lists...etc
                                             </p>
                                         </a>
                                     </NavigationMenuLink>
@@ -116,11 +116,11 @@ export const Base = {
                                             title="Alert Dialog"
                                         >
                                             <div className="text-sm font-medium leading-none">
-                        Alert Dialog
+                                                Alert Dialog
                                             </div>
                                             <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                        A modal dialog that interrupts the user with important
-                        content and expects a response.
+                                                A modal dialog that interrupts the user with important
+                                                content and expects a response.
                                             </p>
                                         </a>
                                     </NavigationMenuLink>
@@ -135,11 +135,11 @@ export const Base = {
                                             title="Hover Card"
                                         >
                                             <div className="text-sm font-medium leading-none">
-                        Hover Card
+                                                Hover Card
                                             </div>
                                             <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                        For sighted users to preview content available behind a
-                        link.
+                                                For sighted users to preview content available behind a
+                                                link.
                                             </p>
                                         </a>
                                     </NavigationMenuLink>
@@ -154,11 +154,11 @@ export const Base = {
                                             title="Progress"
                                         >
                                             <div className="text-sm font-medium leading-none">
-                        Progress
+                                                Progress
                                             </div>
                                             <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                        Displays an indicator showing the completion progress of
-                        a task, typically displayed as a progress bar.
+                                                Displays an indicator showing the completion progress of
+                                                a task, typically displayed as a progress bar.
                                             </p>
                                         </a>
                                     </NavigationMenuLink>
@@ -173,10 +173,10 @@ export const Base = {
                                             title="Scroll-area"
                                         >
                                             <div className="text-sm font-medium leading-none">
-                        Scroll-area
+                                                Scroll-area
                                             </div>
                                             <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                        Visually or semantically separates content.
+                                                Visually or semantically separates content.
                                             </p>
                                         </a>
                                     </NavigationMenuLink>
@@ -191,11 +191,11 @@ export const Base = {
                                             title="Alert Dialog"
                                         >
                                             <div className="text-sm font-medium leading-none">
-                        Tabs
+                                                Tabs
                                             </div>
                                             <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                        A set of layered sections of content—known as tab
-                        panels—that are displayed one at a time.
+                                                A set of layered sections of content—known as tab
+                                                panels—that are displayed one at a time.
                                             </p>
                                         </a>
                                     </NavigationMenuLink>
@@ -210,12 +210,12 @@ export const Base = {
                                             title="Tooltip"
                                         >
                                             <div className="text-sm font-medium leading-none">
-                        Tooltip
+                                                Tooltip
                                             </div>
                                             <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                        A popup that displays information related to an element
-                        when the element receives keyboard focus or the mouse
-                        hovers over it.
+                                                A popup that displays information related to an element
+                                                when the element receives keyboard focus or the mouse
+                                                hovers over it.
                                             </p>
                                         </a>
                                     </NavigationMenuLink>

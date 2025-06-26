@@ -5,7 +5,7 @@ import { CreditCost } from "@/types/credits";
 import { Coins } from "lucide-react";
 
 interface CreditCostsListProps {
-  costs: CreditCost[];
+    costs: CreditCost[];
 }
 
 const CreditCostsList = ({ costs }: CreditCostsListProps) => {
@@ -46,18 +46,18 @@ const CreditCostsList = ({ costs }: CreditCostsListProps) => {
 // Функция для получения русского названия действия
 function getActionName(actionType: string): string {
     switch (actionType) {
-    case "CREATE_CHANNEL_SET":
-        return "Создание набора каналов";
-    case "ADD_CHANNEL":
-        return "Добавление канала";
-    case "ANALYZE_CHANNEL_SET":
-        return "Анализ набора каналов";
-    case "GENERATE_REPORT":
-        return "Генерация отчета";
-    case "EXPORT_DATA":
-        return "Экспорт данных";
-    default:
-        return actionType;
+        case "CREATE_CHANNEL_SET":
+            return "Создание набора каналов";
+        case "ADD_CHANNEL":
+            return "Добавление канала";
+        case "ANALYZE_CHANNEL_SET":
+            return "Анализ набора каналов";
+        case "GENERATE_REPORT":
+            return "Генерация отчета";
+        case "EXPORT_DATA":
+            return "Экспорт данных";
+        default:
+            return actionType;
     }
 }
 

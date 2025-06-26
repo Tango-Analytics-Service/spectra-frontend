@@ -36,7 +36,7 @@ export const Base = {
                 <CardHeader>
                     <CardTitle>Create project</CardTitle>
                     <CardDescription>
-            Deploy your new project in one-click.
+                        Deploy your new project in one-click.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -86,10 +86,10 @@ export const Notifications = {
                         <BellIcon />
                         <div className="flex-1 space-y-1">
                             <p className="text-sm font-medium leading-none">
-                Push Notifications
+                                Push Notifications
                             </p>
                             <p className="text-sm text-muted-foreground">
-                Send notifications to device.
+                                Send notifications to device.
                             </p>
                         </div>
                         <Switch />
@@ -101,7 +101,7 @@ export const Notifications = {
                         <span className="flex h-2 w-2 translate-y-1 rounded-full bg-sky-500" />
                         <div className="space-y-1">
                             <p className="text-sm font-medium leading-none">
-                Your call has been confirmed.
+                                Your call has been confirmed.
                             </p>
                             <p className="text-sm text-muted-foreground">1 hour ago</p>
                         </div>
@@ -113,7 +113,7 @@ export const Notifications = {
                         <span className="flex h-2 w-2 translate-y-1 rounded-full bg-sky-500" />
                         <div className="space-y-1">
                             <p className="text-sm font-medium leading-none">
-                You have a new message!
+                                You have a new message!
                             </p>
                             <p className="text-sm text-muted-foreground">1 hour ago</p>
                         </div>
@@ -125,7 +125,7 @@ export const Notifications = {
                         <span className="flex h-2 w-2 translate-y-1 rounded-full bg-sky-500" />
                         <div className="space-y-1">
                             <p className="text-sm font-medium leading-none">
-                Your subscription is expiring soon!
+                                Your subscription is expiring soon!
                             </p>
                             <p className="text-sm text-muted-foreground">2 hours ago</p>
                         </div>

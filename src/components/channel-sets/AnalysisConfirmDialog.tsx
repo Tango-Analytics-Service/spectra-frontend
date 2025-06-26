@@ -23,10 +23,10 @@ import {
 import { ChannelSet } from "@/types/channel-sets";
 
 interface AnalysisConfirmDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  channelSet?: ChannelSet;
-  onConfirm: (setId: string) => Promise<void>;
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    channelSet?: ChannelSet;
+    onConfirm: (setId: string) => Promise<void>;
 }
 
 const AnalysisConfirmDialog: React.FC<AnalysisConfirmDialogProps> = ({
@@ -72,10 +72,10 @@ const AnalysisConfirmDialog: React.FC<AnalysisConfirmDialogProps> = ({
                 <DialogHeader>
                     <DialogTitle className={cn(typography.h3, "flex items-center gap-2")}>
                         <BarChart3 size={20} className={textColors.accent} />
-            Анализ набора
+                        Анализ набора
                     </DialogTitle>
                     <DialogDescription className={textColors.muted}>
-            Запустить анализ для выбранного набора каналов?
+                        Запустить анализ для выбранного набора каналов?
                     </DialogDescription>
                 </DialogHeader>
 
@@ -102,7 +102,7 @@ const AnalysisConfirmDialog: React.FC<AnalysisConfirmDialogProps> = ({
                             <div className="flex items-center gap-2">
                                 <Clock size={14} className={textColors.muted} />
                                 <span className={createTextStyle("small", "muted")}>
-                  Примерно {getEstimatedTime(channelSet.channel_count)}
+                                    Примерно {getEstimatedTime(channelSet.channel_count)}
                                 </span>
                             </div>
                         </div>
@@ -116,8 +116,8 @@ const AnalysisConfirmDialog: React.FC<AnalysisConfirmDialogProps> = ({
                         )}
                     >
                         <p className={cn(createTextStyle("small", "muted"))}>
-              Анализ может занять некоторое время. Вы получите уведомление 
-              о завершении.
+                            Анализ может занять некоторое время. Вы получите уведомление 
+                            о завершении.
                         </p>
                     </div>
                 </div>
@@ -129,7 +129,7 @@ const AnalysisConfirmDialog: React.FC<AnalysisConfirmDialogProps> = ({
                         disabled={isLoading}
                         className={createButtonStyle("secondary")}
                     >
-            Отмена
+                        Отмена
                     </Button>
                     <Button
                         onClick={handleConfirm}
@@ -142,7 +142,7 @@ const AnalysisConfirmDialog: React.FC<AnalysisConfirmDialogProps> = ({
                                     size={16}
                                     className={`mr-${spacing.sm} animate-spin`}
                                 />
-                Запуск...
+                                Запуск...
                             </>
                         ) : (
                             "Начать анализ"

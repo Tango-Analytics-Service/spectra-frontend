@@ -50,7 +50,7 @@ const LoginPage: React.FC = () => {
             return (
                 <div className="text-center">
                     <p className="mb-4 text-red-400">
-            Приложение должно быть открыто через Telegram
+                        Приложение должно быть открыто через Telegram
                     </p>
                     <a
                         href={telegramBotUrl}
@@ -60,7 +60,7 @@ const LoginPage: React.FC = () => {
                             `px-${spacing.lg} py-${spacing.sm}`,
                         )}
                     >
-            Открыть в Telegram
+                        Открыть в Telegram
                     </a>
                 </div>
             );
@@ -82,10 +82,10 @@ const LoginPage: React.FC = () => {
                     gradients.primary.replace("bg-gradient-to-r", "bg-gradient-to-r"),
                 )}
             >
-        SPECTRA
+                SPECTRA
             </div>
             <p className={cn(typography.body, "text-blue-300 text-center mb-6")}>
-        Аналитика и управление телеграм-каналами
+                Аналитика и управление телеграм-каналами
             </p>
 
             {error && (

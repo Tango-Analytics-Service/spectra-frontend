@@ -27,26 +27,26 @@ export const Base = {
     render: () => (
         <ContextMenu>
             <ContextMenuTrigger className="flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed border-slate-200 text-sm dark:border-slate-700">
-        Right click here
+                Right click here
             </ContextMenuTrigger>
             <ContextMenuContent className="w-64">
                 <ContextMenuItem inset>
-          Back
+                    Back
                     <ContextMenuShortcut>⌘[</ContextMenuShortcut>
                 </ContextMenuItem>
                 <ContextMenuItem inset disabled>
-          Forward
+                    Forward
                     <ContextMenuShortcut>⌘]</ContextMenuShortcut>
                 </ContextMenuItem>
                 <ContextMenuItem inset>
-          Reload
+                    Reload
                     <ContextMenuShortcut>⌘R</ContextMenuShortcut>
                 </ContextMenuItem>
                 <ContextMenuSub>
                     <ContextMenuSubTrigger inset>More Tools</ContextMenuSubTrigger>
                     <ContextMenuSubContent className="w-48">
                         <ContextMenuItem>
-              Save Page As...
+                            Save Page As...
                             <ContextMenuShortcut>⇧⌘S</ContextMenuShortcut>
                         </ContextMenuItem>
                         <ContextMenuItem>Create Shortcut...</ContextMenuItem>
@@ -57,7 +57,7 @@ export const Base = {
                 </ContextMenuSub>
                 <ContextMenuSeparator />
                 <ContextMenuCheckboxItem checked>
-          Show Bookmarks Bar
+                    Show Bookmarks Bar
                     <ContextMenuShortcut>⌘⇧B</ContextMenuShortcut>
                 </ContextMenuCheckboxItem>
                 <ContextMenuCheckboxItem>Show Full URLs</ContextMenuCheckboxItem>
@@ -66,7 +66,7 @@ export const Base = {
                     <ContextMenuLabel inset>People</ContextMenuLabel>
                     <ContextMenuSeparator />
                     <ContextMenuRadioItem value="pedro">
-            Pedro Duarte
+                        Pedro Duarte
                     </ContextMenuRadioItem>
                     <ContextMenuRadioItem value="colm">Colm Tuite</ContextMenuRadioItem>
                 </ContextMenuRadioGroup>

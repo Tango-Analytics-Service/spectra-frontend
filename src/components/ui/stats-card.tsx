@@ -10,11 +10,11 @@ import {
 } from "@/lib/design-system";
 
 interface StatsCardProps {
-  title: string;
-  value: string | number;
-  icon: React.ReactNode;
-  loading?: boolean;
-  className?: string;
+    title: string;
+    value: string | number;
+    icon: React.ReactNode;
+    loading?: boolean;
+    className?: string;
 }
 
 export const StatsCard: React.FC<StatsCardProps> = ({

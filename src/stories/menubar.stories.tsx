@@ -30,10 +30,10 @@ export const Base = {
                 <MenubarTrigger>File</MenubarTrigger>
                 <MenubarContent>
                     <MenubarItem>
-            New Tab <MenubarShortcut>⌘T</MenubarShortcut>
+                        New Tab <MenubarShortcut>⌘T</MenubarShortcut>
                     </MenubarItem>
                     <MenubarItem>
-            New Window <MenubarShortcut>⌘N</MenubarShortcut>
+                        New Window <MenubarShortcut>⌘N</MenubarShortcut>
                     </MenubarItem>
                     <MenubarItem disabled>New Incognito Window</MenubarItem>
                     <MenubarSeparator />
@@ -47,7 +47,7 @@ export const Base = {
                     </MenubarSub>
                     <MenubarSeparator />
                     <MenubarItem>
-            Print... <MenubarShortcut>⌘P</MenubarShortcut>
+                        Print... <MenubarShortcut>⌘P</MenubarShortcut>
                     </MenubarItem>
                 </MenubarContent>
             </MenubarMenu>
@@ -55,10 +55,10 @@ export const Base = {
                 <MenubarTrigger>Edit</MenubarTrigger>
                 <MenubarContent>
                     <MenubarItem>
-            Undo <MenubarShortcut>⌘Z</MenubarShortcut>
+                        Undo <MenubarShortcut>⌘Z</MenubarShortcut>
                     </MenubarItem>
                     <MenubarItem>
-            Redo <MenubarShortcut>⇧⌘Z</MenubarShortcut>
+                        Redo <MenubarShortcut>⇧⌘Z</MenubarShortcut>
                     </MenubarItem>
                     <MenubarSeparator />
                     <MenubarSub>
@@ -82,14 +82,14 @@ export const Base = {
                 <MenubarContent>
                     <MenubarCheckboxItem>Always Show Bookmarks Bar</MenubarCheckboxItem>
                     <MenubarCheckboxItem checked>
-            Always Show Full URLs
+                        Always Show Full URLs
                     </MenubarCheckboxItem>
                     <MenubarSeparator />
                     <MenubarItem inset>
-            Reload <MenubarShortcut>⌘R</MenubarShortcut>
+                        Reload <MenubarShortcut>⌘R</MenubarShortcut>
                     </MenubarItem>
                     <MenubarItem disabled inset>
-            Force Reload <MenubarShortcut>⇧⌘R</MenubarShortcut>
+                        Force Reload <MenubarShortcut>⇧⌘R</MenubarShortcut>
                     </MenubarItem>
                     <MenubarSeparator />
                     <MenubarItem inset>Toggle Fullscreen</MenubarItem>

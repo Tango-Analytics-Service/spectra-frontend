@@ -51,7 +51,7 @@ const WebNavigation: React.FC = () => {
                             <span
                                 className={cn(typography.h3, "text-blue-400 hidden sm:block")}
                             >
-                SPECTRA
+                                SPECTRA
                             </span>
                         </Link>
                     </div>
@@ -128,7 +128,7 @@ const WebNavigation: React.FC = () => {
                                 className={createButtonStyle("primary")}
                                 onClick={() => {}}
                             >
-                Войти
+                                Войти
                             </Button>
                         )}
                     </nav>
@@ -198,7 +198,7 @@ const WebNavigation: React.FC = () => {
                                 }}
                             >
                                 <LogOut className="mr-2 h-4 w-4" />
-                Выйти
+                                Выйти
                             </Button>
                         )}
                     </nav>
@@ -210,8 +210,8 @@ const WebNavigation: React.FC = () => {
 
 // Desktop nav link
 interface NavLinkProps {
-  to: string;
-  label: string;
+    to: string;
+    label: string;
 }
 
 const NavLink: React.FC<NavLinkProps> = ({ to, label }) => {
@@ -230,10 +230,10 @@ const NavLink: React.FC<NavLinkProps> = ({ to, label }) => {
 
 // Mobile nav link
 interface MobileNavLinkProps {
-  to: string;
-  icon: React.ReactNode;
-  label: string;
-  onClick?: () => void;
+    to: string;
+    icon: React.ReactNode;
+    label: string;
+    onClick?: () => void;
 }
 
 const MobileNavLink: React.FC<MobileNavLinkProps> = ({

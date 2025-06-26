@@ -26,8 +26,8 @@ export const Default = {
                     <SheetHeader>
                         <SheetTitle>Are you sure absolutely sure?</SheetTitle>
                         <SheetDescription>
-              This action cannot be undone. This will permanently delete your
-              account and remove your data from our servers.
+                            This action cannot be undone. This will permanently delete your
+                            account and remove your data from our servers.
                         </SheetDescription>
                     </SheetHeader>
                 </SheetContent>
@@ -49,8 +49,8 @@ export const Left = {
                     <SheetHeader>
                         <SheetTitle>Are you sure absolutely sure?</SheetTitle>
                         <SheetDescription>
-              This action cannot be undone. This will permanently delete your
-              account and remove your data from our servers.
+                            This action cannot be undone. This will permanently delete your
+                            account and remove your data from our servers.
                         </SheetDescription>
                     </SheetHeader>
                 </SheetContent>
@@ -72,8 +72,8 @@ export const Top = {
                     <SheetHeader>
                         <SheetTitle>Are you sure absolutely sure?</SheetTitle>
                         <SheetDescription>
-              This action cannot be undone. This will permanently delete your
-              account and remove your data from our servers.
+                            This action cannot be undone. This will permanently delete your
+                            account and remove your data from our servers.
                         </SheetDescription>
                     </SheetHeader>
                 </SheetContent>
@@ -95,8 +95,8 @@ export const Bottom = {
                     <SheetHeader>
                         <SheetTitle>Are you sure absolutely sure?</SheetTitle>
                         <SheetDescription>
-              This action cannot be undone. This will permanently delete your
-              account and remove your data from our servers.
+                            This action cannot be undone. This will permanently delete your
+                            account and remove your data from our servers.
                         </SheetDescription>
                     </SheetHeader>
                 </SheetContent>

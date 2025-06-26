@@ -79,10 +79,10 @@ const ChannelSetsList: React.FC<{
             >
                 <Users size={48} className="text-blue-400/50 mb-4" />
                 <h3 className={cn(typography.h3, "mb-2")}>
-                        У вас пока нет наборов каналов
+                    У вас пока нет наборов каналов
                 </h3>
                 <p className={cn(typography.small, "text-gray-400 mb-4")}>
-                        Нажмите &apos;Создать новый набор&apos;, чтобы начать
+                    Нажмите &apos;Создать новый набор&apos;, чтобы начать
                 </p>
             </div>
         );

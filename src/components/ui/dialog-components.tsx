@@ -24,13 +24,13 @@ import {
 
 // Базовая обертка для всех диалогов
 interface DialogWrapperProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  title: string;
-  description?: string;
-  children: React.ReactNode;
-  maxWidth?: string;
-  className?: string;
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    title: string;
+    description?: string;
+    children: React.ReactNode;
+    maxWidth?: string;
+    className?: string;
 }
 
 export const DialogWrapper: React.FC<DialogWrapperProps> = ({
@@ -68,11 +68,11 @@ export const DialogWrapper: React.FC<DialogWrapperProps> = ({
 
 // Стандартное поле формы с валидацией
 interface FormFieldProps {
-  label: string;
-  error?: string;
-  required?: boolean;
-  children: React.ReactNode;
-  className?: string;
+    label: string;
+    error?: string;
+    required?: boolean;
+    children: React.ReactNode;
+    className?: string;
 }
 
 export const FormField: React.FC<FormFieldProps> = ({
@@ -98,15 +98,15 @@ export const FormField: React.FC<FormFieldProps> = ({
 
 // Стандартные кнопки действий
 interface ActionButtonsProps {
-  onCancel: () => void;
-  onConfirm: () => void;
-  confirmText?: string;
-  cancelText?: string;
-  confirmDisabled?: boolean;
-  isLoading?: boolean;
-  loadingText?: string;
-  confirmIcon?: React.ReactNode;
-  className?: string;
+    onCancel: () => void;
+    onConfirm: () => void;
+    confirmText?: string;
+    cancelText?: string;
+    confirmDisabled?: boolean;
+    isLoading?: boolean;
+    loadingText?: string;
+    confirmIcon?: React.ReactNode;
+    className?: string;
 }
 
 export const ActionButtons: React.FC<ActionButtonsProps> = ({
@@ -158,10 +158,10 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
 
 // Компонент для отображения счетчика выбранных элементов
 interface SelectionCounterProps {
-  count: number;
-  itemName: string;
-  getItemWord: (count: number) => string;
-  className?: string;
+    count: number;
+    itemName: string;
+    getItemWord: (count: number) => string;
+    className?: string;
 }
 
 export const SelectionCounter: React.FC<SelectionCounterProps> = ({
@@ -183,11 +183,11 @@ export const SelectionCounter: React.FC<SelectionCounterProps> = ({
 
 // Компонент для пустого состояния с иконкой
 interface EmptyStateProps {
-  icon: React.ReactNode;
-  title: string;
-  description?: string;
-  action?: React.ReactNode;
-  className?: string;
+    icon: React.ReactNode;
+    title: string;
+    description?: string;
+    action?: React.ReactNode;
+    className?: string;
 }
 
 export const EmptyState: React.FC<EmptyStateProps> = ({
@@ -222,8 +222,8 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
 
 // Компонент для состояния загрузки с спиннером
 interface LoadingStateProps {
-  text?: string;
-  className?: string;
+    text?: string;
+    className?: string;
 }
 
 export const LoadingState: React.FC<LoadingStateProps> = ({

@@ -44,12 +44,12 @@ const ProfilePage: React.FC = () => {
                             </h2>
                             {user.username && (
                                 <p className={cn(typography.body, "text-blue-300")}>
-                  @{user.username}
+                                    @{user.username}
                                 </p>
                             )}
                             {user.is_premium && (
                                 <span className="inline-block mt-1 bg-gradient-to-r from-yellow-400 to-yellow-600 text-black text-xs px-2 py-0.5 rounded-full font-medium">
-                  Premium
+                                    Premium
                                 </span>
                             )}
                         </div>
@@ -60,7 +60,7 @@ const ProfilePage: React.FC = () => {
                         className={cn(components.button.danger, "w-full")}
                         onClick={logout}
                     >
-            Выйти из аккаунта
+                        Выйти из аккаунта
                     </Button>
                 </div>
             )}
@@ -74,10 +74,10 @@ const ProfilePage: React.FC = () => {
                             "text-blue-300 mb-2",
                         )}
                     >
-            Настройки приложения
+                        Настройки приложения
                     </h3>
                     <p className={cn(typography.small, "text-slate-400")}>
-            Настройки приложения будут доступны в ближайшее время
+                        Настройки приложения будут доступны в ближайшее время
                     </p>
                 </div>
 
@@ -89,10 +89,10 @@ const ProfilePage: React.FC = () => {
                             "text-blue-300 mb-2",
                         )}
                     >
-            О приложении
+                        О приложении
                     </h3>
                     <p className={cn(typography.small, "text-slate-400")}>
-            SPECTRA beta - Аналитика и управление телеграм-каналами
+                        SPECTRA beta - Аналитика и управление телеграм-каналами
                     </p>
                 </div>
             </div>

@@ -8,9 +8,9 @@ import { createTextStyle, textColors } from "@/lib/design-system";
 const MAX_CHANNELS_PER_SET = 20;
 
 interface ChannelSetStatusProps {
-  channelCount: number;
-  allParsed: boolean;
-  className?: string;
+    channelCount: number;
+    allParsed: boolean;
+    className?: string;
 }
 
 const ChannelSetStatus: React.FC<ChannelSetStatusProps> = ({

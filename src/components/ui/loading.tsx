@@ -3,8 +3,8 @@ import { Card, CardContent } from "./card";
 import { cn } from "@/lib/utils";
 
 interface LoadingSpinnerProps {
-  size?: "sm" | "md" | "lg" | "xl";
-  className?: string;
+    size?: "sm" | "md" | "lg" | "xl";
+    className?: string;
 }
 
 export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
@@ -42,8 +42,8 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
 };
 
 interface LoadingCardProps {
-  text?: string;
-  className?: string;
+    text?: string;
+    className?: string;
 }
 
 export const LoadingCard: React.FC<LoadingCardProps> = ({

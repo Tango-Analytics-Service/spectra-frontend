@@ -16,11 +16,11 @@ import type { FilterType } from "./FiltersSearchBar";
 type EmptyStateType = "no-filters" | "no-search-results" | "no-custom-filters";
 
 interface FiltersEmptyStateProps {
-  type: EmptyStateType;
-  searchQuery?: string;
-  activeFilter?: FilterType;
-  onCreateFilter?: () => void;
-  onClearSearch?: () => void;
+    type: EmptyStateType;
+    searchQuery?: string;
+    activeFilter?: FilterType;
+    onCreateFilter?: () => void;
+    onClearSearch?: () => void;
 }
 
 const EmptyStateConfig = {
@@ -129,9 +129,9 @@ const FiltersEmptyState: React.FC<FiltersEmptyStateProps> = ({
                 {/* Additional context for search results */}
                 {type === "no-search-results" && activeFilter !== "all" && (
                     <p className={cn(typography.tiny, textColors.muted, "mt-3")}>
-            Поиск ведется среди{" "}
+                        Поиск ведется среди{" "}
                         {activeFilter === "system" ? "системных" : "пользовательских"}{" "}
-            фильтров
+                        фильтров
                     </p>
                 )}
             </div>

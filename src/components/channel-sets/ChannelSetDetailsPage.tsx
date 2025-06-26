@@ -383,7 +383,7 @@ const ChannelSetDetailsPage: React.FC = () => {
                                     ) : (
                                         <RefreshCw size={16} className="mr-1" />
                                     )}
-                                        Обновить
+                                    Обновить
                                 </Button>
                             )}
 
@@ -487,7 +487,7 @@ const ChannelSetDetailsPage: React.FC = () => {
                                                 onClick={handleAnalyze}
                                                 className={createButtonStyle("primary")}
                                             >
-                                                    Анализировать
+                                                Анализировать
                                             </Button>
                                         )}
                                     </div>

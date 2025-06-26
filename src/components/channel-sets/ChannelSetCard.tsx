@@ -16,11 +16,11 @@ import { ChannelSet } from "@/types/channel-sets";
 import ChannelSetStatus from "./ChannelSetStatus";
 
 interface ChannelSetCardProps {
-  channelSet: ChannelSet;
-  onAnalyze: (setId: string) => void;
-  onViewDetails: (setId: string) => void;
-  onAddChannels: (setId: string) => void;
-  className?: string;
+    channelSet: ChannelSet;
+    onAnalyze: (setId: string) => void;
+    onViewDetails: (setId: string) => void;
+    onAddChannels: (setId: string) => void;
+    className?: string;
 }
 
 const ChannelSetCard: React.FC<ChannelSetCardProps> = ({

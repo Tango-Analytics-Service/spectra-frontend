@@ -10,41 +10,41 @@ import { httpClient } from "@/services/httpClient";
 import { toast } from "@/components/ui/use-toast";
 
 export interface Filter {
-  id: string;
-  name: string;
-  criteria: string;
-  threshold?: number;
-  strictness?: number;
-  category: string;
-  created_at: string;
-  updated_at?: string;
-  is_custom?: boolean;
+    id: string;
+    name: string;
+    criteria: string;
+    threshold?: number;
+    strictness?: number;
+    category: string;
+    created_at: string;
+    updated_at?: string;
+    is_custom?: boolean;
 }
 
 export interface FilterCreateRequest {
-  name: string;
-  criteria: string;
-  threshold: number;
-  strictness: number;
-  category?: string;
-  template?: string;
+    name: string;
+    criteria: string;
+    threshold: number;
+    strictness: number;
+    category?: string;
+    template?: string;
 }
 
 interface FilterContextType {
-  systemFilters: Filter[];
-  userFilters: Filter[];
-  isSystemFiltersLoading: boolean;
-  isUserFiltersLoading: boolean;
-  selectedFilters: string[];
-  // Methods
-  fetchSystemFilters: () => Promise<void>;
-  fetchUserFilters: () => Promise<void>;
-  createCustomFilter: (data: FilterCreateRequest) => Promise<Filter | null>;
-  deleteCustomFilter: (id: string) => Promise<boolean>;
-  toggleFilterSelection: (id: string) => void;
-  setSelectedFilters: (filterIds: string[]) => void;
-  clearSelectedFilters: () => void;
-  getFilterById: (id: string) => Filter | undefined;
+    systemFilters: Filter[];
+    userFilters: Filter[];
+    isSystemFiltersLoading: boolean;
+    isUserFiltersLoading: boolean;
+    selectedFilters: string[];
+    // Methods
+    fetchSystemFilters: () => Promise<void>;
+    fetchUserFilters: () => Promise<void>;
+    createCustomFilter: (data: FilterCreateRequest) => Promise<Filter | null>;
+    deleteCustomFilter: (id: string) => Promise<boolean>;
+    toggleFilterSelection: (id: string) => void;
+    setSelectedFilters: (filterIds: string[]) => void;
+    clearSelectedFilters: () => void;
+    getFilterById: (id: string) => Filter | undefined;
 }
 
 const FilterContext = createContext<FilterContextType | undefined>(undefined);

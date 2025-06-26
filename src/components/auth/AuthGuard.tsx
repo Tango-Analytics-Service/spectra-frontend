@@ -5,7 +5,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import LoadingScreen from "./LoadingScreen";
 
 interface AuthGuardProps {
-  children: ReactNode;
+    children: ReactNode;
 }
 
 const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {

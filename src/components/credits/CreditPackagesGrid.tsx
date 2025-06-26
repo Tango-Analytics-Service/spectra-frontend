@@ -7,8 +7,8 @@ import { Coins, Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface CreditPackagesGridProps {
-  packages: CreditPackage[];
-  onPurchase: (packageId: string) => void;
+    packages: CreditPackage[];
+    onPurchase: (packageId: string) => void;
 }
 
 const CreditPackagesGrid = ({
@@ -75,7 +75,7 @@ const CreditPackagesGrid = ({
                                         onClick={() => onPurchase(pkg.id)}
                                         className={`${getBgColorForPackage(index, "button")} text-white`}
                                     >
-                    Купить
+                                        Купить
                                     </Button>
                                 </div>
                             </CardContent>
@@ -93,42 +93,42 @@ function getBgColorForPackage(
     type: "bar" | "button" | "badge" = "bar",
 ): string {
     switch (packageId) {
-    case 0:
-        return type === "bar"
-            ? "bg-gradient-to-r from-blue-400 to-blue-500"
-            : type === "button"
-                ? "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
-                : "bg-blue-500/10 text-blue-400";
-    case 1:
-        return type === "bar"
-            ? "bg-gradient-to-r from-teal-400 to-green-500"
-            : type === "button"
-                ? "bg-gradient-to-r from-teal-500 to-green-600 hover:from-teal-600 hover:to-green-700"
-                : "bg-teal-500/10 text-teal-400";
-    case 2:
-        return type === "bar"
-            ? "bg-gradient-to-r from-purple-400 to-blue-500"
-            : type === "button"
-                ? "bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700"
-                : "bg-purple-500/10 text-purple-400";
-    case 3:
-        return type === "bar"
-            ? "bg-gradient-to-r from-amber-400 to-orange-500"
-            : type === "button"
-                ? "bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700"
-                : "bg-amber-500/10 text-amber-400";
-    case 4:
-        return type === "bar"
-            ? "bg-gradient-to-r from-red-400 to-pink-500"
-            : type === "button"
-                ? "bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700"
-                : "bg-red-500/10 text-red-400";
-    default:
-        return type === "bar"
-            ? "bg-gradient-to-r from-blue-400 to-blue-500"
-            : type === "button"
-                ? "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
-                : "bg-blue-500/10 text-blue-400";
+        case 0:
+            return type === "bar"
+                ? "bg-gradient-to-r from-blue-400 to-blue-500"
+                : type === "button"
+                    ? "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+                    : "bg-blue-500/10 text-blue-400";
+        case 1:
+            return type === "bar"
+                ? "bg-gradient-to-r from-teal-400 to-green-500"
+                : type === "button"
+                    ? "bg-gradient-to-r from-teal-500 to-green-600 hover:from-teal-600 hover:to-green-700"
+                    : "bg-teal-500/10 text-teal-400";
+        case 2:
+            return type === "bar"
+                ? "bg-gradient-to-r from-purple-400 to-blue-500"
+                : type === "button"
+                    ? "bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700"
+                    : "bg-purple-500/10 text-purple-400";
+        case 3:
+            return type === "bar"
+                ? "bg-gradient-to-r from-amber-400 to-orange-500"
+                : type === "button"
+                    ? "bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700"
+                    : "bg-amber-500/10 text-amber-400";
+        case 4:
+            return type === "bar"
+                ? "bg-gradient-to-r from-red-400 to-pink-500"
+                : type === "button"
+                    ? "bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700"
+                    : "bg-red-500/10 text-red-400";
+        default:
+            return type === "bar"
+                ? "bg-gradient-to-r from-blue-400 to-blue-500"
+                : type === "button"
+                    ? "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+                    : "bg-blue-500/10 text-blue-400";
     }
 }
 

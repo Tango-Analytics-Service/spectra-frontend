@@ -32,7 +32,7 @@ export const WithText = {
     render: () => (
         <Toggle aria-label="Toggle italic">
             <FontItalicIcon className="h-4 w-4" />
-      Italic
+            Italic
         </Toggle>
     ),
     args: {},
