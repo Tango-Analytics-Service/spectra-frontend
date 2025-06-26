@@ -1,6 +1,6 @@
 // src/components/filters/FiltersList.tsx
 import React, { useState, useEffect, useMemo } from "react";
-import {  useFilters } from "@/contexts/FilterContext";
+import { useFilters } from "@/contexts/FilterContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -17,7 +17,7 @@ import {
 } from "@/lib/design-system";
 import { EmptyState, LoadingState } from "@/components/ui/dialog-components";
 
-interface FiltersListProps {
+export interface FiltersListProps {
     onSelectFilter?: (id: string) => void;
     selectedFilters?: string[];
     showActions?: boolean;
@@ -42,12 +42,12 @@ const CATEGORIES = [
     "Другое",
 ] as const;
 
-const FiltersList: React.FC<FiltersListProps> = ({
+export default function FiltersList({
     onSelectFilter,
     selectedFilters = [],
     showActions = true,
     height = "h-[600px]",
-}) => {
+}: FiltersListProps) {
     const {
         systemFilters,
         userFilters,
@@ -109,8 +109,8 @@ const FiltersList: React.FC<FiltersListProps> = ({
         return filteredByCategory.filter(
             (filter) =>
                 filter.name.toLowerCase().includes(query) ||
-        filter.criteria.toLowerCase().includes(query) ||
-        (filter.category && filter.category.toLowerCase().includes(query)),
+                filter.criteria.toLowerCase().includes(query) ||
+                (filter.category && filter.category.toLowerCase().includes(query)),
         );
     }, [filteredByCategory, searchQuery]);
 
@@ -140,12 +140,12 @@ const FiltersList: React.FC<FiltersListProps> = ({
     };
 
     const handleEditFilter = (id: string) => {
-    // TODO: Реализовать редактирование фильтра
+        // TODO: Реализовать редактирование фильтра
         console.log("Edit filter:", id);
     };
 
     const handleDuplicateFilter = (id: string) => {
-    // TODO: Реализовать дублирование фильтра
+        // TODO: Реализовать дублирование фильтра
         console.log("Duplicate filter:", id);
     };
 
@@ -243,19 +243,14 @@ const FiltersList: React.FC<FiltersListProps> = ({
                                     ? "Создайте свой первый фильтр"
                                     : "Фильтры не загружены"
                         }
-                        action={
-                            showActions &&
-              !searchQuery &&
-              !activeCategory &&
-              activeType === "my" ? (
-                                    <Button
-                                        onClick={() => setShowCreateDialog(true)}
-                                        className={createButtonStyle("primary")}
-                                    >
-                                        Создать фильтр
-                                    </Button>
-                                ) : undefined
-                        }
+                        action={showActions && !searchQuery && !activeCategory && activeType === "my" ? (
+                            <Button
+                                onClick={() => setShowCreateDialog(true)}
+                                className={createButtonStyle("primary")}
+                            >
+                                Создать фильтр
+                            </Button>
+                        ) : undefined}
                     />
                 ) : (
                     <div className={cn(`space-y-${spacing.sm}`)}>
@@ -283,6 +278,4 @@ const FiltersList: React.FC<FiltersListProps> = ({
             />
         </div>
     );
-};
-
-export default FiltersList;
+}

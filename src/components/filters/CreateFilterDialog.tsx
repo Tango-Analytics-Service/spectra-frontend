@@ -1,5 +1,5 @@
 // src/components/filters/CreateFilterDialog.tsx
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
 import { FilterCreateRequest, useFilters } from "@/contexts/FilterContext";
 import { Input } from "@/components/ui/input";
@@ -22,7 +22,7 @@ import {
     ActionButtons,
 } from "@/components/ui/dialog-components";
 
-interface CreateFilterDialogProps {
+export interface CreateFilterDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
 }
@@ -37,10 +37,7 @@ const FILTER_CATEGORIES = [
     { value: "Другое", label: "Другое" },
 ];
 
-const CreateFilterDialog: React.FC<CreateFilterDialogProps> = ({
-    open,
-    onOpenChange,
-}) => {
+export default function CreateFilterDialog({ open, onOpenChange, }: CreateFilterDialogProps) {
     const { createCustomFilter } = useFilters();
 
     // Состояние формы
@@ -202,6 +199,4 @@ const CreateFilterDialog: React.FC<CreateFilterDialogProps> = ({
             />
         </DialogWrapper>
     );
-};
-
-export default CreateFilterDialog;
+}

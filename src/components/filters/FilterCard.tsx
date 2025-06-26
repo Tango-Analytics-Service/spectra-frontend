@@ -21,7 +21,7 @@ import {
     createTextStyle,
 } from "@/lib/design-system";
 
-interface FilterCardProps {
+export interface FilterCardProps {
     filter: Filter;
     selected?: boolean;
     expanded?: boolean;
@@ -36,7 +36,7 @@ interface FilterCardProps {
 }
 
 // Иконки для категорий
-const getCategoryIcon = (category?: string) => {
+function getCategoryIcon(category?: string) {
     const iconProps = { size: 20 };
 
     switch (category) {
@@ -53,7 +53,7 @@ const getCategoryIcon = (category?: string) => {
     }
 };
 
-const FilterCard: React.FC<FilterCardProps> = ({
+export default function FilterCard({
     filter,
     selected = false,
     expanded = false,
@@ -62,7 +62,7 @@ const FilterCard: React.FC<FilterCardProps> = ({
     onViewDetails,
     showActions = true,
     className,
-}) => {
+}: FilterCardProps) {
     const [, setIsHovered] = useState(false);
 
     const handleCardClick = () => {
@@ -255,6 +255,4 @@ const FilterCard: React.FC<FilterCardProps> = ({
             </div>
         </button>
     );
-};
-
-export default FilterCard;
+}
