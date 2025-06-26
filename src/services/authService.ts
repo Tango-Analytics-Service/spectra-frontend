@@ -1,12 +1,19 @@
 // src/services/authService.ts
-import { TokenResponse, TelegramAuthRequest } from "../types/telegram";
 import { createDataCheckString } from "../utils/telegramWebApp";
+
+interface TokenResponse {
+    access_token: string;
+    refresh_token: string;
+    expires_in: number;
+    token_type: string;
+}
+interface TelegramAuthRequest {
+    data_check_string: string;
+}
 
 // Предполагаем, что API_URL определен где-то в настройках приложения
 const API_URL = import.meta.env.VITE_API_URL;
 const APP_ID = import.meta.env.VITE_APP_ID;
-
-console.log(API_URL, APP_ID);
 
 export const authenticateWithTelegram = async (): Promise<TokenResponse> => {
     const dataCheckString = createDataCheckString();
