@@ -4,209 +4,204 @@ import { Plus } from "lucide-react";
 import { FilterCreateRequest, useFilters } from "@/contexts/FilterContext";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Slider } from "@/components/ui/slider";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import {
-  createButtonStyle,
-  typography,
-  spacing,
-  components,
-  textColors,
-  createTextStyle,
+    spacing,
+    components,
 } from "@/lib/design-system";
 import {
-  DialogWrapper,
-  FormField,
-  ActionButtons,
+    DialogWrapper,
+    FormField,
+    ActionButtons,
 } from "@/components/ui/dialog-components";
 
 interface CreateFilterDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
 }
 
 // Доступные категории фильтров
 const FILTER_CATEGORIES = [
-  { value: "Содержание", label: "Содержание" },
-  { value: "Качество", label: "Качество" },
-  { value: "Безопасность", label: "Безопасность" },
-  { value: "Вовлеченность", label: "Вовлеченность" },
-  { value: "Рост", label: "Рост" },
-  { value: "Другое", label: "Другое" },
+    { value: "Содержание", label: "Содержание" },
+    { value: "Качество", label: "Качество" },
+    { value: "Безопасность", label: "Безопасность" },
+    { value: "Вовлеченность", label: "Вовлеченность" },
+    { value: "Рост", label: "Рост" },
+    { value: "Другое", label: "Другое" },
 ];
 
 const CreateFilterDialog: React.FC<CreateFilterDialogProps> = ({
-  open,
-  onOpenChange,
+    open,
+    onOpenChange,
 }) => {
-  const { createCustomFilter } = useFilters();
+    const { createCustomFilter } = useFilters();
 
-  // Состояние формы
-  const [formData, setFormData] = useState<FilterCreateRequest>({
-    name: "",
-    criteria: "",
-    threshold: 5,
-    strictness: 0.5,
-    category: "Содержание",
-  });
+    // Состояние формы
+    const [formData, setFormData] = useState<FilterCreateRequest>({
+        name: "",
+        criteria: "",
+        threshold: 5,
+        strictness: 0.5,
+        category: "Содержание",
+    });
 
-  // Состояния валидации
-  const [errors, setErrors] = useState<{
-    name?: string;
-    criteria?: string;
-  }>({});
+    // Состояния валидации
+    const [errors, setErrors] = useState<{
+        name?: string;
+        criteria?: string;
+    }>({});
 
-  // Состояние загрузки
-  const [isCreating, setIsCreating] = useState(false);
+    // Состояние загрузки
+    const [isCreating, setIsCreating] = useState(false);
 
-  // Сброс формы при закрытии диалога
-  useEffect(() => {
-    if (!open) {
-      setTimeout(() => {
-        setFormData({
-          name: "",
-          criteria: "",
-          threshold: 5,
-          strictness: 0.5,
-          category: "Содержание",
-        });
-        setErrors({});
-      }, 300);
-    }
-  }, [open]);
+    // Сброс формы при закрытии диалога
+    useEffect(() => {
+        if (!open) {
+            setTimeout(() => {
+                setFormData({
+                    name: "",
+                    criteria: "",
+                    threshold: 5,
+                    strictness: 0.5,
+                    category: "Содержание",
+                });
+                setErrors({});
+            }, 300);
+        }
+    }, [open]);
 
-  // Обработчики изменения полей
-  const handleFieldChange = (
-    field: keyof FilterCreateRequest,
-    value: string | number
-  ) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    
-    // Сброс ошибки при изменении поля
-    if (errors[field as keyof typeof errors]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
-    }
-  };
+    // Обработчики изменения полей
+    const handleFieldChange = (
+        field: keyof FilterCreateRequest,
+        value: string | number
+    ) => {
+        setFormData((prev) => ({ ...prev, [field]: value }));
 
-  // Валидация формы
-  const validateForm = (): boolean => {
-    const newErrors: typeof errors = {};
+        // Сброс ошибки при изменении поля
+        if (errors[field as keyof typeof errors]) {
+            setErrors((prev) => ({ ...prev, [field]: undefined }));
+        }
+    };
 
-    if (!formData.name.trim()) {
-      newErrors.name = "Необходимо указать название фильтра";
-    }
+    // Валидация формы
+    const validateForm = (): boolean => {
+        const newErrors: typeof errors = {};
 
-    if (!formData.criteria.trim()) {
-      newErrors.criteria = "Необходимо указать критерии фильтра";
-    }
+        if (!formData.name.trim()) {
+            newErrors.name = "Необходимо указать название фильтра";
+        }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+        if (!formData.criteria.trim()) {
+            newErrors.criteria = "Необходимо указать критерии фильтра";
+        }
 
-  // Обработчик создания фильтра
-  const handleCreateFilter = async () => {
-    if (!validateForm()) {
-      return;
-    }
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
 
-    setIsCreating(true);
-    try {
-      const newFilter = await createCustomFilter(formData);
-      if (newFilter) {
-        onOpenChange(false);
-      }
-    } catch (error) {
-      console.error("Error creating filter:", error);
-    } finally {
-      setIsCreating(false);
-    }
-  };
+    // Обработчик создания фильтра
+    const handleCreateFilter = async () => {
+        if (!validateForm()) {
+            return;
+        }
 
-  // Проверка валидности формы для блокировки кнопки
-  const isFormValid = formData.name.trim() && formData.criteria.trim();
+        setIsCreating(true);
+        try {
+            const newFilter = await createCustomFilter(formData);
+            if (newFilter) {
+                onOpenChange(false);
+            }
+        } catch (error) {
+            console.error("Error creating filter:", error);
+        } finally {
+            setIsCreating(false);
+        }
+    };
 
-  return (
-    <DialogWrapper
-      open={open}
-      onOpenChange={onOpenChange}
-      title="Создание фильтра"
-      description="Создайте свой фильтр для анализа каналов по выбранным критериям"
-      maxWidth="max-w-2xl"
-    >
-      <div className={cn("grid", `gap-${spacing.md}`, `py-${spacing.md}`)}>
-        {/* Название фильтра */}
-        <FormField
-          label="Название фильтра"
-          required
-          error={errors.name}
+    // Проверка валидности формы для блокировки кнопки
+    const isFormValid = formData.name.trim() && formData.criteria.trim();
+
+    return (
+        <DialogWrapper
+            open={open}
+            onOpenChange={onOpenChange}
+            title="Создание фильтра"
+            description="Создайте свой фильтр для анализа каналов по выбранным критериям"
+            maxWidth="max-w-2xl"
         >
-          <Input
-            placeholder="Например: Контент без нецензурной лексики"
-            value={formData.name}
-            onChange={(e) => handleFieldChange("name", e.target.value)}
-            className={components.input.base}
-          />
-        </FormField>
-
-        {/* Категория */}
-        <FormField label="Категория">
-          <Select
-            value={formData.category}
-            onValueChange={(value) => handleFieldChange("category", value)}
-          >
-            <SelectTrigger className={components.input.base}>
-              <SelectValue placeholder="Выберите категорию" />
-            </SelectTrigger>
-            <SelectContent className={cn("bg-slate-800 border-blue-500/20")}>
-              {FILTER_CATEGORIES.map((category) => (
-                <SelectItem
-                  key={category.value}
-                  value={category.value}
-                  className="hover:bg-blue-500/10 focus:bg-blue-500/10 text-white"
+            <div className={cn("grid", `gap-${spacing.md}`, `py-${spacing.md}`)}>
+                {/* Название фильтра */}
+                <FormField
+                    label="Название фильтра"
+                    required
+                    error={errors.name}
                 >
-                  {category.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </FormField>
+                    <Input
+                        placeholder="Например: Контент без нецензурной лексики"
+                        value={formData.name}
+                        onChange={(e) => handleFieldChange("name", e.target.value)}
+                        className={components.input.base}
+                    />
+                </FormField>
 
-        {/* Критерии фильтра */}
-        <FormField
-          label="Критерии фильтра"
-          required
-          error={errors.criteria}
-        >
-          <Textarea
-            placeholder="Опишите, каким критериям должен соответствовать канал..."
-            value={formData.criteria}
-            onChange={(e) => handleFieldChange("criteria", e.target.value)}
-            className={cn(components.input.base, "min-h-[100px] resize-none")}
-            rows={4}
-          />
-        </FormField>
+                {/* Категория */}
+                <FormField label="Категория">
+                    <Select
+                        value={formData.category}
+                        onValueChange={(value) => handleFieldChange("category", value)}
+                    >
+                        <SelectTrigger className={components.input.base}>
+                            <SelectValue placeholder="Выберите категорию" />
+                        </SelectTrigger>
+                        <SelectContent className={cn("bg-slate-800 border-blue-500/20")}>
+                            {FILTER_CATEGORIES.map((category) => (
+                                <SelectItem
+                                    key={category.value}
+                                    value={category.value}
+                                    className="hover:bg-blue-500/10 focus:bg-blue-500/10 text-white"
+                                >
+                                    {category.label}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </FormField>
 
-      </div>
+                {/* Критерии фильтра */}
+                <FormField
+                    label="Критерии фильтра"
+                    required
+                    error={errors.criteria}
+                >
+                    <Textarea
+                        placeholder="Опишите, каким критериям должен соответствовать канал..."
+                        value={formData.criteria}
+                        onChange={(e) => handleFieldChange("criteria", e.target.value)}
+                        className={cn(components.input.base, "min-h-[100px] resize-none")}
+                        rows={4}
+                    />
+                </FormField>
 
-      <ActionButtons
-        onCancel={() => onOpenChange(false)}
-        onConfirm={handleCreateFilter}
-        confirmText="Создать фильтр"
-        confirmDisabled={!isFormValid}
-        isLoading={isCreating}
-        loadingText="Создание..."
-        confirmIcon={<Plus size={16} />}
-      />
-    </DialogWrapper>
-  );
+            </div>
+
+            <ActionButtons
+                onCancel={() => onOpenChange(false)}
+                onConfirm={handleCreateFilter}
+                confirmText="Создать фильтр"
+                confirmDisabled={!isFormValid}
+                isLoading={isCreating}
+                loadingText="Создание..."
+                confirmIcon={<Plus size={16} />}
+            />
+        </DialogWrapper>
+    );
 };
 
 export default CreateFilterDialog;

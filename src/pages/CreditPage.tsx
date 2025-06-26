@@ -1,7 +1,7 @@
 import React from "react";
 
 const Dummycomponent = () => {
-  return <div />;
+    return <div />;
 };
 
 export default Dummycomponent;
