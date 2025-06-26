@@ -1,5 +1,4 @@
 // src/components/filters/FiltersHeader.tsx
-import React from "react";
 import { ArrowLeft, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -11,7 +10,7 @@ import {
     textColors,
 } from "@/lib/design-system";
 
-interface FiltersHeaderProps {
+export interface FiltersHeaderProps {
     totalFilters: number;
     systemFiltersCount: number;
     customFiltersCount: number;
@@ -19,13 +18,13 @@ interface FiltersHeaderProps {
     onBack?: () => void;
 }
 
-const FiltersHeader: React.FC<FiltersHeaderProps> = ({
+export default function FiltersHeader({
     totalFilters,
     systemFiltersCount,
     customFiltersCount,
     onCreateFilter,
     onBack,
-}) => {
+}: FiltersHeaderProps) {
     return (
         <div
             className={cn(
@@ -50,7 +49,7 @@ const FiltersHeader: React.FC<FiltersHeaderProps> = ({
                     )}
                     <h1 className={typography.h1}>Фильтры</h1>
                 </div>
-        
+
                 <Button
                     onClick={onCreateFilter}
                     className={cn(createButtonStyle("primary"), "h-9")}
@@ -76,6 +75,4 @@ const FiltersHeader: React.FC<FiltersHeaderProps> = ({
             </div>
         </div>
     );
-};
-
-export default FiltersHeader;
+}

@@ -1,5 +1,5 @@
 // src/components/layout/MainLayout.tsx
-import React, { ReactNode } from "react";
+import { ReactNode } from "react";
 import BottomNavigation from "../navigation/BottomNavigation";
 import { useTelegramNavigation } from "../../hooks/useTelegramNavigation";
 import PageTransition from "./PageTransition";
@@ -13,11 +13,11 @@ import {
 } from "@/lib/design-system";
 import AppHeader from "../common/AppHeader";
 
-interface MainLayoutProps {
+export interface MainLayoutProps {
     children: ReactNode;
 }
 
-const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
+export default function MainLayout({ children }: MainLayoutProps) {
     const { isTelegram } = useAuth();
 
     useTelegramNavigation();
@@ -76,6 +76,4 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             )}
         </div>
     );
-};
-
-export default MainLayout;
+}

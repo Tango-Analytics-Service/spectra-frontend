@@ -1,5 +1,4 @@
 // src/components/filters/FiltersSearchBar.tsx
-import React from "react";
 import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -9,51 +8,11 @@ import {
     animations,
     components,
 } from "@/lib/design-system";
+import QuickFilterChip from "./QuickFilterChip";
 
 export type FilterType = "all" | "system" | "custom";
 
-interface QuickFilterChipProps {
-    label: string;
-    count?: number;
-    active: boolean;
-    onClick: () => void;
-}
-
-const QuickFilterChip: React.FC<QuickFilterChipProps> = ({
-    label,
-    count,
-    active,
-    onClick,
-}) => {
-    return (
-        <button
-            onClick={onClick}
-            className={cn(
-                "inline-flex items-center gap-1 text-xs font-medium transition-all duration-200",
-                `px-${spacing.sm} py-1`,
-                "rounded-full border",
-                "whitespace-nowrap touch-manipulation", // для лучшего тача на мобильных
-                active
-                    ? "bg-blue-500/20 text-blue-300 border-blue-500/40"
-                    : "bg-slate-800/50 text-gray-400 border-slate-600/50 hover:bg-slate-700/50 hover:border-slate-500/50",
-            )}
-        >
-            {label}
-            {count !== undefined && (
-                <span
-                    className={cn(
-                        "text-xs",
-                        active ? "text-blue-200" : "text-gray-500",
-                    )}
-                >
-                    {count}
-                </span>
-            )}
-        </button>
-    );
-};
-
-interface FiltersSearchBarProps {
+export interface FiltersSearchBarProps {
     searchQuery: string;
     onSearchChange: (query: string) => void;
     activeFilter: FilterType;
@@ -63,7 +22,7 @@ interface FiltersSearchBarProps {
     totalFilters: number;
 }
 
-const FiltersSearchBar: React.FC<FiltersSearchBarProps> = ({
+export default function FiltersSearchBar({
     searchQuery,
     onSearchChange,
     activeFilter,
@@ -71,7 +30,7 @@ const FiltersSearchBar: React.FC<FiltersSearchBarProps> = ({
     systemFiltersCount,
     customFiltersCount,
     totalFilters,
-}) => {
+}: FiltersSearchBarProps) {
     const handleClearSearch = () => {
         onSearchChange("");
     };
@@ -139,5 +98,3 @@ const FiltersSearchBar: React.FC<FiltersSearchBarProps> = ({
         </div>
     );
 };
-
-export default FiltersSearchBar;

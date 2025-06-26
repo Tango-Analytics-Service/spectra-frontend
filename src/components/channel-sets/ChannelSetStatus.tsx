@@ -1,5 +1,4 @@
 // src/components/channel-sets/ChannelSetStatus.tsx
-import React from "react";
 import { CheckCircle, Clock, Plus, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createTextStyle, textColors } from "@/lib/design-system";
@@ -7,17 +6,13 @@ import { createTextStyle, textColors } from "@/lib/design-system";
 // Максимальное количество каналов в наборе
 const MAX_CHANNELS_PER_SET = 20;
 
-interface ChannelSetStatusProps {
+export interface ChannelSetStatusProps {
     channelCount: number;
     allParsed: boolean;
     className?: string;
 }
 
-const ChannelSetStatus: React.FC<ChannelSetStatusProps> = ({
-    channelCount,
-    allParsed,
-    className,
-}) => {
+export default function ChannelSetStatus({ channelCount, allParsed, className, }: ChannelSetStatusProps) {
     // Определяем статус набора
     const getStatus = () => {
         if (channelCount === 0) {
@@ -66,6 +61,4 @@ const ChannelSetStatus: React.FC<ChannelSetStatusProps> = ({
             </span>
         </div>
     );
-};
-
-export default ChannelSetStatus;
+}

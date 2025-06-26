@@ -1,5 +1,5 @@
 // src/components/credits/CreditsPage.tsx
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import CreditBalanceCard from "./CreditBalanceCard";
 import CreditTransactionsList from "./CreditTransactionsList";
 import CreditPackagesGrid from "./CreditPackagesGrid";
@@ -16,7 +16,7 @@ import {
     animations,
 } from "@/lib/design-system";
 
-const CreditsPage = () => {
+export default function CreditsPage() {
     // Get data and methods from context
     const {
         balance,
@@ -121,7 +121,7 @@ const CreditsPage = () => {
                                     </div>
                                 </div>
                             </div>
-              
+
                             <CreditPackagesGrid
                                 packages={packages}
                                 onPurchase={handlePurchaseClick}
@@ -171,6 +171,4 @@ const CreditsPage = () => {
             </main>
         </div>
     );
-};
-
-export default CreditsPage;
+}

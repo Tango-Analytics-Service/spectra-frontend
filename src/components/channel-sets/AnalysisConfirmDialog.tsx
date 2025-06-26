@@ -1,5 +1,5 @@
 // src/components/channel-sets/AnalysisConfirmDialog.tsx
-import React, { useState } from "react";
+import { useState } from "react";
 import { BarChart3, Clock, Users, LoaderCircle } from "lucide-react";
 import {
     Dialog,
@@ -22,19 +22,19 @@ import {
 } from "@/lib/design-system";
 import { ChannelSet } from "@/types/channel-sets";
 
-interface AnalysisConfirmDialogProps {
+export interface AnalysisConfirmDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     channelSet?: ChannelSet;
     onConfirm: (setId: string) => Promise<void>;
 }
 
-const AnalysisConfirmDialog: React.FC<AnalysisConfirmDialogProps> = ({
+export default function AnalysisConfirmDialog({
     open,
     onOpenChange,
     channelSet,
     onConfirm,
-}) => {
+}: AnalysisConfirmDialogProps) {
     const [isLoading, setIsLoading] = useState(false);
 
     const handleConfirm = async () => {
@@ -116,7 +116,7 @@ const AnalysisConfirmDialog: React.FC<AnalysisConfirmDialogProps> = ({
                         )}
                     >
                         <p className={cn(createTextStyle("small", "muted"))}>
-                            Анализ может занять некоторое время. Вы получите уведомление 
+                            Анализ может занять некоторое время. Вы получите уведомление
                             о завершении.
                         </p>
                     </div>
@@ -153,5 +153,3 @@ const AnalysisConfirmDialog: React.FC<AnalysisConfirmDialogProps> = ({
         </Dialog>
     );
 };
-
-export default AnalysisConfirmDialog;

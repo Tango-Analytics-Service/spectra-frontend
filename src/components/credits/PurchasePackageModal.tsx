@@ -15,19 +15,14 @@ import { CreditCard, Coins } from "lucide-react";
 import { CreditPackage } from "@/types/credits";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
-interface PurchasePackageModalProps {
+export interface PurchasePackageModalProps {
     isOpen: boolean;
     onClose: () => void;
     onPurchase: (packageId: string, paymentMethod: string) => void;
     selectedPackage: CreditPackage | null;
 }
 
-const PurchasePackageModal = ({
-    isOpen,
-    onClose,
-    onPurchase,
-    selectedPackage,
-}: PurchasePackageModalProps) => {
+export default function PurchasePackageModal({ isOpen, onClose, onPurchase, selectedPackage, }: PurchasePackageModalProps) {
     const [paymentMethod, setPaymentMethod] = useState<string>("card");
 
     if (!selectedPackage) return null;
@@ -164,6 +159,4 @@ const PurchasePackageModal = ({
             </DialogContent>
         </Dialog>
     );
-};
-
-export default PurchasePackageModal;
+}

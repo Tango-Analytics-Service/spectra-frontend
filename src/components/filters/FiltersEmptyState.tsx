@@ -1,5 +1,4 @@
 // src/components/filters/FiltersEmptyState.tsx
-import React from "react";
 import { Filter, Search, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -15,7 +14,7 @@ import type { FilterType } from "./FiltersSearchBar";
 
 type EmptyStateType = "no-filters" | "no-search-results" | "no-custom-filters";
 
-interface FiltersEmptyStateProps {
+export interface FiltersEmptyStateProps {
     type: EmptyStateType;
     searchQuery?: string;
     activeFilter?: FilterType;
@@ -47,13 +46,7 @@ const EmptyStateConfig = {
     },
 } as const;
 
-const FiltersEmptyState: React.FC<FiltersEmptyStateProps> = ({
-    type,
-    searchQuery,
-    activeFilter,
-    onCreateFilter,
-    onClearSearch,
-}) => {
+export default function FiltersEmptyState({ type, searchQuery, activeFilter, onCreateFilter, onClearSearch, }: FiltersEmptyStateProps) {
     const config = EmptyStateConfig[type];
     const IconComponent = config.icon;
 
@@ -111,8 +104,7 @@ const FiltersEmptyState: React.FC<FiltersEmptyStateProps> = ({
                 </p>
 
                 {/* Action button */}
-                {((type === "no-search-results" && onClearSearch) ||
-          (type !== "no-search-results" && onCreateFilter)) && (
+                {((type === "no-search-results" && onClearSearch) || (type !== "no-search-results" && onCreateFilter)) && (
                     <Button
                         onClick={handleAction}
                         className={createButtonStyle("primary")}
@@ -137,6 +129,4 @@ const FiltersEmptyState: React.FC<FiltersEmptyStateProps> = ({
             </div>
         </div>
     );
-};
-
-export default FiltersEmptyState;
+}

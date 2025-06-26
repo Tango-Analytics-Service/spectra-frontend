@@ -33,7 +33,7 @@ import {
 import { cn } from "@/lib/utils";
 import { ChannelSet } from "@/types/channel-sets";
 
-const ChannelSetPage = () => {
+export default function ChannelSetPage() {
     const navigate = useNavigate();
     const { channelSets, isLoading, fetchChannelSets, createChannelSet } =
         useChannelSets();
@@ -328,6 +328,4 @@ const ChannelSetPage = () => {
             />
         </div>
     );
-};
-
-export default ChannelSetPage;
+}

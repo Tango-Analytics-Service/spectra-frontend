@@ -20,10 +20,8 @@ import {
     createCardStyle,
     createBadgeStyle,
 } from "@/lib/design-system";
-import React from "react";
 
-// Компонент только для отображения списка наборов каналов
-const ChannelSetsList: React.FC<{
+export interface ChannelSetsListProps {
     channelSets: {
         id: string,
         name: string,
@@ -39,14 +37,17 @@ const ChannelSetsList: React.FC<{
     onSelectSet: (id: string) => void,
     onViewDetails: (id: string) => void,
     viewMode: string,
-}> = ({
+}
+
+// Компонент только для отображения списка наборов каналов
+export default function ChannelSetsList({
     channelSets,
     isLoading,
     selectedSetId,
     onSelectSet,
     onViewDetails,
     viewMode = "grid",
-}) => {
+}: ChannelSetsListProps) {
     // Format date to DD.MM.YYYY
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
@@ -290,6 +291,4 @@ const ChannelSetsList: React.FC<{
             ))}
         </div>
     );
-};
-
-export default ChannelSetsList;
+}

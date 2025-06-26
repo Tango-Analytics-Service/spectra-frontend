@@ -1,5 +1,5 @@
 // src/components/navigation/WebNavigation.tsx
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
@@ -26,8 +26,10 @@ import {
     Search,
     Home,
 } from "lucide-react";
+import NavLink from "./NavLink";
+import MobileNavLink from "./MobileNavLink";
 
-const WebNavigation: React.FC = () => {
+export default function WebNavigation() {
     const { isAuthenticated, user, logout } = useAuth();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -126,7 +128,7 @@ const WebNavigation: React.FC = () => {
                         ) : (
                             <Button
                                 className={createButtonStyle("primary")}
-                                onClick={() => {}}
+                                onClick={() => { }}
                             >
                                 Войти
                             </Button>
@@ -206,55 +208,4 @@ const WebNavigation: React.FC = () => {
             )}
         </header>
     );
-};
-
-// Desktop nav link
-interface NavLinkProps {
-    to: string;
-    label: string;
 }
-
-const NavLink: React.FC<NavLinkProps> = ({ to, label }) => {
-    return (
-        <Link
-            to={to}
-            className={cn(
-                "px-3 py-2 rounded-md text-sm font-medium transition-colors",
-                "text-gray-300 hover:text-blue-400 hover:bg-blue-500/10",
-            )}
-        >
-            {label}
-        </Link>
-    );
-};
-
-// Mobile nav link
-interface MobileNavLinkProps {
-    to: string;
-    icon: React.ReactNode;
-    label: string;
-    onClick?: () => void;
-}
-
-const MobileNavLink: React.FC<MobileNavLinkProps> = ({
-    to,
-    icon,
-    label,
-    onClick,
-}) => {
-    return (
-        <Link
-            to={to}
-            className={cn(
-                "flex items-center px-2 py-2 rounded-md transition-colors",
-                "text-gray-300 hover:text-blue-400 hover:bg-blue-500/10",
-            )}
-            onClick={onClick}
-        >
-            <span className="mr-3 text-blue-400">{icon}</span>
-            {label}
-        </Link>
-    );
-};
-
-export default WebNavigation;

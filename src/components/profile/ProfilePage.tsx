@@ -1,5 +1,4 @@
 // src/components/profile/ProfilePage.tsx
-import React from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -10,7 +9,7 @@ import {
     animations,
 } from "@/lib/design-system";
 
-const ProfilePage: React.FC = () => {
+export default function ProfilePage() {
     const { user, logout } = useAuth();
 
     return (
@@ -98,6 +97,4 @@ const ProfilePage: React.FC = () => {
             </div>
         </div>
     );
-};
-
-export default ProfilePage;
+}

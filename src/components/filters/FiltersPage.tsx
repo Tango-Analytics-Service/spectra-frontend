@@ -1,5 +1,5 @@
 // src/components/filters/FiltersPage.tsx - обновленная версия с общим StatsCard
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useFilters } from "@/contexts/FilterContext";
 import { Button } from "@/components/ui/button";
 import { Plus, Filter as FilterIcon, Settings } from "lucide-react";
@@ -18,7 +18,7 @@ import {
     createTextStyle,
 } from "@/lib/design-system";
 
-const FiltersPage: React.FC = () => {
+export default function FiltersPage() {
     const {
         fetchSystemFilters,
         fetchUserFilters,
@@ -39,7 +39,7 @@ const FiltersPage: React.FC = () => {
     // Подсчет статистики
     const isLoading = isSystemFiltersLoading || isUserFiltersLoading;
     const totalFilters =
-    systemFilters.length + userFilters.filter((f) => f.is_custom).length;
+        systemFilters.length + userFilters.filter((f) => f.is_custom).length;
     const systemFiltersCount = systemFilters.length;
     const customFiltersCount = userFilters.filter((f) => f.is_custom).length;
 
@@ -147,6 +147,4 @@ const FiltersPage: React.FC = () => {
             />
         </div>
     );
-};
-
-export default FiltersPage;
+}

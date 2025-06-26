@@ -4,13 +4,11 @@ import { ArrowUpRight, ArrowDownRight, Filter } from "lucide-react";
 import { CreditTransaction } from "@/types/credits";
 import { Button } from "@/components/ui/button";
 
-interface CreditTransactionsListProps {
+export interface CreditTransactionsListProps {
     transactions: CreditTransaction[];
 }
 
-const CreditTransactionsList = ({
-    transactions,
-}: CreditTransactionsListProps) => {
+export default function CreditTransactionsList({ transactions, }: CreditTransactionsListProps) {
     // Форматирование даты
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
@@ -52,8 +50,7 @@ const CreditTransactionsList = ({
                                     <div
                                         className={`p-2 rounded-full ${transaction.amount > 0
                                             ? "bg-green-500/10 text-green-400"
-                                            : "bg-amber-500/10 text-amber-400"
-                                        } mr-3`}
+                                            : "bg-amber-500/10 text-amber-400"} mr-3`}
                                     >
                                         {transaction.amount > 0 ? (
                                             <ArrowUpRight size={16} />
@@ -71,8 +68,7 @@ const CreditTransactionsList = ({
                                     </div>
                                 </div>
                                 <div
-                                    className={`font-semibold ${transaction.amount > 0 ? "text-green-400" : "text-amber-400"
-                                    }`}
+                                    className={`font-semibold ${transaction.amount > 0 ? "text-green-400" : "text-amber-400"}`}
                                 >
                                     {transaction.amount > 0 ? "+" : ""}
                                     {transaction.amount}
@@ -84,6 +80,4 @@ const CreditTransactionsList = ({
             </CardContent>
         </Card>
     );
-};
-
-export default CreditTransactionsList;
+}

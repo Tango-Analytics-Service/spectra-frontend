@@ -1,23 +1,20 @@
 // src/components/auth/LoginPage.tsx
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
     typography,
     spacing,
     gradients,
-    createButtonStyle,
     animations,
 } from "@/lib/design-system";
+import LoginButton from "./LoginButton";
 
-const LoginPage: React.FC = () => {
-    const { isAuthenticated, login, isLoading, error, isTelegram } = useAuth();
+export default function LoginPage() {
+    const { isAuthenticated, error } = useAuth();
     const navigate = useNavigate();
 
-    const telegramBotUrl =
-    import.meta.env.VITE_TELEGRAM_BOT_URL;
 
     useEffect(() => {
         if (isAuthenticated) {
@@ -25,47 +22,6 @@ const LoginPage: React.FC = () => {
         }
     }, [isAuthenticated, navigate]);
 
-    const handleLogin = async () => {
-        if (!isLoading) {
-            await login();
-        }
-    };
-
-    const renderLoginButton = () => {
-        if (isTelegram) {
-            return (
-                <Button
-                    onClick={handleLogin}
-                    disabled={isLoading}
-                    className={cn(
-                        createButtonStyle("primary"),
-                        "w-full sm:w-auto shadow-md hover:shadow-lg transition-all",
-                        `px-${spacing.lg} py-${spacing.sm}`,
-                    )}
-                >
-                    {isLoading ? "Авторизация..." : "Войти через Telegram"}
-                </Button>
-            );
-        } else {
-            return (
-                <div className="text-center">
-                    <p className="mb-4 text-red-400">
-                        Приложение должно быть открыто через Telegram
-                    </p>
-                    <a
-                        href={telegramBotUrl}
-                        className={cn(
-                            "inline-block rounded-md font-medium transition-colors",
-                            createButtonStyle("primary"),
-                            `px-${spacing.lg} py-${spacing.sm}`,
-                        )}
-                    >
-                        Открыть в Telegram
-                    </a>
-                </div>
-            );
-        }
-    };
 
     return (
         <div
@@ -99,9 +55,7 @@ const LoginPage: React.FC = () => {
                 </div>
             )}
 
-            {renderLoginButton()}
+            <LoginButton />
         </div>
     );
 };
-
-export default LoginPage;
