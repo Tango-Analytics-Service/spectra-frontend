@@ -1,138 +1,137 @@
 // src/contexts/AuthContext.tsx
 import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  ReactNode,
+    createContext,
+    useContext,
+    useState,
+    useEffect,
+    ReactNode,
+    useCallback,
 } from "react";
-import { WebAppUser } from "../types/telegram";
 import {
-  authenticateWithTelegram,
-  getToken,
-  isTokenValid,
-  saveToken,
+    authenticateWithTelegram,
+    isTokenValid,
+    saveToken,
 } from "../services/authService";
 import {
-  getUserFromTelegram,
-  isTelegramWebApp,
-  notifyAppReady,
+    getUserFromTelegram,
+    isTelegramWebApp,
+    notifyAppReady,
 } from "../utils/telegramWebApp";
 
 interface AuthContextType {
-  isAuthenticated: boolean;
-  user: WebAppUser | null;
-  login: () => Promise<void>;
-  logout: () => void;
-  isLoading: boolean;
-  error: string | null;
-  isTelegram: boolean;
+    isAuthenticated: boolean;
+    user: WebAppUser | null;
+    login: () => Promise<void>;
+    logout: () => void;
+    isLoading: boolean;
+    error: string | null;
+    isTelegram: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({
-  children,
+    children,
 }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [user, setUser] = useState<WebAppUser | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const isTelegram = isTelegramWebApp();
+    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+    const [user, setUser] = useState<WebAppUser | null>(null);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
+    const isTelegram = isTelegramWebApp();
 
-  useEffect(() => {
-    const initialize = async () => {
-      setIsLoading(true);
+    const login = useCallback(async (): Promise<void> => {
+        setIsLoading(true);
+        setError(null);
 
-      try {
-        // Если находимся в Telegram WebApp и есть данные пользователя
-        if (isTelegram) {
-          const telegramUser = getUserFromTelegram();
-
-          if (telegramUser) {
-            setUser(telegramUser);
-
-            // Проверим, нужна ли авторизация
-            if (!isTokenValid()) {
-              await login();
+        try {
+            if (isTelegram) {
+                // Only for dev mode, in production this should be await authenticateWithTelegram();
+                const token = await authenticateWithTelegram();
+                saveToken(token);
+                setIsAuthenticated(true);
             } else {
-              setIsAuthenticated(true);
+                // Для веб-браузера можно добавить другой способ авторизации
+                setError("Non-Telegram authorization not supported yet");
             }
-          }
-
-          // Сообщаем Telegram, что приложение готово
-          notifyAppReady();
-        } else if (isTokenValid()) {
-          // Если это обычный веб-браузер и токен уже есть
-          setIsAuthenticated(true);
-          // Тут можно добавить запрос на получение данных пользователя с бэкенда
+        } catch (e) {
+            const errorMessage =
+                e instanceof Error ? e.message : "Authentication failed";
+            setError(errorMessage);
+            console.error("Login error:", e);
+        } finally {
+            setIsLoading(false);
         }
-      } catch (e) {
-        const errorMessage = e instanceof Error ? e.message : "Unknown error";
-        setError(errorMessage);
-        console.error("Auth initialization error:", e);
-      } finally {
-        setIsLoading(false);
-      }
+    }, [isTelegram]);
+
+    useEffect(() => {
+        const initialize = async () => {
+            setIsLoading(true);
+
+            try {
+                // Если находимся в Telegram WebApp и есть данные пользователя
+                if (isTelegram) {
+                    const telegramUser = getUserFromTelegram();
+
+                    if (telegramUser) {
+                        setUser(telegramUser);
+
+                        // Проверим, нужна ли авторизация
+                        if (!isTokenValid()) {
+                            await login();
+                        } else {
+                            setIsAuthenticated(true);
+                        }
+                    }
+
+                    // Сообщаем Telegram, что приложение готово
+                    notifyAppReady();
+                } else if (isTokenValid()) {
+                    // Если это обычный веб-браузер и токен уже есть
+                    setIsAuthenticated(true);
+                    // Тут можно добавить запрос на получение данных пользователя с бэкенда
+                }
+            } catch (e) {
+                const errorMessage = e instanceof Error ? e.message : "Unknown error";
+                setError(errorMessage);
+                console.error("Auth initialization error:", e);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        initialize();
+    }, [isTelegram, login]);
+
+    const logout = (): void => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("token_type");
+        localStorage.removeItem("expires_at");
+        localStorage.removeItem("refresh_token");
+        setIsAuthenticated(false);
+        setUser(null);
     };
 
-    initialize();
-  }, []);
-
-  const login = async (): Promise<void> => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      if (isTelegram) {
-        // Only for dev mode, in production this should be await authenticateWithTelegram();
-        const token = await authenticateWithTelegram();
-        saveToken(token);
-        setIsAuthenticated(true);
-      } else {
-        // Для веб-браузера можно добавить другой способ авторизации
-        setError("Non-Telegram authorization not supported yet");
-      }
-    } catch (e) {
-      const errorMessage =
-        e instanceof Error ? e.message : "Authentication failed";
-      setError(errorMessage);
-      console.error("Login error:", e);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const logout = (): void => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("token_type");
-    localStorage.removeItem("expires_at");
-    localStorage.removeItem("refresh_token");
-    setIsAuthenticated(false);
-    setUser(null);
-  };
-
-  return (
-    <AuthContext.Provider
-      value={{
-        isAuthenticated,
-        user,
-        login,
-        logout,
-        isLoading,
-        error,
-        isTelegram,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
+    return (
+        <AuthContext.Provider
+            value={{
+                isAuthenticated,
+                user,
+                login,
+                logout,
+                isLoading,
+                error,
+                isTelegram,
+            }}
+        >
+            {children}
+        </AuthContext.Provider>
+    );
 };
 
 export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
+    const context = useContext(AuthContext);
+    if (context === undefined) {
+        throw new Error("useAuth must be used within an AuthProvider");
+    }
+    return context;
 };

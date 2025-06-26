@@ -18,92 +18,94 @@ import { AnalysisTasksProvider } from "./contexts/AnalysisTasksContext";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import LoadingScreen from "./components/auth/LoadingScreen";
 import { Toaster } from "./components/ui/toaster";
-import routes from "tempo-routes";
+import tempoRoutes from "tempo-routes";
 
 function App() {
-  return (
-    <AuthProvider>
-      <TooltipProvider>
-        <CreditsProvider>
-          <ChannelSetsProvider>
-            <FilterProvider>
-              <AnalysisTasksProvider>
-                <Suspense fallback={<LoadingScreen />}>
-                  <>
-                    <Routes>
-                      <Route path="/login" element={<LoginPage />} />
-                      <Route
-                        path="/"
-                        element={
-                          <AuthGuard>
-                            <MainLayout>
-                              <ChannelSetPage />
-                            </MainLayout>
-                          </AuthGuard>
-                        }
-                      />
-                      <Route
-                        path="/filters"
-                        element={
-                          <AuthGuard>
-                            <MainLayout>
-                              <FiltersPage />
-                            </MainLayout>
-                          </AuthGuard>
-                        }
-                      />
-                      <Route
-                        path="/credits"
-                        element={
-                          <AuthGuard>
-                            <MainLayout>
-                              <CreditsPage />
-                            </MainLayout>
-                          </AuthGuard>
-                        }
-                      />
-                      <Route
-                        path="/profile"
-                        element={
-                          <AuthGuard>
-                            <MainLayout>
-                              <ProfilePage />
-                            </MainLayout>
-                          </AuthGuard>
-                        }
-                      />
-                      <Route
-                        path="/channel-sets/:id"
-                        element={
-                          <AuthGuard>
-                            <MainLayout>
-                              <ChannelSetDetailsPage />
-                            </MainLayout>
-                          </AuthGuard>
-                        }
-                      />
-                      <Route
-                        path="/analysis/tasks"
-                        element={
-                          <AuthGuard>
-                            <MainLayout>
-                              <AnalysisTasksPage />
-                            </MainLayout>
-                          </AuthGuard>
-                        }
-                      />
-                    </Routes>
-                    {import.meta.env.VITE_TEMPO === "true" && useRoutes(routes)}
-                  </>
-                </Suspense>
-                <Toaster />
-              </AnalysisTasksProvider>
-            </FilterProvider>
-          </ChannelSetsProvider>
-        </CreditsProvider>
-      </TooltipProvider>
-    </AuthProvider>
-  );
+    const routes = useRoutes(tempoRoutes);
+
+    return (
+        <AuthProvider>
+            <TooltipProvider>
+                <CreditsProvider>
+                    <ChannelSetsProvider>
+                        <FilterProvider>
+                            <AnalysisTasksProvider>
+                                <Suspense fallback={<LoadingScreen />}>
+                                    <>
+                                        <Routes>
+                                            <Route path="/login" element={<LoginPage />} />
+                                            <Route
+                                                path="/"
+                                                element={
+                                                    <AuthGuard>
+                                                        <MainLayout>
+                                                            <ChannelSetPage />
+                                                        </MainLayout>
+                                                    </AuthGuard>
+                                                }
+                                            />
+                                            <Route
+                                                path="/filters"
+                                                element={
+                                                    <AuthGuard>
+                                                        <MainLayout>
+                                                            <FiltersPage />
+                                                        </MainLayout>
+                                                    </AuthGuard>
+                                                }
+                                            />
+                                            <Route
+                                                path="/credits"
+                                                element={
+                                                    <AuthGuard>
+                                                        <MainLayout>
+                                                            <CreditsPage />
+                                                        </MainLayout>
+                                                    </AuthGuard>
+                                                }
+                                            />
+                                            <Route
+                                                path="/profile"
+                                                element={
+                                                    <AuthGuard>
+                                                        <MainLayout>
+                                                            <ProfilePage />
+                                                        </MainLayout>
+                                                    </AuthGuard>
+                                                }
+                                            />
+                                            <Route
+                                                path="/channel-sets/:id"
+                                                element={
+                                                    <AuthGuard>
+                                                        <MainLayout>
+                                                            <ChannelSetDetailsPage />
+                                                        </MainLayout>
+                                                    </AuthGuard>
+                                                }
+                                            />
+                                            <Route
+                                                path="/analysis/tasks"
+                                                element={
+                                                    <AuthGuard>
+                                                        <MainLayout>
+                                                            <AnalysisTasksPage />
+                                                        </MainLayout>
+                                                    </AuthGuard>
+                                                }
+                                            />
+                                        </Routes>
+                                        {import.meta.env.VITE_TEMPO === "true" && routes}
+                                    </>
+                                </Suspense>
+                                <Toaster />
+                            </AnalysisTasksProvider>
+                        </FilterProvider>
+                    </ChannelSetsProvider>
+                </CreditsProvider>
+            </TooltipProvider>
+        </AuthProvider>
+    );
 }
 
 export default App;

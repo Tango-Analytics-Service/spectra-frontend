@@ -1,7 +1,7 @@
 // https://core.telegram.org/bots/webapps#initializing-mini-apps
 
 interface Window {
-    Telegram: Telegram;
+    Telegram?: Telegram;
 }
 
 type Color = string | false;
@@ -362,6 +362,13 @@ interface WebApp {
     expand(): void;
     /** A method that closes the Web App. */
     close(): void;
+    /**
+     * `True`, if vertical swipes to close or minimize the Mini App are enabled.
+     * `False`, if vertical swipes to close or minimize the Mini App are
+     * disabled. In any case, the user will still be able to minimize and close
+     * the Mini App by swiping the Mini App's header.
+     */
+    isVerticalSwipesEnabled: boolean;
     /**
      * **Bot API 7.7+** A method that enables vertical swipes to close or
      * minimize the Mini App. For user convenience, it is recommended to always
