@@ -1,20 +1,58 @@
 // src/components/credits/CreditPackagesGrid.tsx
-import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CreditPackage } from "@/types/credits";
 import { Coins, Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
-interface CreditPackagesGridProps {
+export interface CreditPackagesGridProps {
     packages: CreditPackage[];
     onPurchase: (packageId: string) => void;
 }
 
-const CreditPackagesGrid = ({
-    packages,
-    onPurchase,
-}: CreditPackagesGridProps) => {
+// Функция для динамического определения цвета пакета
+function getBgColorForPackage(packageId: number, type: "bar" | "button" | "badge" = "bar",): string {
+    switch (packageId) {
+        case 0:
+            return type === "bar"
+                ? "bg-gradient-to-r from-blue-400 to-blue-500"
+                : type === "button"
+                    ? "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+                    : "bg-blue-500/10 text-blue-400";
+        case 1:
+            return type === "bar"
+                ? "bg-gradient-to-r from-teal-400 to-green-500"
+                : type === "button"
+                    ? "bg-gradient-to-r from-teal-500 to-green-600 hover:from-teal-600 hover:to-green-700"
+                    : "bg-teal-500/10 text-teal-400";
+        case 2:
+            return type === "bar"
+                ? "bg-gradient-to-r from-purple-400 to-blue-500"
+                : type === "button"
+                    ? "bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700"
+                    : "bg-purple-500/10 text-purple-400";
+        case 3:
+            return type === "bar"
+                ? "bg-gradient-to-r from-amber-400 to-orange-500"
+                : type === "button"
+                    ? "bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700"
+                    : "bg-amber-500/10 text-amber-400";
+        case 4:
+            return type === "bar"
+                ? "bg-gradient-to-r from-red-400 to-pink-500"
+                : type === "button"
+                    ? "bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700"
+                    : "bg-red-500/10 text-red-400";
+        default:
+            return type === "bar"
+                ? "bg-gradient-to-r from-blue-400 to-blue-500"
+                : type === "button"
+                    ? "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+                    : "bg-blue-500/10 text-blue-400";
+    }
+}
+
+export default function CreditPackagesGrid({ packages, onPurchase }: CreditPackagesGridProps) {
     return (
         <Card className="bg-slate-800/50 border border-blue-500/20 text-white">
             <CardHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-1 sm:pb-2">
@@ -25,7 +63,7 @@ const CreditPackagesGrid = ({
                     {packages.map((pkg, index) => (
                         <Card
                             key={pkg.id}
-                            className="bg-slate-900/50 border border-slate-700/50 hover:border-blue-500/30 
+                            className="bg-slate-900/50 border border-slate-700/50 hover:border-blue-500/30
                 transition-colors overflow-hidden"
                         >
                             <div
@@ -85,51 +123,4 @@ const CreditPackagesGrid = ({
             </CardContent>
         </Card>
     );
-};
-
-// Функция для динамического определения цвета пакета
-function getBgColorForPackage(
-    packageId: number,
-    type: "bar" | "button" | "badge" = "bar",
-): string {
-    switch (packageId) {
-        case 0:
-            return type === "bar"
-                ? "bg-gradient-to-r from-blue-400 to-blue-500"
-                : type === "button"
-                    ? "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
-                    : "bg-blue-500/10 text-blue-400";
-        case 1:
-            return type === "bar"
-                ? "bg-gradient-to-r from-teal-400 to-green-500"
-                : type === "button"
-                    ? "bg-gradient-to-r from-teal-500 to-green-600 hover:from-teal-600 hover:to-green-700"
-                    : "bg-teal-500/10 text-teal-400";
-        case 2:
-            return type === "bar"
-                ? "bg-gradient-to-r from-purple-400 to-blue-500"
-                : type === "button"
-                    ? "bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700"
-                    : "bg-purple-500/10 text-purple-400";
-        case 3:
-            return type === "bar"
-                ? "bg-gradient-to-r from-amber-400 to-orange-500"
-                : type === "button"
-                    ? "bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700"
-                    : "bg-amber-500/10 text-amber-400";
-        case 4:
-            return type === "bar"
-                ? "bg-gradient-to-r from-red-400 to-pink-500"
-                : type === "button"
-                    ? "bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700"
-                    : "bg-red-500/10 text-red-400";
-        default:
-            return type === "bar"
-                ? "bg-gradient-to-r from-blue-400 to-blue-500"
-                : type === "button"
-                    ? "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
-                    : "bg-blue-500/10 text-blue-400";
-    }
 }
-
-export default CreditPackagesGrid;

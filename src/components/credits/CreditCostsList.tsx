@@ -4,11 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CreditCost } from "@/types/credits";
 import { Coins } from "lucide-react";
 
-interface CreditCostsListProps {
+export interface CreditCostsListProps {
     costs: CreditCost[];
 }
 
-const CreditCostsList = ({ costs }: CreditCostsListProps) => {
+export default function CreditCostsList({ costs }: CreditCostsListProps) {
     return (
         <Card className="bg-slate-800/50 border border-blue-500/20 text-white">
             <CardHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-1 sm:pb-2">
@@ -19,8 +19,8 @@ const CreditCostsList = ({ costs }: CreditCostsListProps) => {
                     {costs.map((cost) => (
                         <div
                             key={cost.action_type}
-                            className="p-3 rounded-lg bg-slate-900/50 hover:bg-slate-900/80 
-                transition-colors border border-slate-700/50 hover:border-blue-500/30 
+                            className="p-3 rounded-lg bg-slate-900/50 hover:bg-slate-900/80
+                transition-colors border border-slate-700/50 hover:border-blue-500/30
                 flex justify-between items-center"
                         >
                             <div>
@@ -60,5 +60,3 @@ function getActionName(actionType: string): string {
             return actionType;
     }
 }
-
-export default CreditCostsList;

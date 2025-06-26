@@ -1,15 +1,14 @@
 // src/components/credits/CreditBalanceCard.tsx
-import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Coins } from "lucide-react";
 import { CreditBalance } from "@/types/credits";
 import { textColors } from "@/lib/design-system";
 
-interface CreditBalanceCardProps {
+export interface CreditBalanceCardProps {
     balance: CreditBalance;
 }
 
-const CreditBalanceCard = ({ balance }: CreditBalanceCardProps) => {
+export default function CreditBalanceCard({ balance }: CreditBalanceCardProps) {
     // Форматирование даты
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
@@ -45,6 +44,4 @@ const CreditBalanceCard = ({ balance }: CreditBalanceCardProps) => {
             </CardContent>
         </Card>
     );
-};
-
-export default CreditBalanceCard;
+}
