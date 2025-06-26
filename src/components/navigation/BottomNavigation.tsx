@@ -1,51 +1,15 @@
 // src/components/navigation/BottomNavigation.tsx
-import React from "react";
-import { NavLink, useLocation } from "react-router-dom";
-import { Home, CreditCard, Search,  BarChart3 } from "lucide-react";
+import { useLocation } from "react-router-dom";
+import { Home, CreditCard, Search, BarChart3 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
     spacing,
     createCardStyle,
     animations,
 } from "@/lib/design-system";
+import NavItem from "./NavItem";
 
-interface NavItemProps {
-    to: string;
-    icon: React.ReactNode;
-    label: string;
-    active: boolean;
-}
-
-const NavItem: React.FC<NavItemProps> = ({ to, icon, label, active }) => {
-    return (
-        <NavLink
-            to={to}
-            className={cn(
-                "flex flex-col items-center justify-center",
-                `px-${spacing.sm} py-1`,
-            )}
-        >
-            <div
-                className={cn(
-                    "p-1 transition-colors",
-                    active ? "text-blue-400" : "text-slate-400 hover:text-blue-300",
-                )}
-            >
-                {icon}
-            </div>
-            <span
-                className={cn(
-                    "text-[10px] mt-0.5 transition-colors",
-                    active ? "text-blue-400 font-medium" : "text-slate-500",
-                )}
-            >
-                {label}
-            </span>
-        </NavLink>
-    );
-};
-
-const BottomNavigation: React.FC = () => {
+export default function BottomNavigation() {
     const location = useLocation();
     const currentPath = location.pathname;
 
@@ -92,6 +56,4 @@ const BottomNavigation: React.FC = () => {
             </div>
         </div>
     );
-};
-
-export default BottomNavigation;
+}
