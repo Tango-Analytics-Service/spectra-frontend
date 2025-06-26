@@ -40,6 +40,12 @@ export default defineConfig([
             "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
             // React
             "react/react-in-jsx-scope": "off",
+            "react/function-component-definition": ["error", {
+                namedComponents: "function-declaration",
+                unnamedComponents: "arrow-function",
+            }],
+            "react/no-multi-comp": "error",
+            "react/no-unstable-nested-components": "error",
             // Stylistic
             "@stylistic/semi": ["error", "always"],
             "@stylistic/indent": ["error", 4],
