@@ -17,51 +17,53 @@ interface StatsCardProps {
     className?: string;
 }
 
-export const StatsCard: React.FC<StatsCardProps> = ({
+export default function StatsCard({
     title,
     value,
     icon,
     loading = false,
     className,
-}) => (
-    <div
-        className={cn(
-            createCardStyle(),
-            `p-${spacing.md}`,
-            "flex flex-col",
-            animations.scaleIn,
-            className,
-        )}
-    >
-        {/* Заголовок */}
+}: StatsCardProps) {
+    return (
         <div
             className={cn(
-                createTextStyle("small", "secondary"),
-                `mb-${spacing.sm}`,
+                createCardStyle(),
+                `p-${spacing.md}`,
+                "flex flex-col",
+                animations.scaleIn,
+                className,
             )}
         >
-            {title}
-        </div>
-    
-        {/* Иконка и значение */}
-        <div className="flex items-center justify-between">
+            {/* Заголовок */}
             <div
                 className={cn(
-                    "bg-blue-500/10 rounded-full",
-                    `p-${spacing.sm}`,
-                    "flex items-center justify-center",
+                    createTextStyle("small", "secondary"),
+                    `mb-${spacing.sm}`,
                 )}
             >
-                {icon}
+                {title}
             </div>
-      
-            <div className={cn(typography.h2, "font-semibold")}>
-                {loading ? (
-                    <div className="animate-pulse bg-slate-700 h-6 w-8 rounded"></div>
-                ) : (
-                    value
-                )}
+
+            {/* Иконка и значение */}
+            <div className="flex items-center justify-between">
+                <div
+                    className={cn(
+                        "bg-blue-500/10 rounded-full",
+                        `p-${spacing.sm}`,
+                        "flex items-center justify-center",
+                    )}
+                >
+                    {icon}
+                </div>
+
+                <div className={cn(typography.h2, "font-semibold")}>
+                    {loading ? (
+                        <div className="animate-pulse bg-slate-700 h-6 w-8 rounded"></div>
+                    ) : (
+                        value
+                    )}
+                </div>
             </div>
         </div>
-    </div>
-);
+    );
+}

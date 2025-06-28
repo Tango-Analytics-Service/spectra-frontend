@@ -1,13 +1,11 @@
-import * as React from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
 import { DayPicker } from "react-day-picker";
-
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>;
 
-function Calendar({
+export default function Calendar({
     className,
     classNames,
     showOutsideDays = true,
@@ -58,13 +56,12 @@ function Calendar({
                 ...classNames,
             }}
             components={{
+                // eslint-disable-next-line react/no-unstable-nested-components, react/no-multi-comp
                 IconLeft: () => <ChevronLeftIcon className="h-4 w-4" />,
+                // eslint-disable-next-line react/no-unstable-nested-components, react/no-multi-comp
                 IconRight: () => <ChevronRightIcon className="h-4 w-4" />,
             }}
             {...props}
         />
     );
 }
-Calendar.displayName = "Calendar";
-
-export { Calendar };
