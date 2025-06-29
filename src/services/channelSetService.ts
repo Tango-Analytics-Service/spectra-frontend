@@ -1,4 +1,4 @@
-// src/services/channelSetService.ts
+// src/services/channelSetService.ts - Обновленный с поддержкой Smart Sets
 import { httpClient } from "./httpClient";
 import {
   ChannelSet,
@@ -9,6 +9,7 @@ import {
   RemoveChannelsRequest,
   AnalyzeChannelSetRequest,
   ParsingStatusResponse,
+  SmartSetBuildStatusResponse,
   ChannelDetails,
 } from "@/types/channel-sets";
 
@@ -35,7 +36,7 @@ export const channelSetService = {
   },
 
   /**
-   * Create a new channel set
+   * Create a new channel set (manual or smart)
    */
   createChannelSet: async (
     data: CreateChannelSetRequest,
@@ -61,7 +62,7 @@ export const channelSetService = {
   },
 
   /**
-   * Add channels to a set
+   * Add channels to a set (blocked for smart sets)
    */
   addChannelsToSet: async (
     id: string,
@@ -99,6 +100,27 @@ export const channelSetService = {
     data: AnalyzeChannelSetRequest,
   ): Promise<any> => {
     return httpClient.post<any>(`${API_ENDPOINT}/${id}/analyze`, data);
+  },
+
+  /**
+   * Get smart set build status
+   */
+  getSmartSetBuildStatus: async (
+    id: string,
+  ): Promise<SmartSetBuildStatusResponse> => {
+    return httpClient.get<SmartSetBuildStatusResponse>(
+      `${API_ENDPOINT}/${id}/build-status`,
+    );
+  },
+
+  /**
+   * Cancel smart set build
+   */
+  cancelSmartSetBuild: async (id: string): Promise<{ message: string }> => {
+    return httpClient.post<{ message: string }>(
+      `${API_ENDPOINT}/${id}/cancel-build`,
+      {},
+    );
   },
 
   /**

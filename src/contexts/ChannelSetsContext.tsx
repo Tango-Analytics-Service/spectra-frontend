@@ -1,4 +1,4 @@
-// src/contexts/ChannelSetsContext.tsx
+// src/contexts/ChannelSetsContext.tsx - Обновленный с поддержкой Smart Sets
 import React, {
   createContext,
   useContext,
@@ -12,6 +12,7 @@ import {
   ChannelSet,
   CreateChannelSetRequest,
   UpdateChannelSetRequest,
+  SmartSetBuildStatusResponse,
   ChannelDetails,
 } from "@/types/channel-sets";
 import { AnalysisOptions, ChannelAnalysisResponse } from "@/types/analysis";
@@ -34,9 +35,19 @@ interface ChannelSetsContextType {
   deleteChannelSet: (id: string) => Promise<boolean>;
   addChannelsToSet: (setId: string, usernames: string[]) => Promise<any>;
   removeChannelsFromSet: (setId: string, usernames: string[]) => Promise<any>;
-  analyzeChannelSet: (setId: string, filterIds: string[], options?: AnalysisOptions ) => Promise<any>;
+  analyzeChannelSet: (
+    setId: string,
+    filterIds: string[],
+    options?: AnalysisOptions,
+  ) => Promise<any>;
   refreshChannelSet: (id: string) => Promise<ChannelSet | undefined>;
   searchChannels: (query: string) => Promise<ChannelDetails[]>;
+  // Smart Sets methods
+  getSmartSetBuildStatus: (
+    id: string,
+  ) => Promise<SmartSetBuildStatusResponse | undefined>;
+  cancelSmartSetBuild: (id: string) => Promise<boolean>;
+  refreshSmartSetStatus: (id: string) => Promise<void>;
 }
 
 const ChannelSetsContext = createContext<ChannelSetsContextType | undefined>(
@@ -165,7 +176,7 @@ export const ChannelSetsProvider: React.FC<{ children: ReactNode }> = ({
 
         toast({
           title: "Успешно",
-          description: `Набор "${newSet.name}" создан`,
+          description: `Набор "${newSet.name}" создан${newSet.type === "smart" ? ". Построение началось автоматически." : ""}`,
         });
 
         return newSet;
@@ -272,11 +283,21 @@ export const ChannelSetsProvider: React.FC<{ children: ReactNode }> = ({
         return result;
       } catch (error) {
         console.error(`Error adding channels to set ${setId}:`, error);
-        toast({
-          title: "Ошибка",
-          description: "Не удалось добавить каналы в набор",
-          variant: "destructive",
-        });
+
+        // Check if it's a smart set error
+        if (error.message && error.message.includes("smart sets")) {
+          toast({
+            title: "Ошибка",
+            description: "Нельзя вручную добавлять каналы в умные наборы",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Ошибка",
+            description: "Не удалось добавить каналы в набор",
+            variant: "destructive",
+          });
+        }
         return { success: false, message: "Ошибка добавления каналов" };
       }
     },
@@ -294,10 +315,18 @@ export const ChannelSetsProvider: React.FC<{ children: ReactNode }> = ({
           // Refresh the channel set to get updated data
           await refreshChannelSet(setId);
 
-          toast({
-            title: "Успешно",
-            description: `Каналы удалены из набора`,
-          });
+          // Show warning for smart sets
+          if (result.warning) {
+            toast({
+              title: "Каналы удалены",
+              description: result.warning,
+            });
+          } else {
+            toast({
+              title: "Успешно",
+              description: `Каналы удалены из набора`,
+            });
+          }
         }
 
         return result;
@@ -332,11 +361,6 @@ export const ChannelSetsProvider: React.FC<{ children: ReactNode }> = ({
           return null;
         }
 
-        // Extract usernames from the channels
-        const channelUsernames = set.channels.map(
-          (channel) => channel.username,
-        );
-
         // Perform analysis
         const response = await channelSetService.analyzeChannelSet(setId, {
           filter_ids: filterIds,
@@ -367,7 +391,7 @@ export const ChannelSetsProvider: React.FC<{ children: ReactNode }> = ({
         return null;
       }
     },
-    [channelSetService.getChannelSet, channelSetService.analyzeChannelSet],
+    [],
   );
 
   const searchChannels = useCallback(
@@ -391,6 +415,83 @@ export const ChannelSetsProvider: React.FC<{ children: ReactNode }> = ({
     [],
   );
 
+  // Smart Sets methods
+  const getSmartSetBuildStatus = useCallback(
+    async (id: string): Promise<SmartSetBuildStatusResponse | undefined> => {
+      try {
+        return await channelSetService.getSmartSetBuildStatus(id);
+      } catch (error) {
+        console.error(`Error getting smart set build status ${id}:`, error);
+        toast({
+          title: "Ошибка",
+          description: "Не удалось получить статус построения умного набора",
+          variant: "destructive",
+        });
+        return undefined;
+      }
+    },
+    [],
+  );
+
+  const cancelSmartSetBuild = useCallback(
+    async (id: string): Promise<boolean> => {
+      try {
+        const result = await channelSetService.cancelSmartSetBuild(id);
+
+        toast({
+          title: "Построение остановлено",
+          description: result.message,
+        });
+
+        // Refresh the set to get updated status
+        await refreshChannelSet(id);
+
+        return true;
+      } catch (error) {
+        console.error(`Error cancelling smart set build ${id}:`, error);
+        toast({
+          title: "Ошибка",
+          description: "Не удалось остановить построение набора",
+          variant: "destructive",
+        });
+        return false;
+      }
+    },
+    [refreshChannelSet],
+  );
+
+  const refreshSmartSetStatus = useCallback(
+    async (id: string): Promise<void> => {
+      try {
+        const status = await channelSetService.getSmartSetBuildStatus(id);
+        if (status) {
+          // Update the cached set with new status
+          const cached = channelSetsCache[id];
+          if (cached) {
+            const updatedSet: ChannelSet = {
+              ...cached.data,
+              build_status: status.status,
+              build_progress: status.progress,
+            };
+
+            setChannelSetsCache((prevCache) => ({
+              ...prevCache,
+              [id]: { data: updatedSet, timestamp: Date.now() },
+            }));
+
+            // Also update in the main list
+            setChannelSets((prevSets) =>
+              prevSets.map((set) => (set.id === id ? updatedSet : set)),
+            );
+          }
+        }
+      } catch (error) {
+        console.error(`Error refreshing smart set status ${id}:`, error);
+      }
+    },
+    [channelSetsCache],
+  );
+
   const value = {
     channelSets,
     isLoading,
@@ -406,6 +507,9 @@ export const ChannelSetsProvider: React.FC<{ children: ReactNode }> = ({
     analyzeChannelSet,
     refreshChannelSet,
     searchChannels,
+    getSmartSetBuildStatus,
+    cancelSmartSetBuild,
+    refreshSmartSetStatus,
   };
 
   return (
