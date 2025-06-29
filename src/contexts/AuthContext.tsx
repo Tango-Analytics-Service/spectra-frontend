@@ -86,12 +86,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     try {
       if (isTelegram) {
         // Only for dev mode, in production this should be await authenticateWithTelegram();
-        // const token = await authenticateWithTelegram();
-        const token = {
-          access_token:
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1NGJlNjZkOC0xZTMwLTRhNTQtYjZlMS0yNTlkMzFmYWIyOTUiLCJ1c2VyX2lkIjoiNTRiZTY2ZDgtMWUzMC00YTU0LWI2ZTEtMjU5ZDMxZmFiMjk1IiwidGVsZWdyYW1faWQiOjk5ODU1OTA5NiwidHlwZSI6ImFjY2VzcyIsImlzX2FkbWluIjp0cnVlLCJhZG1pbl9wZXJtaXNzaW9ucyI6WyJzdXBlcmFkbWluIl0sImV4cCI6MTc1NzE0NTM5M30.vot_5nx7JDl7c2MycIDVQu0KXfIQuAFA3fsVC91Xqdo",
-          token_type: "mock",
-        };
+        const token = await authenticateWithTelegram();
         saveToken(token);
         setIsAuthenticated(true);
       } else {
