@@ -10,10 +10,10 @@ import {
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
+import Card from "@/components/ui/card/Card";
+import CardContent from "@/components/ui/card/CardContent";
 import { Skeleton } from "@/components/ui/skeleton";
-import { StatsCard } from "@/components/ui/stats-card";
-import { useAnalysisTasks } from "@/contexts/AnalysisTasksContext";
+import StatsCard from "@/components/ui/stats-card";
 import { useChannelSets } from "@/contexts/ChannelSetsContext";
 import { AnalysisTask, AnalysisTaskBasic } from "@/types/analysis";
 import {
@@ -31,6 +31,7 @@ import TaskCard from "./TaskCard";
 import MobileActionSheet from "./MobileActionSheet";
 import { ChannelSet } from "@/types/channel-sets";
 import TaskDetailsModal from "./TaskDetailsModal";
+import { useAnalysisTasksStore } from "@/stores/useAnalysisTasksStore";
 
 function filterDate(taskDate: Date, dateFilter: string) {
     if (dateFilter === "all") {
@@ -88,15 +89,23 @@ function getTaskActions(task: AnalysisTaskBasic | null, onPress: () => void) {
 
 export default function AnalysisTasksPage() {
     const { channelSets } = useChannelSets();
-    const {
-        tasks,
-        taskDetails,
-        isLoading,
-        selectedTask,
-        fetchTasks,
-        refreshTask,
-        selectTaskById,
-    } = useAnalysisTasks();
+    // const {
+    //     tasks,
+    //     taskDetails,
+    //     isLoading,
+    //     selectedTask,
+    //     fetchTasks,
+    //     refreshTask,
+    //     selectTaskById,
+    // } = useAnalysisTasks();
+
+    const tasks = useAnalysisTasksStore(state => state.tasks);
+    const taskDetails = useAnalysisTasksStore(state => state.tasksDetails);
+    const isLoaded = useAnalysisTasksStore(state => state.isLoaded);
+    const selectedTask = useAnalysisTasksStore(state => state.selectedTask);
+    const fetchTasks = useAnalysisTasksStore(state => state.fetchTasks);
+    const refreshTask = useAnalysisTasksStore(state => state.refreshTask);
+    const selectTaskById = useAnalysisTasksStore(state => state.selectTaskById);
 
     // UI состояния
     const [showTaskDetails, setShowTaskDetails] = useState(false);
@@ -155,10 +164,10 @@ export default function AnalysisTasksPage() {
                         </div>
                         <Button
                             onClick={handleRefresh}
-                            disabled={isLoading}
+                            disabled={!isLoaded}
                             className={createButtonStyle("secondary")}
                         >
-                            {isLoading ? (
+                            {!isLoaded ? (
                                 <RefreshCw size={16} className="mr-2 animate-spin" />
                             ) : (
                                 <RefreshCw size={16} className="mr-2" />
@@ -171,21 +180,21 @@ export default function AnalysisTasksPage() {
                     <div className={cn("grid grid-cols-3", `gap-${spacing.md}`, animations.slideIn)}>
                         <StatsCard
                             title="Всего"
-                            value={isLoading ? "—" : tasks.length}
+                            value={!isLoaded ? "—" : tasks.length}
                             icon={<BarChart3 size={15} className={textColors.accent} />}
-                            loading={isLoading}
+                            loading={!isLoaded}
                         />
                         <StatsCard
                             title="Завершено"
-                            value={isLoading ? "—" : tasks.filter(t => t.status === "completed").length}
+                            value={!isLoaded ? "—" : tasks.filter(t => t.status === "completed").length}
                             icon={<CheckCircle size={15} className={textColors.success} />}
-                            loading={isLoading}
+                            loading={!isLoaded}
                         />
                         <StatsCard
                             title="В процессе"
-                            value={isLoading ? "—" : tasks.filter(t => t.status === "processing").length}
+                            value={!isLoaded ? "—" : tasks.filter(t => t.status === "processing").length}
                             icon={<RefreshCw size={15} className={textColors.accent} />}
-                            loading={isLoading}
+                            loading={!isLoaded}
                         />
                     </div>
                 </div>
@@ -237,7 +246,7 @@ export default function AnalysisTasksPage() {
 
                 {/* Список задач */}
                 <div className={cn("flex-1", animations.fadeIn)}>
-                    {isLoading ? (
+                    {!isLoaded ? (
                         <div className={`space-y-${spacing.sm}`}>
                             {[1, 2, 3].map((i) => (
                                 <Skeleton key={i} className="h-32 w-full rounded-xl" />

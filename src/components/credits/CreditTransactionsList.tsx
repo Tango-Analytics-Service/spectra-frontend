@@ -1,5 +1,8 @@
 // src/components/credits/CreditTransactionsList.tsx
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Card from "@/components/ui/card/Card";
+import CardContent from "@/components/ui/card/CardContent";
+import CardHeader from "@/components/ui/card/CardHeader";
+import CardTitle from "@/components/ui/card/CardTitle";
 import { ArrowUpRight, ArrowDownRight, Filter } from "lucide-react";
 import { CreditTransaction } from "@/types/credits";
 import { Button } from "@/components/ui/button";

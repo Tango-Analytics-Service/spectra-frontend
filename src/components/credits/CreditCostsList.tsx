@@ -1,6 +1,8 @@
 // src/components/credits/CreditCostsList.tsx
-import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Card from "@/components/ui/card/Card";
+import CardContent from "@/components/ui/card/CardContent";
+import CardHeader from "@/components/ui/card/CardHeader";
+import CardTitle from "@/components/ui/card/CardTitle";
 import { CreditCost } from "@/types/credits";
 import { Coins } from "lucide-react";
 

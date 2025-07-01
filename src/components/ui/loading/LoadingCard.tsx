@@ -1,4 +1,5 @@
-import { Card, CardContent } from "../card";
+import Card from "../card/Card";
+import CardContent from "../card/CardContent";
 import { cn } from "@/lib/utils";
 import LoadingSpinner from "./LoadingSpinner";
 

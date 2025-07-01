@@ -1,10 +1,13 @@
 // src/components/analysis/AnalysisResultsCard.tsx - улучшенная версия с design-system
 import { useState } from "react";
 import { AnalysisTask, ChannelResult } from "@/types/analysis";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Card from "@/components/ui/card/Card";
+import CardContent from "@/components/ui/card/CardContent";
+import CardHeader from "@/components/ui/card/CardHeader";
+import CardTitle from "@/components/ui/card/CardTitle";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import ScrollArea from "@/components/ui/scroll-area/ScrollArea";
 import { AlertCircle, RefreshCw, Filter, BarChart3, Download, } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createCardStyle, createButtonStyle, createTextStyle, typography, spacing, animations, textColors, } from "@/lib/design-system";

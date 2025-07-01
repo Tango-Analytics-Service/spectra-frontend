@@ -1,9 +1,9 @@
 // src/components/filters/FiltersList.tsx
-import React, { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useFilters } from "@/contexts/FilterContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import ScrollArea from "@/components/ui/scroll-area/ScrollArea";
 import { Search, FilterIcon, Plus, AlertCircle } from "lucide-react";
 import FilterCard from "./FilterCard";
 import CreateFilterDialog from "./CreateFilterDialog";
@@ -15,7 +15,8 @@ import {
     components,
     createTextStyle,
 } from "@/lib/design-system";
-import { EmptyState, LoadingState } from "@/components/ui/dialog-components";
+import EmptyState from "@/components/ui/dialog-components/EmptyState";
+import LoadingState from "@/components/ui/dialog-components/LoadingState";
 
 export interface FiltersListProps {
     onSelectFilter?: (id: string) => void;

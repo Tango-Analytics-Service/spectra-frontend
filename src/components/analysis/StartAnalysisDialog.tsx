@@ -1,13 +1,11 @@
 // src/components/analysis/StartAnalysisDialog.tsx - версия со скроллом
 import { useState, useEffect } from "react";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog } from "@/components/ui/dialog";
+import DialogContent from "@/components/ui/dialog/DialogContent";
+import DialogDescription from "@/components/ui/dialog/DialogDescription";
+import DialogFooter from "@/components/ui/dialog/DialogFooter";
+import DialogHeader from "@/components/ui/dialog/DialogHeader";
+import DialogTitle from "@/components/ui/dialog/DialogTitle";
 import { Button } from "@/components/ui/button";
 import { useFilters } from "@/contexts/FilterContext";
 import { AnalysisOptions, ProcessingMode } from "@/types/analysis";

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Filter as FilterIcon, Settings } from "lucide-react";
 import FiltersList from "./FiltersList";
 import CreateFilterDialog from "./CreateFilterDialog";
-import { StatsCard } from "@/components/ui/stats-card";
+import StatsCard from "@/components/ui/stats-card";
 import { cn } from "@/lib/utils";
 import {
     createButtonStyle,
