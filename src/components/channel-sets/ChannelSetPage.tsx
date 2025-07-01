@@ -4,21 +4,19 @@ import { useNavigate } from "react-router-dom";
 import { Search, Plus, LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog } from "@/components/ui/dialog";
+import DialogContent from "@/components/ui/dialog/DialogContent";
+import DialogDescription from "@/components/ui/dialog/DialogDescription";
+import DialogFooter from "@/components/ui/dialog/DialogFooter";
+import DialogHeader from "@/components/ui/dialog/DialogHeader";
+import DialogTitle from "@/components/ui/dialog/DialogTitle";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/use-toast";
 import { useChannelSets } from "@/contexts/ChannelSetsContext";
 import ChannelSetCard from "./ChannelSetCard";
 import AnalysisConfirmDialog from "./AnalysisConfirmDialog";
 import AddChannelsDialog from "./AddChannelsDialog";
-import { LoadingCard } from "@/components/ui/loading";
+import LoadingCard from "@/components/ui/loading/LoadingCard";
 import {
     createButtonStyle,
     createCardStyle,

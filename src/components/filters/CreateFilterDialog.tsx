@@ -4,23 +4,15 @@ import { Plus } from "lucide-react";
 import { FilterCreateRequest, useFilters } from "@/contexts/FilterContext";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectValue } from "@/components/ui/select";
+import SelectContent from "@/components/ui/select/SelectContent";
+import SelectItem from "@/components/ui/select/SelectItem";
+import SelectTrigger from "@/components/ui/select/SelectTrigger";
 import { cn } from "@/lib/utils";
-import {
-    spacing,
-    components,
-} from "@/lib/design-system";
-import {
-    DialogWrapper,
-    FormField,
-    ActionButtons,
-} from "@/components/ui/dialog-components";
+import { spacing, components } from "@/lib/design-system";
+import DialogWrapper from "@/components/ui/dialog-components/DialogWrapper";
+import FormField from "@/components/ui/dialog-components/FormFiels";
+import ActionButtons from "@/components/ui/dialog-components/ActionButtons";
 
 export interface CreateFilterDialogProps {
     open: boolean;

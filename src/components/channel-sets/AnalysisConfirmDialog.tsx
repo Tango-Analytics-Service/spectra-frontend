@@ -1,14 +1,12 @@
 // src/components/channel-sets/AnalysisConfirmDialog.tsx
 import { useState } from "react";
 import { BarChart3, Clock, Users, LoaderCircle } from "lucide-react";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog } from "@/components/ui/dialog";
+import DialogContent from "@/components/ui/dialog/DialogContent";
+import DialogDescription from "@/components/ui/dialog/DialogDescription";
+import DialogFooter from "@/components/ui/dialog/DialogFooter";
+import DialogHeader from "@/components/ui/dialog/DialogHeader";
+import DialogTitle from "@/components/ui/dialog/DialogTitle";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {

@@ -1,5 +1,9 @@
 import { cn } from "@/lib/utils";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../dialog";
+import { Dialog } from "@/components/ui/dialog";
+import DialogContent from "@/components/ui/dialog/DialogContent";
+import DialogDescription from "@/components/ui/dialog/DialogDescription";
+import DialogHeader from "@/components/ui/dialog/DialogHeader";
+import DialogTitle from "@/components/ui/dialog/DialogTitle";
 import { animations, createCardStyle, textColors, typography } from "@/lib/design-system";
 
 export interface DialogWrapperProps {

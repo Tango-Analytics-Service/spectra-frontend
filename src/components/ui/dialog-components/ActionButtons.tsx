@@ -1,4 +1,4 @@
-import { DialogFooter, } from "@/components/ui/dialog";
+import DialogFooter from "@/components/ui/dialog/DialogFooter";
 import { Button } from "../button";
 import { cn } from "@/lib/utils";
 import { createButtonStyle, spacing } from "@/lib/design-system";

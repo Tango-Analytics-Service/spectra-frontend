@@ -1,5 +1,6 @@
 // src/components/credits/CreditBalanceCard.tsx
-import { Card, CardContent } from "@/components/ui/card";
+import Card from "@/components/ui/card/Card";
+import CardContent from "@/components/ui/card/CardContent";
 import { Coins } from "lucide-react";
 import { CreditBalance } from "@/types/credits";
 import { textColors } from "@/lib/design-system";

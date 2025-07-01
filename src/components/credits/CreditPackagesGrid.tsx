@@ -1,5 +1,8 @@
 // src/components/credits/CreditPackagesGrid.tsx
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Card from "@/components/ui/card/Card";
+import CardContent from "@/components/ui/card/CardContent";
+import CardHeader from "@/components/ui/card/CardHeader";
+import CardTitle from "@/components/ui/card/CardTitle";
 import { Button } from "@/components/ui/button";
 import { CreditPackage } from "@/types/credits";
 import { Coins, Check } from "lucide-react";
