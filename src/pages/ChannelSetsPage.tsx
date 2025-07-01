@@ -1,7 +1,3 @@
-import React from "react";
-
-const Dummycomponent = () => {
+export default function Dummycomponent() {
     return <div />;
-};
-
-export default Dummycomponent;
+}
