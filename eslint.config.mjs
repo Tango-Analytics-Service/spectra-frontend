@@ -3,9 +3,11 @@ import eslintPluginReactHooks from "eslint-plugin-react-hooks";
 import eslintPluginJsxA11y from "eslint-plugin-jsx-a11y";
 import typescriptEslint from "@typescript-eslint/eslint-plugin";
 import typescriptEslintParser from "@typescript-eslint/parser";
+import eslintImport from "eslint-plugin-import";
 import stylistic from "@stylistic/eslint-plugin";
 import { defineConfig } from "eslint/config";
 
+// eslint-disable-next-line import/no-unused-modules
 export default defineConfig([
     {
         files: ["**/*.{js,jsx,mjs,ts,tsx}"],
@@ -27,6 +29,7 @@ export default defineConfig([
         },
         plugins: {
             react: eslintPluginReact,
+            import: eslintImport,
             "@stylistic": stylistic,
             "react-hooks": eslintPluginReactHooks,
             "jsx-a11y": eslintPluginJsxA11y,
@@ -37,9 +40,17 @@ export default defineConfig([
             ...eslintPluginReactHooks.configs.recommended.rules,
             ...eslintPluginJsxA11y.configs.recommended.rules,
             ...typescriptEslint.configs.recommended.rules,
-            "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
+            // "@typescript-eslint/no-unused-vars": ["error", {
+            //     varsIgnorePattern: "^_",
+            // }],
+            "@typescript-eslint/no-unused-vars": "off",
+            "import/no-unused-modules": ["error", {
+                unusedExports: true,
+            }],
             // React
             "react/react-in-jsx-scope": "off",
+            "react/jsx-uses-react": "error",
+            "react/jsx-uses-vars": "error",
             "react/function-component-definition": ["error", {
                 namedComponents: "function-declaration",
                 unnamedComponents: "arrow-function",
