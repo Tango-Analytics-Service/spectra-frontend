@@ -1,12 +1,10 @@
-import {
-    Pagination,
-    PaginationContent,
-    PaginationEllipsis,
-    PaginationItem,
-    PaginationLink,
-    PaginationNext,
-    PaginationPrevious,
-} from "../components/ui/pagination";
+import Pagination from "@/components/ui/pagination/Pagination";
+import PaginationContent from "@/components/ui/pagination/PaginationContent";
+import PaginationEllipsis from "@/components/ui/pagination/PaginationEllipsis";
+import PaginationItem from "@/components/ui/pagination/PaginationItem";
+import PaginationLink from "@/components/ui/pagination/PaginationLink";
+import PaginationNext from "@/components/ui/pagination/PaginationNext";
+import PaginationPrevious from "@/components/ui/pagination/PaginationPrevious";
 
 const meta = {
     title: "ui/Pagination",

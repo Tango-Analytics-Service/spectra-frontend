@@ -1,25 +1,19 @@
 // [build] library: 'shadcn'
-
 import { BellIcon, CheckIcon } from "@radix-ui/react-icons";
-import { Button } from "../components/ui/button";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "../components/ui/card";
-import { Switch } from "../components/ui/switch";
-import { Input } from "../components/ui/input";
-import { Label } from "../components/ui/label";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "../components/ui/select";
+import { Button } from "@/components/ui/button";
+import Card from "@/components/ui/card/Card";
+import CardContent from "@/components/ui/card/CardContent";
+import CardHeader from "@/components/ui/card/CardHeader";
+import CardFooter from "@/components/ui/card/CardFooter";
+import CardTitle from "@/components/ui/card/CardTitle";
+import CardDescription from "@/components/ui/card/CardDescription";
+import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectValue } from "@/components/ui/select";
+import SelectContent from "@/components/ui/select/SelectContent";
+import SelectItem from "@/components/ui/select/SelectItem";
+import SelectTrigger from "@/components/ui/select/SelectTrigger";
 
 const meta = {
     title: "ui/Card",

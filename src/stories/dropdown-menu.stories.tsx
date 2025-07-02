@@ -16,21 +16,15 @@ import {
     Users,
 } from "lucide-react";
 
-import { Button } from "../components/ui/button";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuGroup,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuPortal,
-    DropdownMenuSeparator,
-    DropdownMenuShortcut,
-    DropdownMenuSub,
-    DropdownMenuSubContent,
-    DropdownMenuSubTrigger,
-    DropdownMenuTrigger,
-} from "../components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuGroup, DropdownMenuPortal, DropdownMenuSub, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import DropdownMenuContent from "@/components/ui/dropdown-menu/DropdownMenuContent";
+import DropdownMenuItem from "@/components/ui/dropdown-menu/DropdownMenuItem";
+import DropdownMenuLabel from "@/components/ui/dropdown-menu/DropdownMenuLabel";
+import DropdownMenuSeparator from "@/components/ui/dropdown-menu/DropdownMenuSeparator";
+import DropdownMenuShortcut from "@/components/ui/dropdown-menu/DropdownMenuShortcut";
+import DropdownMenuSubContent from "@/components/ui/dropdown-menu/DropdownMenuSubContent";
+import DropdownMenuSubTrigger from "@/components/ui/dropdown-menu/DropdownMenuSubTrigger";
 
 const meta = {
     title: "ui/DropdownMenu",

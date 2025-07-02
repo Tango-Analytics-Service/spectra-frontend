@@ -1,6 +1,7 @@
 // [build] library: 'shadcn'
-import { Label } from "../components/ui/label";
-import { RadioGroup, RadioGroupItem } from "../components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import RadioGroup from "@/components/ui/radio-group/RadioGroup";
+import RadioGroupItem from "@/components/ui/radio-group/RadioGroupItem";
 
 const meta = {
     title: "ui/RadioGroup",

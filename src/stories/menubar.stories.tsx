@@ -1,19 +1,15 @@
 // [build] library: 'shadcn'
-import {
-    Menubar,
-    MenubarCheckboxItem,
-    MenubarContent,
-    MenubarItem,
-    MenubarMenu,
-    MenubarRadioGroup,
-    MenubarRadioItem,
-    MenubarSeparator,
-    MenubarShortcut,
-    MenubarSub,
-    MenubarSubContent,
-    MenubarSubTrigger,
-    MenubarTrigger,
-} from "../components/ui/menubar";
+import { MenubarSub, MenubarMenu, MenubarRadioGroup } from "@/components/ui/menubar";
+import Menubar from "@/components/ui/menubar/Menubar";
+import MenubarCheckboxItem from "@/components/ui/menubar/MenubarCheckboxItem";
+import MenubarContent from "@/components/ui/menubar/MenubarContent";
+import MenubarItem from "@/components/ui/menubar/MenubarItem";
+import MenubarRadioItem from "@/components/ui/menubar/MenubarRadioItem";
+import MenubarSeparator from "@/components/ui/menubar/MenubarSeparator";
+import MenubarShortcut from "@/components/ui/menubar/MenubarShortcut";
+import MenubarSubContent from "@/components/ui/menubar/MenubarSubContent";
+import MenubarSubTrigger from "@/components/ui/menubar/MenubarSubTrigger";
+import MenubarTrigger from "@/components/ui/menubar/MenubarTrigger";
 
 const meta = {
     title: "ui/Menubar",

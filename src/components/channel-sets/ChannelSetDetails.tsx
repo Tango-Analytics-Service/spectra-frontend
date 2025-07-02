@@ -5,7 +5,8 @@ import {
     CheckCircle,
     AlertCircle,
 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import Card from "@/components/ui/card/Card";
+import CardContent from "@/components/ui/card/CardContent";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";

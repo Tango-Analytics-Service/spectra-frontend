@@ -1,16 +1,13 @@
 // [build] library: 'shadcn'
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-} from "../components/ui/alert-dialog";
-import { Button } from "../components/ui/button";
+import { AlertDialog, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import AlertDialogAction from "@/components/ui/alert-dialog/AlertDialogAction";
+import AlertDialogCancel from "@/components/ui/alert-dialog/AlertDialogCancel";
+import AlertDialogContent from "@/components/ui/alert-dialog/AlertDialogContent";
+import AlertDialogDescription from "@/components/ui/alert-dialog/AlertDialogDescription";
+import AlertDialogFooter from "@/components/ui/alert-dialog/AlertDialogFooter";
+import AlertDialogHeader from "@/components/ui/alert-dialog/AlertDialogHeader";
+import AlertDialogTitle from "@/components/ui/alert-dialog/AlertDialogTitle";
+import { Button } from "@/components/ui/button";
 
 const meta = {
     title: "ui/AlertDialog",

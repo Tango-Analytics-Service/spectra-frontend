@@ -2,6 +2,7 @@ import React from "react";
 import { ArrowRightIcon } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useCarousel } from ".";
 
 const CarouselNext = React.forwardRef<
     HTMLButtonElement,

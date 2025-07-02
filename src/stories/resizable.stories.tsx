@@ -1,10 +1,8 @@
-import {
-    ResizableHandle,
-    ResizablePanel,
-    ResizablePanelGroup,
-} from "../components/ui/resizable";
+import { ResizablePanel } from "@/components/ui/resizable";
+import ResizableHandle from "@/components/ui/resizable/ResizableHandle";
+import ResizablePanelGroup from "@/components/ui/resizable/ResizablePanelGroup";
 
-const meta= {
+const meta = {
     title: "ui/ResizablePanelGroup",
     component: ResizablePanelGroup,
     tags: ["autodocs"],

@@ -1,5 +1,6 @@
 import { type DialogProps } from "@radix-ui/react-dialog";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog } from "@/components/ui/dialog";
+import DialogContent from "@/components/ui/dialog/DialogContent";
 import Command from "./Command";
 
 export default function CommandDialog({ children, ...props }: DialogProps) {

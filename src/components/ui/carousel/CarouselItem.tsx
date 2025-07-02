@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import React from "react";
+import { useCarousel } from ".";
 
 const CarouselItem = React.forwardRef<
     HTMLDivElement,

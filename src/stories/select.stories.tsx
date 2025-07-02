@@ -1,14 +1,10 @@
 // [build] library: 'shadcn'
-import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectLabel,
-    SelectSeparator,
-    SelectTrigger,
-    SelectValue,
-} from "../components/ui/select";
+import { Select, SelectGroup, SelectValue } from "@/components/ui/select";
+import SelectContent from "@/components/ui/select/SelectContent";
+import SelectItem from "@/components/ui/select/SelectItem";
+import SelectSeparator from "@/components/ui/select/SelectSeparator";
+import SelectTrigger from "@/components/ui/select/SelectTrigger";
+import SelectLabel from "@/components/ui/select/SelectLabel";
 
 const meta = {
     title: "ui/Select",

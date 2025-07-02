@@ -1,7 +1,11 @@
 import { Drawer } from "vaul";
 
-export default {
-    DrawerTrigger: Drawer.Trigger,
-    DrawerPortal: Drawer.Portal,
-    DrawerClose: Drawer.Close,
+const DrawerTrigger = Drawer.Trigger;
+const DrawerPortal = Drawer.Portal;
+const DrawerClose = Drawer.Close;
+
+export {
+    DrawerTrigger,
+    DrawerPortal,
+    DrawerClose,
 };

@@ -1,8 +1,9 @@
 // [build] library: 'shadcn'
 import { RocketIcon } from "@radix-ui/react-icons";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
-
-import { Alert, AlertDescription, AlertTitle } from "../components/ui/alert";
+import Alert from "@/components/ui/alert/Alert";
+import AlertDescription from "@/components/ui/alert/AlertDescription";
+import AlertTitle from "@/components/ui/alert/AlertTitle";
 
 const meta = {
     title: "ui/Alert",

@@ -1,12 +1,9 @@
 // [build] library: 'shadcn'
-import {
-    NavigationMenu,
-    NavigationMenuContent,
-    NavigationMenuItem,
-    NavigationMenuLink,
-    NavigationMenuList,
-    NavigationMenuTrigger,
-} from "../components/ui/navigation-menu";
+import { NavigationMenuItem, NavigationMenuLink } from "@/components/ui/navigation-menu";
+import NavigationMenu from "@/components/ui/navigation-menu/NavigationMenu";
+import NavigationMenuContent from "@/components/ui/navigation-menu/NavigationMenuContent";
+import NavigationMenuList from "@/components/ui/navigation-menu/NavigationMenuList";
+import NavigationMenuTrigger from "@/components/ui/navigation-menu/NavigationMenuTrigger";
 
 import { MoonIcon } from "@radix-ui/react-icons";
 

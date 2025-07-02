@@ -5,7 +5,10 @@ import {
     animations,
 } from "@/lib/design-system";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Card from "@/components/ui/card/Card";
+import CardContent from "@/components/ui/card/CardContent";
+import CardHeader from "@/components/ui/card/CardHeader";
+import CardTitle from "@/components/ui/card/CardTitle";
 import { User, Settings, LogOut, Bell, Shield, CreditCard } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import ProfileNavButton from "./ProfileNavButton";
