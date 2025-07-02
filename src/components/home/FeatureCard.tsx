@@ -1,4 +1,7 @@
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import Card from "../ui/card/Card";
+import CardContent from "../ui/card/CardContent";
+import CardHeader from "../ui/card/CardHeader";
+import CardTitle from "../ui/card/CardTitle";
 
 // Feature card component
 export interface FeatureCardProps {

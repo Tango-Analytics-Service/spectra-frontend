@@ -1,10 +1,8 @@
 // [build] library: 'shadcn'
-import {
-    Accordion,
-    AccordionContent,
-    AccordionItem,
-    AccordionTrigger,
-} from "../components/ui/accordion";
+import { Accordion } from "@/components/ui/accordion";
+import AccordionContent from "@/components/ui/accordion/AccordionContent";
+import AccordionItem from "@/components/ui/accordion/AccordionItem";
+import AccordionTrigger from "@/components/ui/accordion/AccordionTrigger";
 
 const meta = {
     title: "ui/Accordion",

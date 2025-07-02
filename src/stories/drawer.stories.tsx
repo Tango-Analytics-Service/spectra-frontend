@@ -1,14 +1,11 @@
-import { Button } from "../components/ui/button";
-import {
-    Drawer,
-    DrawerClose,
-    DrawerContent,
-    DrawerDescription,
-    DrawerFooter,
-    DrawerHeader,
-    DrawerTitle,
-    DrawerTrigger,
-} from "../components/ui/drawer";
+import { Button } from "@/components/ui/button";
+import { DrawerClose, DrawerTrigger } from "@/components/ui/drawer";
+import Drawer from "@/components/ui/drawer/Drawer";
+import DrawerContent from "@/components/ui/drawer/DrawerContent";
+import DrawerDescription from "@/components/ui/drawer/DrawerDescription";
+import DrawerFooter from "@/components/ui/drawer/DrawerFooter";
+import DrawerHeader from "@/components/ui/drawer/DrawerHeader";
+import DrawerTitle from "@/components/ui/drawer/DrawerTitle";
 
 const meta = {
     title: "ui/Drawer",

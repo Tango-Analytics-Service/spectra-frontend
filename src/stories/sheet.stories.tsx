@@ -1,12 +1,9 @@
 // [build] library: 'shadcn'
-import {
-    Sheet,
-    SheetContent,
-    SheetDescription,
-    SheetHeader,
-    SheetTitle,
-    SheetTrigger,
-} from "../components/ui/sheet";
+import { Sheet, SheetTrigger } from "@/components/ui/sheet";
+import SheetContent from "@/components/ui/sheet/SheetContent";
+import SheetDescription from "@/components/ui/sheet/SheetDescription";
+import SheetHeader from "@/components/ui/sheet/SheetHeader";
+import SheetTitle from "@/components/ui/sheet/SheetTitle";
 
 const meta = {
     title: "ui/Sheet",

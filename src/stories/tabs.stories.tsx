@@ -1,13 +1,11 @@
 // [build] library: 'shadcn'
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { Label } from "../components/ui/label";
-import {
-    Tabs,
-    TabsContent,
-    TabsList,
-    TabsTrigger,
-} from "../components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs } from "@/components/ui/tabs";
+import TabsContent from "@/components/ui/tabs/TabsContent";
+import TabsList from "@/components/ui/tabs/TabsList";
+import TabsTrigger from "@/components/ui/tabs/TabsTrigger";
 
 const meta = {
     title: "ui/Tabs",

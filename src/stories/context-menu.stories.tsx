@@ -1,19 +1,14 @@
 // [build] library: 'shadcn'
-import {
-    ContextMenu,
-    ContextMenuCheckboxItem,
-    ContextMenuContent,
-    ContextMenuItem,
-    ContextMenuLabel,
-    ContextMenuRadioGroup,
-    ContextMenuRadioItem,
-    ContextMenuSeparator,
-    ContextMenuShortcut,
-    ContextMenuSub,
-    ContextMenuSubContent,
-    ContextMenuSubTrigger,
-    ContextMenuTrigger,
-} from "../components/ui/context-menu";
+import { ContextMenu, ContextMenuRadioGroup, ContextMenuSub, ContextMenuTrigger } from "@/components/ui/context-menu";
+import ContextMenuCheckboxItem from "@/components/ui/context-menu/ContextMenuCheckboxItem";
+import ContextMenuContent from "@/components/ui/context-menu/ContextMenuSubContent";
+import ContextMenuItem from "@/components/ui/context-menu/ContextMenuItem";
+import ContextMenuLabel from "@/components/ui/context-menu/ContextMenuLabel";
+import ContextMenuRadioItem from "@/components/ui/context-menu/ContextMenuRadioItem";
+import ContextMenuSeparator from "@/components/ui/context-menu/ContextMenuSeparator";
+import ContextMenuShortcut from "@/components/ui/context-menu/ContextMenuShortcut";
+import ContextMenuSubContent from "@/components/ui/context-menu/ContextMenuSubContent";
+import ContextMenuSubTrigger from "@/components/ui/context-menu/ContextMenuSubTrigger";
 
 const meta = {
     title: "ui/ContextMenu",

@@ -1,22 +1,13 @@
 // [build] library: 'shadcn'
-import { Calendar } from "../components/ui/calendar";
+import Calendar from "@/components/ui/calendar";
 import { CalendarIcon } from "@radix-ui/react-icons";
+import { Popover, PopoverContent, PopoverTrigger, } from "@/components/ui/popover";
+import { Select, SelectValue } from "@/components/ui/select";
+import SelectContent from "@/components/ui/select/SelectContent";
+import SelectItem from "@/components/ui/select/SelectItem";
+import SelectTrigger from "@/components/ui/select/SelectTrigger";
 
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "../components/ui/popover";
-
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "../components/ui/select";
-
-import { Button } from "../components/ui/button";
+import { Button } from "@/components/ui/button";
 import { addDays, format } from "date-fns";
 
 const meta = {

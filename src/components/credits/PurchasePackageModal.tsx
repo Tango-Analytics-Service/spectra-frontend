@@ -1,19 +1,18 @@
 // src/components/credits/PurchasePackageModal.tsx
 import { useState } from "react";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogFooter,
-} from "@/components/ui/dialog";
+import { Dialog } from "@/components/ui/dialog";
+import DialogContent from "@/components/ui/dialog/DialogContent";
+import DialogDescription from "@/components/ui/dialog/DialogDescription";
+import DialogFooter from "@/components/ui/dialog/DialogFooter";
+import DialogHeader from "@/components/ui/dialog/DialogHeader";
+import DialogTitle from "@/components/ui/dialog/DialogTitle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CreditCard, Coins } from "lucide-react";
 import { CreditPackage } from "@/types/credits";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import RadioGroup from "@/components/ui/radio-group/RadioGroup";
+import RadioGroupItem from "@/components/ui/radio-group/RadioGroupItem";
 
 export interface PurchasePackageModalProps {
     isOpen: boolean;

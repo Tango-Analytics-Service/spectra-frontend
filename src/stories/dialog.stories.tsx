@@ -1,16 +1,13 @@
 // [build] library: 'shadcn'
-import { Button } from "../components/ui/button";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "../components/ui/dialog";
-import { Input } from "../components/ui/input";
-import { Label } from "../components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import DialogContent from "@/components/ui/dialog/DialogContent";
+import DialogDescription from "@/components/ui/dialog/DialogDescription";
+import DialogFooter from "@/components/ui/dialog/DialogFooter";
+import DialogHeader from "@/components/ui/dialog/DialogHeader";
+import DialogTitle from "@/components/ui/dialog/DialogTitle";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const meta = {
     title: "ui/Dialog",

@@ -9,13 +9,10 @@ import {
 } from "@/lib/design-system";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import DropdownMenuContent from "@/components/ui/dropdown-menu/DropdownMenuContent";
+import DropdownMenuItem from "@/components/ui/dropdown-menu/DropdownMenuItem";
+import DropdownMenuSeparator from "@/components/ui/dropdown-menu/DropdownMenuSeparator";
 import {
     Menu,
     X,

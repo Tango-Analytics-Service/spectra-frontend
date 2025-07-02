@@ -8,16 +8,14 @@ import {
     RocketIcon,
 } from "@radix-ui/react-icons";
 
-import {
-    Command,
-    CommandEmpty,
-    CommandGroup,
-    CommandInput,
-    CommandItem,
-    CommandList,
-    CommandSeparator,
-    CommandShortcut,
-} from "../components/ui/command";
+import Command from "@/components/ui/command/Command";
+import CommandEmpty from "@/components/ui/command/CommandEmpty";
+import CommandGroup from "@/components/ui/command/CommandGroup";
+import CommandInput from "@/components/ui/command/CommandInput";
+import CommandItem from "@/components/ui/command/CommandItem";
+import CommandList from "@/components/ui/command/CommandList";
+import CommandSeparator from "@/components/ui/command/CommandSeparator";
+import CommandShortcut from "@/components/ui/command/CommandShortcut";
 
 const meta = {
     title: "ui/Command",

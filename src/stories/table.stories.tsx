@@ -1,13 +1,11 @@
 // [build] library: 'shadcn'
-import {
-    Table,
-    TableBody,
-    TableCaption,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "../components/ui/table";
+import Table from "@/components/ui/table/Table";
+import TableBody from "@/components/ui/table/TableBody";
+import TableCaption from "@/components/ui/table/TableCaption";
+import TableCell from "@/components/ui/table/TableCell";
+import TableHead from "@/components/ui/table/TableHead";
+import TableHeader from "@/components/ui/table/TableHeader";
+import TableRow from "@/components/ui/table/TableRow";
 
 const meta = {
     title: "ui/Table",
