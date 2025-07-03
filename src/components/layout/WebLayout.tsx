@@ -1,21 +1,17 @@
 // src/components/layout/WebLayout.tsx
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
-import {
-    typography,
-    spacing,
-    animations,
-} from "@/lib/design-system";
+import { typography, spacing, animations } from "@/lib/design-system";
 import WebNavigation from "../navigation/WebNavigation";
-import { useAuth } from "@/contexts/AuthContext";
 import SidebarLink from "./SidebarLink";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 export interface WebLayoutProps {
     children: ReactNode;
 }
 
 export default function WebLayout({ children }: WebLayoutProps) {
-    const { isAuthenticated } = useAuth();
+    const isAuthenticated = useAuthStore(state => state.isAuthenticated);
 
     return (
         <div className="flex flex-col min-h-screen bg-[#041331] text-white">

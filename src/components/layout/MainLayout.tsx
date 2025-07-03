@@ -3,22 +3,17 @@ import { ReactNode } from "react";
 import BottomNavigation from "../navigation/BottomNavigation";
 import { useTelegramNavigation } from "../../hooks/useTelegramNavigation";
 import PageTransition from "./PageTransition";
-import { useAuth } from "../../contexts/AuthContext";
 import { cn } from "@/lib/utils";
-import {
-    gradients,
-    typography,
-    spacing,
-    animations,
-} from "@/lib/design-system";
+import { gradients, typography, spacing, animations } from "@/lib/design-system";
 import AppHeader from "../common/AppHeader";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 export interface MainLayoutProps {
     children: ReactNode;
 }
 
 export default function MainLayout({ children }: MainLayoutProps) {
-    const { isTelegram } = useAuth();
+    const isTelegram = useAuthStore(state => state.isTelegram);
 
     useTelegramNavigation();
 

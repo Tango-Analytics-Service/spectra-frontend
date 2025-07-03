@@ -1,16 +1,18 @@
-import { useAuth } from "@/contexts/AuthContext";
 import { createButtonStyle, spacing } from "@/lib/design-system";
 import { cn } from "@/lib/utils";
+import { useAuthStore } from "@/stores/useAuthStore";
 import { Button } from "react-day-picker";
 
 
 export default function LoginButton() {
     const telegramBotUrl = import.meta.env.VITE_TELEGRAM_BOT_URL;
 
-    const { isLoading, login, isTelegram } = useAuth();
+    const isLoaded = useAuthStore(state => state.isLoaded);
+    const login = useAuthStore(state => state.login);
+    const isTelegram = useAuthStore(state => state.isTelegram);
 
     const handleLogin = async () => {
-        if (!isLoading) {
+        if (isLoaded) {
             await login();
         }
     };
@@ -19,14 +21,14 @@ export default function LoginButton() {
         return (
             <Button
                 onClick={handleLogin}
-                disabled={isLoading}
+                disabled={!isLoaded}
                 className={cn(
                     createButtonStyle("primary"),
                     "w-full sm:w-auto shadow-md hover:shadow-lg transition-all",
                     `px-${spacing.lg} py-${spacing.sm}`,
                 )}
             >
-                {isLoading ? "Авторизация..." : "Войти через Telegram"}
+                {isLoaded ? "Авторизация..." : "Войти через Telegram"}
             </Button>
         );
     } else {

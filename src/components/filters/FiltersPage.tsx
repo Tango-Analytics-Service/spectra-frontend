@@ -1,6 +1,5 @@
 // src/components/filters/FiltersPage.tsx - обновленная версия с общим StatsCard
 import { useState, useEffect } from "react";
-import { useFilters } from "@/contexts/FilterContext";
 import { Button } from "@/components/ui/button";
 import { Plus, Filter as FilterIcon, Settings } from "lucide-react";
 import FiltersList from "./FiltersList";
@@ -17,16 +16,15 @@ import {
     textColors,
     createTextStyle,
 } from "@/lib/design-system";
+import { useFiltersStore } from "@/stores/useFiltersStore";
 
 export default function FiltersPage() {
-    const {
-        fetchSystemFilters,
-        fetchUserFilters,
-        systemFilters,
-        userFilters,
-        isSystemFiltersLoading,
-        isUserFiltersLoading,
-    } = useFilters();
+    const systemFilters = useFiltersStore(state => state.systemFilters);
+    const userFilters = useFiltersStore(state => state.userFilters);
+    const isSystemFiltersLoaded = useFiltersStore(state => state.isSystemFiltersLoaded);
+    const isUserFiltersLoaded = useFiltersStore(state => state.isUserFiltersLoaded);
+    const fetchSystemFilters = useFiltersStore(state => state.fetchSystemFilters);
+    const fetchUserFilters = useFiltersStore(state => state.fetchUserFilters);
 
     const [showCreateDialog, setShowCreateDialog] = useState(false);
 
@@ -37,7 +35,7 @@ export default function FiltersPage() {
     }, [fetchSystemFilters, fetchUserFilters]);
 
     // Подсчет статистики
-    const isLoading = isSystemFiltersLoading || isUserFiltersLoading;
+    const isLoaded = isSystemFiltersLoaded && isUserFiltersLoaded;
     const totalFilters =
         systemFilters.length + userFilters.filter((f) => f.is_custom).length;
     const systemFiltersCount = systemFilters.length;
@@ -91,21 +89,21 @@ export default function FiltersPage() {
                     >
                         <StatsCard
                             title="Всего"
-                            value={isLoading ? "—" : totalFilters}
+                            value={!isLoaded ? "—" : totalFilters}
                             icon={<FilterIcon size={15} className={textColors.accent} />}
-                            loading={isLoading}
+                            loading={!isLoaded}
                         />
                         <StatsCard
                             title="Системные"
-                            value={isLoading ? "—" : systemFiltersCount}
+                            value={!isLoaded ? "—" : systemFiltersCount}
                             icon={<Settings size={15} className="text-purple-400" />}
-                            loading={isLoading}
+                            loading={!isLoaded}
                         />
                         <StatsCard
                             title="Мои фильтры"
-                            value={isLoading ? "—" : customFiltersCount}
+                            value={!isLoaded ? "—" : customFiltersCount}
                             icon={<Plus size={15} className="text-green-400" />}
-                            loading={isLoading}
+                            loading={!isLoaded}
                         />
                     </div>
                 </div>

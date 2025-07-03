@@ -1,16 +1,12 @@
 // src/components/profile/ProfilePage.tsx
-import { useAuth } from "../../contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import {
-    components,
-    typography,
-    createCardStyle,
-    animations,
-} from "@/lib/design-system";
+import { components, typography, createCardStyle, animations } from "@/lib/design-system";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 export default function ProfilePage() {
-    const { user, logout } = useAuth();
+    const user = useAuthStore(state => state.user);
+    const logout = useAuthStore(state => state.logout);
 
     return (
         <div className={cn("px-4 sm:px-6", "pt-4 pb-4", animations.fadeIn)}>

@@ -2,32 +2,21 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import {
-    typography,
-    spacing,
-    createButtonStyle,
-} from "@/lib/design-system";
-import { useAuth } from "@/contexts/AuthContext";
+import { typography, spacing, createButtonStyle } from "@/lib/design-system";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import DropdownMenuContent from "@/components/ui/dropdown-menu/DropdownMenuContent";
 import DropdownMenuItem from "@/components/ui/dropdown-menu/DropdownMenuItem";
 import DropdownMenuSeparator from "@/components/ui/dropdown-menu/DropdownMenuSeparator";
-import {
-    Menu,
-    X,
-    User,
-    LogOut,
-    Settings,
-    CreditCard,
-    Search,
-    Home,
-} from "lucide-react";
+import { Menu, X, User, LogOut, Settings, CreditCard, Search, Home } from "lucide-react";
 import NavLink from "./NavLink";
 import MobileNavLink from "./MobileNavLink";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 export default function WebNavigation() {
-    const { isAuthenticated, user, logout } = useAuth();
+    const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+    const user = useAuthStore(state => state.user);
+    const logout = useAuthStore(state => state.logout);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     return (

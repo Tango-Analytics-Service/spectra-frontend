@@ -1,17 +1,14 @@
 // src/components/home/WebHomePage.tsx
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import {
-    typography,
-    animations,
-} from "@/lib/design-system";
+import { typography, animations } from "@/lib/design-system";
 import { Button } from "@/components/ui/button";
 import { BarChart2, Users, Filter, CreditCard } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
 import FeatureCard from "./FeatureCard";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 export default function WebHomePage() {
-    const { isAuthenticated } = useAuth();
+    const isAuthenticated = useAuthStore(state => state.isAuthenticated);
 
     return (
         <div className={cn("container mx-auto", animations.fadeIn)}>

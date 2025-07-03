@@ -5,7 +5,6 @@ import CreditTransactionsList from "./CreditTransactionsList";
 import CreditPackagesGrid from "./CreditPackagesGrid";
 import CreditCostsList from "./CreditCostsList";
 import { Loader2, AlertCircle } from "lucide-react";
-import { useCredits } from "@/contexts/CreditsContext";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
 import {
@@ -15,23 +14,22 @@ import {
     createCardStyle,
     animations,
 } from "@/lib/design-system";
+import { useCreditsStore } from "@/stores/useCreditsStore";
 
 export default function CreditsPage() {
     // Get data and methods from context
-    const {
-        balance,
-        transactions,
-        packages,
-        costs,
-        isBalanceLoading,
-        isTransactionsLoading,
-        isPackagesLoading,
-        isCostsLoading,
-        fetchBalance,
-        fetchTransactions,
-        fetchPackages,
-        fetchCosts,
-    } = useCredits();
+    const balance = useCreditsStore(state => state.balance);
+    const transactions = useCreditsStore(state => state.transactions);
+    const packages = useCreditsStore(state => state.packages);
+    const costs = useCreditsStore(state => state.costs);
+    const isBalanceLoaded = useCreditsStore(state => state.isBalanceLoaded);
+    const isTransactionsLoaded = useCreditsStore(state => state.isTransactionsLoaded);
+    const isPackagesLoaded = useCreditsStore(state => state.isPackagesLoaded);
+    const isCostsLoaded = useCreditsStore(state => state.isCostsLoaded);
+    const fetchBalance = useCreditsStore(state => state.fetchBalance);
+    const fetchTransactions = useCreditsStore(state => state.fetchTransactions);
+    const fetchPackages = useCreditsStore(state => state.fetchPackages);
+    const fetchCosts = useCreditsStore(state => state.fetchCosts);
 
     // Toast for notifications
     const { toast } = useToast();
@@ -83,7 +81,7 @@ export default function CreditsPage() {
 
                 {/* Credit balance */}
                 <div className={`mt-${spacing.md}`}>
-                    {isBalanceLoading ? (
+                    {!isBalanceLoaded ? (
                         <div className={cn(createCardStyle(), "p-6 flex justify-center")}>
                             <Loader2 className="h-8 w-8 animate-spin text-blue-400" />
                         </div>
@@ -98,7 +96,7 @@ export default function CreditsPage() {
 
                 {/* Credit packages */}
                 <div className={`mt-${spacing.lg}`}>
-                    {isPackagesLoading ? (
+                    {!isPackagesLoaded ? (
                         <div className={cn(createCardStyle(), "p-6 flex justify-center")}>
                             <Loader2 className="h-8 w-8 animate-spin text-blue-400" />
                         </div>
@@ -143,7 +141,7 @@ export default function CreditsPage() {
                     )}
                 >
                     {/* Transactions */}
-                    {isTransactionsLoading ? (
+                    {!isTransactionsLoaded ? (
                         <div className={cn(createCardStyle(), "p-6 flex justify-center")}>
                             <Loader2 className="h-8 w-8 animate-spin text-blue-400" />
                         </div>
@@ -156,7 +154,7 @@ export default function CreditsPage() {
                     )}
 
                     {/* Costs */}
-                    {isCostsLoading ? (
+                    {!isCostsLoaded ? (
                         <div className={cn(createCardStyle(), "p-6 flex justify-center")}>
                             <Loader2 className="h-8 w-8 animate-spin text-blue-400" />
                         </div>

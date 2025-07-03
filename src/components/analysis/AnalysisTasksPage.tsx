@@ -14,7 +14,6 @@ import Card from "@/components/ui/card/Card";
 import CardContent from "@/components/ui/card/CardContent";
 import { Skeleton } from "@/components/ui/skeleton";
 import StatsCard from "@/components/ui/stats-card";
-import { useChannelSets } from "@/contexts/ChannelSetsContext";
 import { AnalysisTask, AnalysisTaskBasic } from "@/types/analysis";
 import {
     createCardStyle,
@@ -32,6 +31,7 @@ import MobileActionSheet from "./MobileActionSheet";
 import { ChannelSet } from "@/types/channel-sets";
 import TaskDetailsModal from "./TaskDetailsModal";
 import { useAnalysisTasksStore } from "@/stores/useAnalysisTasksStore";
+import { useChannelsSetsStore } from "@/stores/useChannelsSetsStore";
 
 function filterDate(taskDate: Date, dateFilter: string) {
     if (dateFilter === "all") {
@@ -88,16 +88,7 @@ function getTaskActions(task: AnalysisTaskBasic | null, onPress: () => void) {
 };
 
 export default function AnalysisTasksPage() {
-    const { channelSets } = useChannelSets();
-    // const {
-    //     tasks,
-    //     taskDetails,
-    //     isLoading,
-    //     selectedTask,
-    //     fetchTasks,
-    //     refreshTask,
-    //     selectTaskById,
-    // } = useAnalysisTasks();
+    const channelsSets = useChannelsSetsStore(state => state.channelsSets);
 
     const tasks = useAnalysisTasksStore(state => state.tasks);
     const taskDetails = useAnalysisTasksStore(state => state.tasksDetails);
@@ -119,9 +110,8 @@ export default function AnalysisTasksPage() {
 
     // Загрузка задач при монтировании
     useEffect(() => {
-
         fetchTasks();
-    }, []);
+    }, [fetchTasks]);
 
     // Обработчик обновления
     const handleRefresh = () => {
@@ -134,7 +124,7 @@ export default function AnalysisTasksPage() {
         if (statusFilter !== "all" && task.status !== statusFilter) {
             return false;
         }
-        return filterQuery(task, taskDetails[task.id], searchQuery, channelSets)
+        return filterQuery(task, taskDetails[task.id], searchQuery, channelsSets)
             && filterDate(new Date(task.created_at), dateFilter);
     });
 

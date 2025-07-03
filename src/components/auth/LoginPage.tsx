@@ -1,7 +1,6 @@
 // src/components/auth/LoginPage.tsx
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import {
     typography,
@@ -10,9 +9,11 @@ import {
     animations,
 } from "@/lib/design-system";
 import LoginButton from "./LoginButton";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 export default function LoginPage() {
-    const { isAuthenticated, error } = useAuth();
+    const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+    const error = useAuthStore(state => state.error);
     const navigate = useNavigate();
 
 

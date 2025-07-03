@@ -32,7 +32,6 @@ import DialogHeader from "@/components/ui/dialog/DialogHeader";
 import DialogTitle from "@/components/ui/dialog/DialogTitle";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/components/ui/use-toast";
-import { useChannelSets } from "@/contexts/ChannelSetsContext";
 import { ChannelSet } from "@/types/channel-sets";
 import ChannelsList from "./ChannelsList";
 import AddChannelsDialog from "./AddChannelsDialog";
@@ -48,16 +47,16 @@ import {
     textColors,
 } from "@/lib/design-system";
 import StartAnalysisDialog from "../analysis/StartAnalysisDialog";
+import { useChannelsSetsStore } from "@/stores/useChannelsSetsStore";
 
 export default function ChannelSetDetailsPage() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const {
-        getChannelSet,
-        updateChannelSet,
-        refreshChannelSet,
-        deleteChannelSet,
-    } = useChannelSets();
+
+    const getChannelsSet = useChannelsSetsStore(state => state.getChannelsSet);
+    const updateChannelsSet = useChannelsSetsStore(state => state.updateChannelsSet);
+    const refreshChannelsSet = useChannelsSetsStore(state => state.refreshChannelsSet);
+    const deleteChannelsSet = useChannelsSetsStore(state => state.deleteChannelsSet);
 
     // Состояния
     const [channelSet, setChannelSet] = useState<ChannelSet | null>(null);
@@ -81,7 +80,7 @@ export default function ChannelSetDetailsPage() {
         const loadChannelSet = async () => {
             setIsLoading(true);
             try {
-                const set = await getChannelSet(id);
+                const set = await getChannelsSet(id);
                 if (set) {
                     setChannelSet(set);
                     setEditForm({
@@ -105,7 +104,7 @@ export default function ChannelSetDetailsPage() {
         };
 
         loadChannelSet();
-    }, [id, getChannelSet, navigate]);
+    }, [id, getChannelsSet, navigate]);
 
     // Обработчики
     const handleRefresh = async () => {
@@ -113,7 +112,7 @@ export default function ChannelSetDetailsPage() {
 
         setIsRefreshing(true);
         try {
-            const refreshedSet = await refreshChannelSet(id);
+            const refreshedSet = await refreshChannelsSet(id);
             if (refreshedSet) {
                 setChannelSet(refreshedSet);
                 toast({
@@ -144,7 +143,7 @@ export default function ChannelSetDetailsPage() {
         if (!id || !channelSet) return;
 
         try {
-            const updatedSet = await updateChannelSet(id, {
+            const updatedSet = await updateChannelsSet(id, {
                 name: editForm.name,
                 description: editForm.description,
                 is_public: editForm.is_public,
@@ -168,7 +167,7 @@ export default function ChannelSetDetailsPage() {
 
         setIsDeleting(true);
         try {
-            const success = await deleteChannelSet(id);
+            const success = await deleteChannelsSet(id);
             if (success) {
                 toast({
                     title: "Удалено",

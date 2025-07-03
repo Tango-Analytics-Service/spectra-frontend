@@ -1,7 +1,6 @@
 // src/components/filters/CreateFilterDialog.tsx
 import { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
-import { FilterCreateRequest, useFilters } from "@/contexts/FilterContext";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectValue } from "@/components/ui/select";
@@ -13,6 +12,7 @@ import { spacing, components } from "@/lib/design-system";
 import DialogWrapper from "@/components/ui/dialog-components/DialogWrapper";
 import FormField from "@/components/ui/dialog-components/FormFiels";
 import ActionButtons from "@/components/ui/dialog-components/ActionButtons";
+import { FilterCreateRequest, useFiltersStore } from "@/stores/useFiltersStore";
 
 export interface CreateFilterDialogProps {
     open: boolean;
@@ -30,7 +30,7 @@ const FILTER_CATEGORIES = [
 ];
 
 export default function CreateFilterDialog({ open, onOpenChange, }: CreateFilterDialogProps) {
-    const { createCustomFilter } = useFilters();
+    const createCustomFilter = useFiltersStore(state => state.createCustomFilter);
 
     // Состояние формы
     const [formData, setFormData] = useState<FilterCreateRequest>({
