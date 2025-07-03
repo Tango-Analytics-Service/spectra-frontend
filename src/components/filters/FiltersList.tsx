@@ -1,6 +1,5 @@
 // src/components/filters/FiltersList.tsx
 import { useState, useEffect, useMemo } from "react";
-import { useFilters } from "@/contexts/FilterContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import ScrollArea from "@/components/ui/scroll-area/ScrollArea";
@@ -17,6 +16,7 @@ import {
 } from "@/lib/design-system";
 import EmptyState from "@/components/ui/dialog-components/EmptyState";
 import LoadingState from "@/components/ui/dialog-components/LoadingState";
+import { useFiltersStore } from "@/stores/useFiltersStore";
 
 export interface FiltersListProps {
     onSelectFilter?: (id: string) => void;
@@ -49,15 +49,13 @@ export default function FiltersList({
     showActions = true,
     height = "h-[600px]",
 }: FiltersListProps) {
-    const {
-        systemFilters,
-        userFilters,
-        isSystemFiltersLoading,
-        isUserFiltersLoading,
-        fetchSystemFilters,
-        fetchUserFilters,
-        deleteCustomFilter,
-    } = useFilters();
+    const systemFilters = useFiltersStore(state => state.systemFilters);
+    const userFilters = useFiltersStore(state => state.userFilters);
+    const isSystemFiltersLoaded = useFiltersStore(state => state.isSystemFiltersLoaded);
+    const isUserFiltersLoaded = useFiltersStore(state => state.isUserFiltersLoaded);
+    const fetchSystemFilters = useFiltersStore(state => state.fetchSystemFilters);
+    const fetchUserFilters = useFiltersStore(state => state.fetchUserFilters);
+    const deleteCustomFilter = useFiltersStore(state => state.deleteCustomFilter);
 
     // Локальное состояние
     const [searchQuery, setSearchQuery] = useState("");
@@ -151,7 +149,7 @@ export default function FiltersList({
     };
 
     // Состояние загрузки
-    const isLoading = isSystemFiltersLoading || isUserFiltersLoading;
+    const isLoaded = isSystemFiltersLoaded && isUserFiltersLoaded;
 
     return (
         <div className={cn("space-y-4", animations.fadeIn)}>
@@ -227,7 +225,7 @@ export default function FiltersList({
             </div>
             {/* Список фильтров */}
             <ScrollArea className={cn(height, "w-full max-w-full overflow-hidden")}>
-                {isLoading ? (
+                {!isLoaded ? (
                     <LoadingState text="Загрузка фильтров..." />
                 ) : filteredFilters.length === 0 ? (
                     <EmptyState

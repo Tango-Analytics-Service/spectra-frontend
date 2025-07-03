@@ -8,7 +8,7 @@ import {
     AnalysisTask,
     AnalysisTasksListResponse,
 } from "@/types/analysis";
-import { Filter } from "@/contexts/FilterContext";
+import { Filter } from "@/stores/useFiltersStore";
 
 const API_ENDPOINT = "/analysis";
 

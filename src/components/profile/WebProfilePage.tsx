@@ -1,20 +1,18 @@
 // src/components/profile/WebProfilePage.tsx
 import { cn } from "@/lib/utils";
-import {
-    typography,
-    animations,
-} from "@/lib/design-system";
+import { typography, animations } from "@/lib/design-system";
 import { Button } from "@/components/ui/button";
 import Card from "@/components/ui/card/Card";
 import CardContent from "@/components/ui/card/CardContent";
 import CardHeader from "@/components/ui/card/CardHeader";
 import CardTitle from "@/components/ui/card/CardTitle";
 import { User, Settings, LogOut, Bell, Shield, CreditCard } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
 import ProfileNavButton from "./ProfileNavButton";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 export default function WebProfilePage() {
-    const { user, logout } = useAuth();
+    const user = useAuthStore(state => state.user);
+    const logout = useAuthStore(state => state.logout);
 
     return (
         <div className={cn("container mx-auto", animations.fadeIn)}>

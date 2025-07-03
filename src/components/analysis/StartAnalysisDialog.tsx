@@ -7,7 +7,6 @@ import DialogFooter from "@/components/ui/dialog/DialogFooter";
 import DialogHeader from "@/components/ui/dialog/DialogHeader";
 import DialogTitle from "@/components/ui/dialog/DialogTitle";
 import { Button } from "@/components/ui/button";
-import { useFilters } from "@/contexts/FilterContext";
 import { AnalysisOptions, ProcessingMode } from "@/types/analysis";
 import { LoaderCircle, } from "lucide-react";
 import FiltersList from "../filters/FiltersList";
@@ -21,6 +20,7 @@ import {
     spacing,
     textColors,
 } from "@/lib/design-system";
+import { useFiltersStore } from "@/stores/useFiltersStore";
 
 interface StartAnalysisDialogProps {
     open: boolean;
@@ -31,8 +31,10 @@ interface StartAnalysisDialogProps {
 }
 
 export default function StartAnalysisDialog({ open, onOpenChange, onStart, channelCount, }: StartAnalysisDialogProps) {
-    const { selectedFilters, toggleFilterSelection, clearSelectedFilters } =
-        useFilters();
+    const selectedFilters = useFiltersStore(state => state.selectedFilters);
+    const toggleFilterSelection = useFiltersStore(state => state.toggleFilterSelection);
+    const clearSelectedFilters = useFiltersStore(state => state.clearSelectedFilters);
+
     const [isStarting, setIsStarting] = useState(false);
     const [showFiltersList, setShowFiltersList] = useState(true);
 

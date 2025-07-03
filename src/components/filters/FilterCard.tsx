@@ -1,13 +1,7 @@
 // src/components/filters/FilterCard.tsx
 import React, { useState } from "react";
-import {
-    CheckCircle2,
-    Tag,
-    Info,
-    ChevronDown,
-    Settings,
-} from "lucide-react";
-import { Filter } from "@/contexts/FilterContext";
+import { CheckCircle2, Tag, Info, ChevronDown, Settings, } from "lucide-react";
+import { Filter } from "@/stores/useFiltersStore";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
