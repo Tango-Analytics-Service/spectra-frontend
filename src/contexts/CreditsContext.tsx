@@ -1,5 +1,5 @@
 // src/contexts/CreditsContext.tsx
-import React, {
+import {
     createContext,
     useContext,
     useState,
@@ -51,9 +51,7 @@ interface CreditsContextType {
 
 const CreditsContext = createContext<CreditsContextType | undefined>(undefined);
 
-export const CreditsProvider: React.FC<{ children: ReactNode }> = ({
-    children,
-}) => {
+export function CreditsProvider({ children }: { children: ReactNode }) {
     // State for data
     const [balance, setBalance] = useState<CreditBalance | null>(null);
     const [transactions, setTransactions] = useState<CreditTransaction[]>([]);

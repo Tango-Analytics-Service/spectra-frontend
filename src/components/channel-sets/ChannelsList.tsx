@@ -28,7 +28,6 @@ import DialogFooter from "@/components/ui/dialog/DialogFooter";
 import DialogHeader from "@/components/ui/dialog/DialogHeader";
 import DialogTitle from "@/components/ui/dialog/DialogTitle";
 import { toast } from "@/components/ui/use-toast";
-import { useChannelSets } from "@/contexts/ChannelSetsContext";
 import { ChannelInSet } from "@/types/channel-sets";
 import {
     createCardStyle,
@@ -41,6 +40,7 @@ import {
     animations,
     textColors,
 } from "@/lib/design-system";
+import { useChannelsSetsStore } from "@/stores/useChannelsSetsStore";
 
 interface ChannelsListProps {
     channels: ChannelInSet[];
@@ -48,12 +48,8 @@ interface ChannelsListProps {
     canManageChannels?: boolean;
 }
 
-export default function ChannelsList({
-    channels,
-    setId,
-    canManageChannels = false,
-}: ChannelsListProps) {
-    const { removeChannelsFromSet } = useChannelSets();
+export default function ChannelsList({ channels, setId, canManageChannels = false }: ChannelsListProps) {
+    const removeChannelsFromSet = useChannelsSetsStore(state => state.removeChannelsFromSet);
 
     // Состояния
     const [editMode, setEditMode] = useState(false);

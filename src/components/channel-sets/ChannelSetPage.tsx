@@ -12,7 +12,6 @@ import DialogHeader from "@/components/ui/dialog/DialogHeader";
 import DialogTitle from "@/components/ui/dialog/DialogTitle";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/use-toast";
-import { useChannelSets } from "@/contexts/ChannelSetsContext";
 import ChannelSetCard from "./ChannelSetCard";
 import AnalysisConfirmDialog from "./AnalysisConfirmDialog";
 import AddChannelsDialog from "./AddChannelsDialog";
@@ -30,11 +29,14 @@ import {
 } from "@/lib/design-system";
 import { cn } from "@/lib/utils";
 import { ChannelSet } from "@/types/channel-sets";
+import { useChannelsSetsStore } from "@/stores/useChannelsSetsStore";
 
 export default function ChannelSetPage() {
     const navigate = useNavigate();
-    const { channelSets, isLoading, fetchChannelSets, createChannelSet } =
-        useChannelSets();
+    const channelsSets = useChannelsSetsStore(state => state.channelsSets);
+    const isLoaded = useChannelsSetsStore(state => state.isLoaded);
+    const fetchChannelsSets = useChannelsSetsStore(state => state.fetchChannelsSets);
+    const createChannelsSet = useChannelsSetsStore(state => state.createChannelsSet);
 
     // Состояния
     const [searchQuery, setSearchQuery] = useState("");
@@ -55,23 +57,23 @@ export default function ChannelSetPage() {
 
     // Эффекты
     useEffect(() => {
-        fetchChannelSets();
-    }, [fetchChannelSets]);
+        fetchChannelsSets();
+    }, [fetchChannelsSets]);
 
     useEffect(() => {
         if (!searchQuery.trim()) {
-            setFilteredSets(channelSets);
+            setFilteredSets(channelsSets);
             return;
         }
 
         const query = searchQuery.toLowerCase();
-        const filtered = channelSets.filter(
+        const filtered = channelsSets.filter(
             (set) =>
                 set.name.toLowerCase().includes(query) ||
                 set.description.toLowerCase().includes(query),
         );
         setFilteredSets(filtered);
-    }, [searchQuery, channelSets]);
+    }, [searchQuery, channelsSets]);
 
     // Обработчики
     const handleCreateNewSet = async () => {
@@ -92,7 +94,7 @@ export default function ChannelSetPage() {
                 is_public: newSetIsPublic,
             };
 
-            const newSet = await createChannelSet(data);
+            const newSet = await createChannelsSet(data);
 
             if (newSet) {
                 setNewSetName("");
@@ -111,7 +113,7 @@ export default function ChannelSetPage() {
     };
 
     const handleAnalyze = (setId: string) => {
-        const set = channelSets.find((s) => s.id === setId);
+        const set = channelsSets.find((s) => s.id === setId);
         if (set) {
             setSelectedSetForAnalysis(set);
             setAnalysisDialogOpen(true);
@@ -136,7 +138,7 @@ export default function ChannelSetPage() {
     };
 
     const handleAddChannels = (setId: string) => {
-        const set = channelSets.find((s) => s.id === setId);
+        const set = channelsSets.find((s) => s.id === setId);
         if (set) {
             setSelectedSetForChannels(set);
             setAddChannelsDialogOpen(true);
@@ -200,7 +202,7 @@ export default function ChannelSetPage() {
 
                 {/* Список наборов */}
                 <div className={`mt-${spacing.lg} flex-1`}>
-                    {isLoading ? (
+                    {!isLoaded ? (
                         <div className="space-y-4">
                             {[1, 2, 3].map((i) => (
                                 <LoadingCard key={i} text="Загрузка наборов..." />

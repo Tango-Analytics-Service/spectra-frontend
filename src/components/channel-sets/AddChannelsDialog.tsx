@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import ScrollArea from "@/components/ui/scroll-area/ScrollArea";
 import { toast } from "@/components/ui/use-toast";
-import { useChannelSets } from "@/contexts/ChannelSetsContext";
 import { cn } from "@/lib/utils";
 import { Dialog } from "@/components/ui/dialog";
 import DialogContent from "@/components/ui/dialog/DialogContent";
@@ -30,6 +29,7 @@ import {
     textColors,
 } from "@/lib/design-system";
 import ChannelPreviewItem from "./ChannelPreviewItem";
+import { useChannelsSetsStore } from "@/stores/useChannelsSetsStore";
 
 // Максимальное количество каналов в наборе
 const MAX_CHANNELS_PER_SET = 20;
@@ -61,13 +61,8 @@ const getChannelWord = (count: number): string => {
     return "каналов";
 };
 
-export default function AddChannelsDialog({
-    open,
-    onOpenChange,
-    setId,
-    existingChannels = [],
-}: AddChannelsDialogProps) {
-    const { addChannelsToSet } = useChannelSets();
+export default function AddChannelsDialog({ open, onOpenChange, setId, existingChannels = [] }: AddChannelsDialogProps) {
+    const addChannelsToSet = useChannelsSetsStore(state => state.addChannelsToSet);
 
     // State
     const [bulkInput, setBulkInput] = useState("");

@@ -1,5 +1,5 @@
 // src/contexts/FilterContext.tsx
-import React, {
+import {
     createContext,
     useContext,
     useState,
@@ -49,9 +49,7 @@ interface FilterContextType {
 
 const FilterContext = createContext<FilterContextType | undefined>(undefined);
 
-export const FilterProvider: React.FC<{ children: ReactNode }> = ({
-    children,
-}) => {
+export function FilterProvider({ children }: { children: ReactNode }) {
     // State
     const [systemFilters, setSystemFilters] = useState<Filter[]>([]);
     const [userFilters, setUserFilters] = useState<Filter[]>([]);

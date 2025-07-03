@@ -1,5 +1,5 @@
 // src/contexts/AuthContext.tsx
-import React, {
+import {
     createContext,
     useContext,
     useState,
@@ -30,9 +30,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({
-    children,
-}) => {
+export function AuthProvider({ children }: { children: ReactNode }) {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
     const [user, setUser] = useState<WebAppUser | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
