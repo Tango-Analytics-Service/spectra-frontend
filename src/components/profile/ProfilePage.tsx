@@ -1,8 +1,8 @@
 // src/components/profile/ProfilePage.tsx
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Button } from "@/ui/components/button";
+import { cn } from "@/lib/cn";
 import { components, typography, createCardStyle, animations } from "@/lib/design-system";
-import { useAuthStore } from "@/stores/useAuthStore";
+import { useAuthStore } from "@/auth/stores/useAuthStore";
 
 export default function ProfilePage() {
     const user = useAuthStore(state => state.user);

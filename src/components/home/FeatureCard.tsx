@@ -1,7 +1,7 @@
-import Card from "../ui/card/Card";
-import CardContent from "../ui/card/CardContent";
-import CardHeader from "../ui/card/CardHeader";
-import CardTitle from "../ui/card/CardTitle";
+import Card from "@/ui/components/card/Card";
+import CardContent from "@/ui/components/card/CardContent";
+import CardHeader from "@/ui/components/card/CardHeader";
+import CardTitle from "@/ui/components/card/CardTitle";
 
 // Feature card component
 export interface FeatureCardProps {

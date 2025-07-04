@@ -1,12 +1,11 @@
-// src/components/layout/MainLayout.tsx
 import { ReactNode } from "react";
-import BottomNavigation from "../navigation/BottomNavigation";
-import { useTelegramNavigation } from "../../hooks/useTelegramNavigation";
-import PageTransition from "./PageTransition";
-import { cn } from "@/lib/utils";
+import BottomNavigation from "@/components/navigation/BottomNavigation";
+import { useTelegramNavigation } from "@/telegram/hooks/useTelegramNavigation";
+import { cn } from "@/lib/cn";
 import { gradients, typography, spacing, animations } from "@/lib/design-system";
-import AppHeader from "../common/AppHeader";
-import { useAuthStore } from "@/stores/useAuthStore";
+import AppHeader from "@/components/common/AppHeader";
+import { useAuthStore } from "@/auth/stores/useAuthStore";
+import PageTransition from "./PageTransition";
 
 export interface MainLayoutProps {
     children: ReactNode;

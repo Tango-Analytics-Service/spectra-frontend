@@ -1,11 +1,11 @@
 // src/components/home/WebHomePage.tsx
 import { Link } from "react-router-dom";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/cn";
 import { typography, animations } from "@/lib/design-system";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/ui/components/button";
 import { BarChart2, Users, Filter, CreditCard } from "lucide-react";
 import FeatureCard from "./FeatureCard";
-import { useAuthStore } from "@/stores/useAuthStore";
+import { useAuthStore } from "@/auth/stores/useAuthStore";
 
 export default function WebHomePage() {
     const isAuthenticated = useAuthStore(state => state.isAuthenticated);

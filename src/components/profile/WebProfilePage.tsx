@@ -1,14 +1,14 @@
 // src/components/profile/WebProfilePage.tsx
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/cn";
 import { typography, animations } from "@/lib/design-system";
-import { Button } from "@/components/ui/button";
-import Card from "@/components/ui/card/Card";
-import CardContent from "@/components/ui/card/CardContent";
-import CardHeader from "@/components/ui/card/CardHeader";
-import CardTitle from "@/components/ui/card/CardTitle";
+import { Button } from "@/ui/components/button";
+import Card from "@/ui/components/card/Card";
+import CardContent from "@/ui/components/card/CardContent";
+import CardHeader from "@/ui/components/card/CardHeader";
+import CardTitle from "@/ui/components/card/CardTitle";
 import { User, Settings, LogOut, Bell, Shield, CreditCard } from "lucide-react";
 import ProfileNavButton from "./ProfileNavButton";
-import { useAuthStore } from "@/stores/useAuthStore";
+import { useAuthStore } from "@/auth/stores/useAuthStore";
 
 export default function WebProfilePage() {
     const user = useAuthStore(state => state.user);

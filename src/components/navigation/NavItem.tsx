@@ -1,5 +1,5 @@
 import { spacing } from "@/lib/design-system";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/cn";
 import { NavLink } from "react-router-dom";
 
 export interface NavItemProps {

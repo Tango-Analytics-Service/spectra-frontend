@@ -1,5 +1,4 @@
-// src/lib/design-system.ts
-import { cn } from "./utils";
+import { cn } from "@/lib/cn";
 
 // Цветовая палитра
 export const colors = {

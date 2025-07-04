@@ -1,21 +1,20 @@
-// src/App.tsx (с добавленным контекстом задач)
-import { Suspense, useEffect } from "react";
+import { Suspense } from "react";
 import { useRoutes, Routes, Route } from "react-router-dom";
-import ChannelSetPage from "./components/channel-sets/ChannelSetPage";
-import FiltersPage from "./components/filters/FiltersPage";
-import CreditsPage from "./components/credits/CreditsPage";
-import LoginPage from "./components/auth/LoginPage";
+import ChannelsSetsPage from "@/channels-sets/pages/ChannelsSetsPage";
+import ChannelSetDetailsPage from "@/channels-sets/pages/ChannelsSetDetailsPage";
+import FiltersPage from "@/filters/pages/FiltersPage";
+import CreditsPage from "@/credits/pages/CreditsPage";
+import LoginPage from "@/auth/pages/LoginPage";
+import AuthGuard from "@/auth/components/AuthGuard";
+import LoadingScreen from "@/auth/components/LoadingScreen";
+import AnalysisTasksPage from "@/analysis/pages/AnalysisTasksPage";
+import { TooltipProvider } from "@/ui/components/tooltip";
+import { Toaster } from "@/ui/components/toaster";
 import ProfilePage from "./components/profile/ProfilePage";
-import ChannelSetDetailsPage from "./components/channel-sets/ChannelSetDetailsPage";
-import AnalysisTasksPage from "./components/analysis/AnalysisTasksPage";
-import AuthGuard from "./components/auth/AuthGuard";
 import MainLayout from "./components/layout/MainLayout";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import LoadingScreen from "./components/auth/LoadingScreen";
-import { Toaster } from "./components/ui/toaster";
 import tempoRoutes from "tempo-routes";
 
-function App() {
+export default function App() {
     const routes = useRoutes(tempoRoutes);
 
     return (
@@ -29,7 +28,7 @@ function App() {
                             element={
                                 <AuthGuard>
                                     <MainLayout>
-                                        <ChannelSetPage />
+                                        <ChannelsSetsPage />
                                     </MainLayout>
                                 </AuthGuard>
                             }
@@ -92,5 +91,3 @@ function App() {
         </TooltipProvider>
     );
 }
-
-export default App;

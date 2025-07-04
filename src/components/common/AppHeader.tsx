@@ -1,6 +1,6 @@
 // src/components/common/AppHeader.tsx
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { Badge } from "@/ui/components/badge";
+import { cn } from "@/lib/cn";
 import { gradients, spacing, typography } from "@/lib/design-system";
 
 export interface AppHeaderProps {
