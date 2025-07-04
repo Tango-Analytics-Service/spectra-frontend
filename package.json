@@ -11,7 +11,7 @@
         "lint:fix": "eslint . --fix",
         "check": "tsc",
         "preview": "vite preview",
-        "types:supabase": "npx supabase gen types typescript --project-id $SUPABASE_PROJECT_ID > src/types/supabase.ts"
+        "architecture": "depcruise --include-only \"^src\" --output-type dot src | dot -T svg > dependencygraph.svg && open dependencygraph.svg"
     },
     "dependencies": {
         "@hookform/resolvers": "^3.6.0",
@@ -72,6 +72,7 @@
         "@typescript-eslint/parser": "^8.35.0",
         "@vitejs/plugin-react-swc": "^3.8.1",
         "autoprefixer": "^10.4.19",
+        "dependency-cruiser": "^16.10.4",
         "eslint": "^9.29.0",
         "eslint-plugin-import": "^2.32.0",
         "eslint-plugin-jsx-a11y": "^6.10.2",
