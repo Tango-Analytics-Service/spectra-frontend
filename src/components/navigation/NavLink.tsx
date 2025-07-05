@@ -19,4 +19,4 @@ export default function NavLink({ to, label }: NavLinkProps) {
             {label}
         </Link>
     );
-};
+}

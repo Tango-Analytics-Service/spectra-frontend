@@ -1,4 +1,3 @@
-// src/components/layout/WebLayout.tsx
 import { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 import { typography, spacing, animations } from "@/lib/design-system";

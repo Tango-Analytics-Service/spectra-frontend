@@ -1,4 +1,3 @@
-// src/services/httpClient.ts
 import { getToken } from "@/auth/service";
 
 interface RequestOptions extends RequestInit {
@@ -17,7 +16,7 @@ export const httpClient = {
 
     post: async <T>(
         endpoint: string,
-        body: unknown,
+        body?: unknown,
         options: RequestOptions = {},
     ): Promise<T> => {
         return await request<T>(endpoint, {

@@ -1,10 +1,9 @@
-// src/components/home/WebHomePage.tsx
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/cn";
 import { typography, animations } from "@/lib/design-system";
 import { Button } from "@/ui/components/button";
 import { BarChart2, Users, Filter, CreditCard } from "lucide-react";
-import FeatureCard from "./FeatureCard";
+import FeatureCard from "@/components/home/FeatureCard";
 import { useAuthStore } from "@/auth/stores/useAuthStore";
 
 export default function WebHomePage() {

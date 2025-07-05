@@ -19,6 +19,7 @@ import { ChannelsSet } from "@/channels-sets/types";
 import ChannelsList from "@/channels-sets/components/ChannelsList";
 import AddChannelsDialog from "@/channels-sets/components/AddChannelsDialog";
 import ChannelsSetStatus from "@/channels-sets/components/ChannelsSetStatus";
+import SmartSetBuildProgress from "@/channels-sets/components/SmartSetBuildProgress";
 import { createCardStyle, createButtonStyle, createTextStyle, typography, spacing, components, animations, textColors } from "@/lib/design-system";
 import StartAnalysisDialog from "@/analysis/components/StartAnalysisDialog";
 import { useChannelsSetsStore } from "@/channels-sets/stores/useChannelsSetsStore";
@@ -387,6 +388,15 @@ export default function ChannelSetDetailsPage() {
                 </div>
             </div>
 
+            {/* Прогресс умного набора */}
+            {channelSet.build_criteria && (
+                <SmartSetBuildProgress
+                    channelSet={channelSet}
+                    onRefresh={handleRefresh}
+                    className={`mb-${spacing.lg}`}
+                />
+            )}
+
             {/* Информация о наборе */}
             <div className={cn(createCardStyle(), `mb-${spacing.lg}`)}>
                 <div className={`p-${spacing.md}`}>
@@ -447,6 +457,7 @@ export default function ChannelSetDetailsPage() {
                                         <ChannelsSetStatus
                                             channelCount={channelSet.channel_count}
                                             allParsed={channelSet.all_parsed}
+                                            buildStatus={channelSet.build_status}
                                         />
 
                                         {/* Кнопка анализа - доступна если можно анализировать */}
@@ -479,8 +490,8 @@ export default function ChannelSetDetailsPage() {
                             Каналы в наборе
                         </h3>
 
-                        {/* Кнопка добавления каналов - доступна если можно управлять каналами */}
-                        {channelSet.permissions.can_manage_channels && (
+                        {/* Кнопка добавления каналов - доступна если можно управлять каналами и это не умный набор */}
+                        {channelSet.permissions.can_manage_channels && !channelSet.build_criteria && (
                             <Button
                                 onClick={() => setShowAddChannelsDialog(true)}
                                 className={createButtonStyle("primary")}
@@ -494,7 +505,7 @@ export default function ChannelSetDetailsPage() {
                     <ChannelsList
                         channels={channelSet.channels}
                         setId={channelSet.id}
-                        canManageChannels={channelSet.permissions.can_manage_channels}
+                        canManageChannels={channelSet.permissions.can_manage_channels && !channelSet.build_criteria}
                     />
                 </div>
             </div>
@@ -538,8 +549,8 @@ export default function ChannelSetDetailsPage() {
                 </DialogContent>
             </Dialog>
 
-            {/* Диалог добавления каналов - показывается только если можно управлять каналами */}
-            {channelSet.permissions.can_manage_channels && (
+            {/* Диалог добавления каналов - показывается только если можно управлять каналами и это не умный набор */}
+            {channelSet.permissions.can_manage_channels && !channelSet.build_criteria && (
                 <AddChannelsDialog
                     open={showAddChannelsDialog}
                     onOpenChange={setShowAddChannelsDialog}

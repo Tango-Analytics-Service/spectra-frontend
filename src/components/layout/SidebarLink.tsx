@@ -1,6 +1,5 @@
 import { cn } from "@/lib/cn";
 
-
 // Sidebar link component
 export interface SidebarLinkProps {
     href: string;

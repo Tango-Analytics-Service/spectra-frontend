@@ -26,4 +26,4 @@ export default function FeatureCard({
             </CardContent>
         </Card>
     );
-};
+}

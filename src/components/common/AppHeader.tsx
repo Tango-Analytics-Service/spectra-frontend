@@ -1,4 +1,3 @@
-// src/components/common/AppHeader.tsx
 import { Badge } from "@/ui/components/badge";
 import { cn } from "@/lib/cn";
 import { gradients, spacing, typography } from "@/lib/design-system";

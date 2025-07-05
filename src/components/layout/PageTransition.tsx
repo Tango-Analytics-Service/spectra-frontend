@@ -1,4 +1,3 @@
-// src/components/layout/PageTransition.tsx
 import { ReactNode } from "react";
 import { motion } from "framer-motion";
 import { useLocation } from "react-router-dom";
