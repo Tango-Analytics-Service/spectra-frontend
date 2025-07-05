@@ -48,8 +48,6 @@ export default function FilterCard({
     showActions = true,
     className,
 }: FilterCardProps) {
-    const [, setIsHovered] = useState(false);
-
     const handleCardClick = () => {
         if (onSelect) {
             onSelect(filter.id);
@@ -71,7 +69,9 @@ export default function FilterCard({
     };
 
     return (
-        <button
+        <div
+            role="button"
+            tabIndex={0}
             className={cn(
                 createCardStyle(),
                 "transition-all duration-200 cursor-pointer",
@@ -85,8 +85,7 @@ export default function FilterCard({
                 className,
             )}
             onClick={handleCardClick}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
+            onKeyDown={handleCardClick}
         >
             {/* Основной контент карточки */}
             <div className={`p-${spacing.md}`}>
@@ -193,8 +192,8 @@ export default function FilterCard({
             {/* Действия */}
             <div
                 className={cn(
-                    "flex items-center justify-between",
-                    `px-${spacing.md} pb-${spacing.md}`,
+                    "flex items-center justify-between align-content-center",
+                    `p-${spacing.sm}`,
                     "border-t border-slate-700/30",
                     "overflow-hidden"
                 )}
@@ -206,7 +205,7 @@ export default function FilterCard({
                     onClick={handleExpandClick}
                     className={cn(
                         createButtonStyle("ghost"),
-                        "flex-1 justify-start",
+                        "flex-1 justify-center",
                         "overflow-hidden"
                     )}
                 >
@@ -238,6 +237,6 @@ export default function FilterCard({
                     </div>
                 )}
             </div>
-        </button>
+        </div>
     );
 }
