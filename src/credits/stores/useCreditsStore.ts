@@ -65,6 +65,7 @@ export const useCreditsStore = create<CreditsStore>((set, getState) => ({
             return;
         }
 
+        set(state => ({ ...state, isBalanceLoaded: false }));
         try {
             const data = await creditService.getCreditBalance();
             set(state => ({
@@ -99,6 +100,7 @@ export const useCreditsStore = create<CreditsStore>((set, getState) => ({
             return;
         }
 
+        set(state => ({ ...state, isTransactionsLoaded: false }));
         try {
             const data = await creditService.getCreditTransactions(
                 limit,
@@ -132,6 +134,7 @@ export const useCreditsStore = create<CreditsStore>((set, getState) => ({
             return;
         }
 
+        set(state => ({ ...state, isPackagesLoaded: false }));
         try {
             const data = await creditService.getCreditPackages();
             set(state => ({
@@ -159,6 +162,7 @@ export const useCreditsStore = create<CreditsStore>((set, getState) => ({
             return;
         }
 
+        set(state => ({ ...state, isCostsLoaded: false }));
         try {
             const data = await creditService.getCreditCosts();
             set(state => ({

@@ -49,6 +49,7 @@ export const useChannelsSetsStore = create<ChannelsSetsStore>((set, getState) =>
             return;
         }
 
+        set(state => ({ ...state, isLoaded: false }));
         try {
             const response = await channelSetService.getChannelSets();
             set(state => ({

@@ -2,6 +2,8 @@ import { toast } from "@/ui/components/use-toast";
 import { httpClient } from "@/lib/httpClient";
 import { create } from "zustand";
 
+
+// TODO: move to ../types
 export interface Filter {
     id: string;
     name: string;
@@ -53,6 +55,7 @@ export const useFiltersStore = create<FiltersStore>((set, getState) => ({
 
     // Fetch system filters (predefined by the system)
     fetchSystemFilters: async () => {
+        set(state => ({ ...state, isSystemFiltersLoaded: false }));
         try {
             const filters = await httpClient.get<Filter[]>(
                 "/analysis/filters-system",
@@ -72,6 +75,7 @@ export const useFiltersStore = create<FiltersStore>((set, getState) => ({
 
     // Fetch all filters available to the user (system + custom)
     fetchUserFilters: async () => {
+        set(state => ({ ...state, isUserFiltersLoaded: false }));
         try {
             const filters = await httpClient.get<Filter[]>("/analysis/filters");
             set(state => ({ ...state, userFilters: filters }));
@@ -90,6 +94,7 @@ export const useFiltersStore = create<FiltersStore>((set, getState) => ({
     // Create a custom filter
     createCustomFilter: async (data: FilterCreateRequest): Promise<Filter | null> => {
         try {
+            // TODO: move to ../service
             const newFilter = await httpClient.post<Filter>(
                 "/analysis/custom-filters",
                 data,
