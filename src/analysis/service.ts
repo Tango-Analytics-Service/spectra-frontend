@@ -7,7 +7,7 @@ import {
     AnalysisTask,
     AnalysisTasksListResponse,
 } from "@/analysis/types";
-import { Filter } from "@/filters/stores/useFiltersStore";
+import { Filter } from "@/filters/types";
 
 const API_ENDPOINT = "/analysis";
 

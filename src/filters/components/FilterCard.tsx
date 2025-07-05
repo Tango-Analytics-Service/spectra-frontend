@@ -1,10 +1,9 @@
-// src/components/filters/FilterCard.tsx
-import React, { useState } from "react";
+import React from "react";
 import { CheckCircle2, Tag, Info, ChevronDown, Settings, } from "lucide-react";
-import { Filter } from "@/filters/stores/useFiltersStore";
 import { cn } from "@/lib/cn";
 import { Button } from "@/ui/components/button";
 import { createCardStyle, createBadgeStyle, createButtonStyle, typography, spacing, animations, textColors, createTextStyle } from "@/lib/design-system";
+import { Filter } from "../types";
 
 export interface FilterCardProps {
     filter: Filter;
