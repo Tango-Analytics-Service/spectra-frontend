@@ -18,16 +18,16 @@ export interface ChannelSetCardProps {
 export default function ChannelSetCard({ channelSet, onViewDetails, className }: ChannelSetCardProps) {
     // Определяем, является ли это умным набором
     const isSmartSet = !!channelSet.build_criteria;
-    
+
     // Получаем прогресс для умного набора
     const getSmartSetProgress = () => {
         if (!isSmartSet || !channelSet.build_progress) return null;
-        
+
         const { build_progress, build_status } = channelSet;
         const progressPercentage = Math.round(
             (build_progress.channels_accepted / build_progress.target_count) * 100
         );
-        
+
         return {
             percentage: progressPercentage,
             status: build_status,
@@ -68,7 +68,7 @@ export default function ChannelSetCard({ channelSet, onViewDetails, className }:
                             {isSmartSet && <Zap size={16} className="text-yellow-400" />}
                             {channelSet.name}
                         </h3>
-                        
+
                         {/* Бейдж типа набора */}
                         {isSmartSet && (
                             <Badge className={cn(

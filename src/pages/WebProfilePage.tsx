@@ -1,4 +1,3 @@
-// src/components/profile/WebProfilePage.tsx
 import { cn } from "@/lib/cn";
 import { typography, animations } from "@/lib/design-system";
 import { Button } from "@/ui/components/button";

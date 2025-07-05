@@ -1,4 +1,3 @@
-// src/channels-sets/service.ts
 import { httpClient } from "@/lib/httpClient";
 import {
     ChannelsSet,

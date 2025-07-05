@@ -1,4 +1,3 @@
-// src/services/httpClient.ts
 import { getToken } from "@/auth/service";
 
 interface RequestOptions extends RequestInit {

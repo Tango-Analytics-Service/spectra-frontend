@@ -13,11 +13,11 @@ export interface ChannelSetStatusProps {
     className?: string;
 }
 
-export default function ChannelSetStatus({ 
-    channelCount, 
-    allParsed, 
+export default function ChannelSetStatus({
+    channelCount,
+    allParsed,
     buildStatus,
-    className, 
+    className,
 }: ChannelSetStatusProps) {
     // Определяем статус набора
     const getStatus = () => {
@@ -100,12 +100,12 @@ export default function ChannelSetStatus({
 
     return (
         <div className={cn("flex items-center gap-1", className)}>
-            <IconComponent 
-                size={12} 
+            <IconComponent
+                size={12}
                 className={cn(
                     status.color,
                     status.animate && "animate-spin"
-                )} 
+                )}
             />
             <span className={cn(createTextStyle("tiny", "muted"))}>
                 {status.label}

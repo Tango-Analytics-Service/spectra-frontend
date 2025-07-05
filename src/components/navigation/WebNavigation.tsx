@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// src/components/navigation/WebNavigation.tsx
+>>>>>>> main
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/cn";
