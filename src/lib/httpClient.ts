@@ -17,7 +17,7 @@ export const httpClient = {
 
     post: async <T>(
         endpoint: string,
-        body: unknown,
+        body?: unknown,
         options: RequestOptions = {},
     ): Promise<T> => {
         return await request<T>(endpoint, {

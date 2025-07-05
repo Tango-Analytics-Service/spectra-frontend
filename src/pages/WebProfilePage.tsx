@@ -7,7 +7,7 @@ import CardContent from "@/ui/components/card/CardContent";
 import CardHeader from "@/ui/components/card/CardHeader";
 import CardTitle from "@/ui/components/card/CardTitle";
 import { User, Settings, LogOut, Bell, Shield, CreditCard } from "lucide-react";
-import ProfileNavButton from "./ProfileNavButton";
+import ProfileNavButton from "@/components/profile/ProfileNavButton";
 import { useAuthStore } from "@/auth/stores/useAuthStore";
 
 export default function WebProfilePage() {
