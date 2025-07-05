@@ -33,3 +33,5 @@ core
 .github/
 .env
 
+# Output files
+dependencygraph.svg

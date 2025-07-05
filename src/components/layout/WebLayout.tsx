@@ -1,10 +1,10 @@
 // src/components/layout/WebLayout.tsx
 import { ReactNode } from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/cn";
 import { typography, spacing, animations } from "@/lib/design-system";
-import WebNavigation from "../navigation/WebNavigation";
+import WebNavigation from "@/components/navigation/WebNavigation";
 import SidebarLink from "./SidebarLink";
-import { useAuthStore } from "@/stores/useAuthStore";
+import { useAuthStore } from "@/auth/stores/useAuthStore";
 
 export interface WebLayoutProps {
     children: ReactNode;

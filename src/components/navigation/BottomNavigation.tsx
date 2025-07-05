@@ -1,7 +1,7 @@
 // src/components/navigation/BottomNavigation.tsx
 import { useLocation } from "react-router-dom";
 import { Home, CreditCard, Search, BarChart3 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/cn";
 import {
     spacing,
     createCardStyle,

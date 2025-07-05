@@ -1,17 +1,17 @@
 // src/components/navigation/WebNavigation.tsx
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/cn";
 import { typography, spacing, createButtonStyle } from "@/lib/design-system";
-import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import DropdownMenuContent from "@/components/ui/dropdown-menu/DropdownMenuContent";
-import DropdownMenuItem from "@/components/ui/dropdown-menu/DropdownMenuItem";
-import DropdownMenuSeparator from "@/components/ui/dropdown-menu/DropdownMenuSeparator";
+import { Button } from "@/ui/components/button";
+import { DropdownMenu, DropdownMenuTrigger } from "@/ui/components/dropdown-menu";
+import DropdownMenuContent from "@/ui/components/dropdown-menu/DropdownMenuContent";
+import DropdownMenuItem from "@/ui/components/dropdown-menu/DropdownMenuItem";
+import DropdownMenuSeparator from "@/ui/components/dropdown-menu/DropdownMenuSeparator";
 import { Menu, X, User, LogOut, Settings, CreditCard, Search, Home } from "lucide-react";
+import { useAuthStore } from "@/auth/stores/useAuthStore";
 import NavLink from "./NavLink";
 import MobileNavLink from "./MobileNavLink";
-import { useAuthStore } from "@/stores/useAuthStore";
 
 export default function WebNavigation() {
     const isAuthenticated = useAuthStore(state => state.isAuthenticated);
