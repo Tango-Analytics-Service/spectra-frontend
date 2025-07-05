@@ -12,7 +12,8 @@ import { spacing, components } from "@/lib/design-system";
 import DialogWrapper from "@/ui/components/dialog-components/DialogWrapper";
 import FormField from "@/ui/components/dialog-components/FormFiels";
 import ActionButtons from "@/ui/components/dialog-components/ActionButtons";
-import { FilterCreateRequest, useFiltersStore } from "@/filters/stores/useFiltersStore";
+import { useFiltersStore } from "@/filters/stores/useFiltersStore";
+import { FilterCreateRequest } from "../types";
 
 export interface CreateFilterDialogProps {
     open: boolean;

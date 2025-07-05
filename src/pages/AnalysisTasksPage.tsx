@@ -93,8 +93,10 @@ export default function AnalysisTasksPage() {
 
     // Загрузка задач при монтировании
     useEffect(() => {
-        fetchTasks();
-    }, [fetchTasks]);
+        if (!isLoaded) {
+            fetchTasks();
+        }
+    }, [fetchTasks, isLoaded]);
 
     // Обработчик обновления
     const handleRefresh = () => {

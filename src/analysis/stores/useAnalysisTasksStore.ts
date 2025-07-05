@@ -68,6 +68,7 @@ export const useAnalysisTasksStore = create<AnalysisTasksStore>((set, getState) 
         if (!forceRefresh && state.tasks.length > 0 && now - state.lastFetched < 60000) {
             return;
         }
+        set(state => ({ ...state, isLoaded: false }));
         try {
             const response = await analysisService.getUserTasks(limit, offset, status);
             set(state => ({
