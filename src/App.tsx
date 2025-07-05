@@ -1,17 +1,17 @@
 import { Suspense } from "react";
 import { useRoutes, Routes, Route } from "react-router-dom";
-import ChannelsSetsPage from "@/channels-sets/pages/ChannelsSetsPage";
-import ChannelSetDetailsPage from "@/channels-sets/pages/ChannelsSetDetailsPage";
-import FiltersPage from "@/filters/pages/FiltersPage";
-import CreditsPage from "@/credits/pages/CreditsPage";
-import LoginPage from "@/auth/pages/LoginPage";
+import ChannelsSetsPage from "@/pages/ChannelsSetsPage";
+import ChannelSetDetailsPage from "@/pages/ChannelsSetDetailsPage";
+import FiltersPage from "@/pages/FiltersPage";
+import CreditsPage from "@/pages/CreditsPage";
+import LoginPage from "@/pages/LoginPage";
+import AnalysisTasksPage from "@/pages/AnalysisTasksPage";
+import ProfilePage from "@/pages/ProfilePage";
 import AuthGuard from "@/auth/components/AuthGuard";
 import LoadingScreen from "@/auth/components/LoadingScreen";
-import AnalysisTasksPage from "@/analysis/pages/AnalysisTasksPage";
 import { TooltipProvider } from "@/ui/components/tooltip";
 import { Toaster } from "@/ui/components/toaster";
-import ProfilePage from "./components/profile/ProfilePage";
-import MainLayout from "./components/layout/MainLayout";
+import MainLayout from "@/components/layout/MainLayout";
 import tempoRoutes from "tempo-routes";
 
 export default function App() {
