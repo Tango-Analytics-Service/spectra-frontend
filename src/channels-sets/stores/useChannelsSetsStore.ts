@@ -11,6 +11,7 @@ export interface ChannelsSetsStore {
     totalChannels: number;
     lastFetched: number;
     channelsSetsCache: Record<string, { data: ChannelsSet; timestamp: number }>,
+
     // Methods for managing channel sets
     fetchChannelsSets: (forceRefresh?: boolean) => Promise<void>;
     getChannelsSet: (id: string) => Promise<ChannelsSet | undefined>;
@@ -22,6 +23,10 @@ export interface ChannelsSetsStore {
     analyzeChannelsSet: (setId: string, filterIds: string[], options?: AnalysisOptions) => Promise<unknown>;
     refreshChannelsSet: (id: string) => Promise<ChannelsSet | undefined>;
     searchChannels: (query: string) => Promise<ChannelDetails[]>;
+
+    // Methods for smart sets
+    cancelSmartSetBuild: (setId: string) => Promise<boolean>;
+    refreshSmartSetStatus: (setId: string) => Promise<ChannelsSet | undefined>;
 }
 
 const initialState = {
@@ -140,10 +145,19 @@ export const useChannelsSetsStore = create<ChannelsSetsStore>((set, getState) =>
                 channelsSets: [...state.channelsSets, newSet],
                 totalSets: state.totalSets + 1,
             }));
-            toast({
-                title: "Успешно",
-                description: `Набор "${newSet.name}" создан`,
-            });
+
+            // Разные сообщения для обычных и умных наборов
+            if (data.build_criteria) {
+                toast({
+                    title: "Умный набор создан",
+                    description: `Набор "${newSet.name}" создан и начато построение`,
+                });
+            } else {
+                toast({
+                    title: "Успешно",
+                    description: `Набор "${newSet.name}" создан`,
+                });
+            }
 
             return newSet;
         } catch (error) {
@@ -350,6 +364,56 @@ export const useChannelsSetsStore = create<ChannelsSetsStore>((set, getState) =>
                 variant: "destructive",
             });
             return [];
+        }
+    },
+
+    // Smart sets methods
+    cancelSmartSetBuild: async (setId: string): Promise<boolean> => {
+        try {
+            const result = await channelSetService.cancelSmartSetBuild(setId);
+
+            if (result.success) {
+                // Refresh the set to get updated status
+                const state = getState();
+                await state.refreshChannelsSet(setId);
+
+                toast({
+                    title: "Построение отменено",
+                    description: "Построение умного набора было отменено",
+                });
+            }
+
+            return result.success;
+        } catch (error) {
+            console.error(`Error cancelling smart set build ${setId}:`, error);
+            toast({
+                title: "Ошибка",
+                description: "Не удалось отменить построение набора",
+                variant: "destructive",
+            });
+            return false;
+        }
+    },
+
+    refreshSmartSetStatus: async (setId: string): Promise<ChannelsSet | undefined> => {
+        try {
+            const channelsSet = await channelSetService.refreshSmartSetStatus(setId);
+
+            set(state => ({
+                ...state,
+                // Update cache
+                channelsSetsCache: {
+                    ...state.channelsSetsCache,
+                    [setId]: { data: channelsSet, timestamp: Date.now() },
+                },
+                // Also update the set in the channelSets array
+                channelsSets: state.channelsSets.map((prevSet) => (prevSet.id === setId ? channelsSet : prevSet)),
+            }));
+
+            return channelsSet;
+        } catch (error) {
+            console.error(`Error refreshing smart set status ${setId}:`, error);
+            return undefined;
         }
     },
 }));

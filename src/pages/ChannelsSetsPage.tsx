@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, Plus, LoaderCircle } from "lucide-react";
+import { Search, Plus, LoaderCircle, Zap } from "lucide-react";
 import { Button } from "@/ui/components/button";
 import { Input } from "@/ui/components/input";
 import { Dialog } from "@/ui/components/dialog";
@@ -14,6 +14,7 @@ import { toast } from "@/ui/components/use-toast";
 import ChannelsSetCard from "@/channels-sets/components/ChannelsSetCard";
 import AnalysisConfirmDialog from "@/channels-sets/components/AnalysisConfirmDialog";
 import AddChannelsDialog from "@/channels-sets/components/AddChannelsDialog";
+import CreateSmartSetDialog from "@/channels-sets/components/CreateSmartSetDialog";
 import LoadingCard from "@/ui/components/loading/LoadingCard";
 import { createButtonStyle, createCardStyle, createTextStyle, spacing, typography, gradients, components, textColors, animations } from "@/lib/design-system";
 import { cn } from "@/lib/cn";
@@ -32,6 +33,7 @@ export default function ChannelSetPage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [filteredSets, setFilteredSets] = useState<ChannelsSet[]>([]);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [isCreateSmartSetOpen, setIsCreateSmartSetOpen] = useState(false);
     const [createLoading, setCreateLoading] = useState(false);
     const [analysisDialogOpen, setAnalysisDialogOpen] = useState(false);
     const [selectedSetForAnalysis, setSelectedSetForAnalysis] =
@@ -175,20 +177,34 @@ export default function ChannelSetPage() {
                     </div>
                 </div>
 
-                {/* Кнопка создания */}
-                <Button
-                    onClick={() => setIsCreateModalOpen(true)}
-                    className={cn(
-                        createButtonStyle("primary"),
-                        `mt-${spacing.md}`,
-                        `py-${spacing.md}`,
-                        "w-full",
-                        animations.scaleIn,
-                    )}
-                >
-                    <Plus size={18} className={`mr-${spacing.sm}`} />
-                    Создать новый набор
-                </Button>
+                {/* Кнопки создания */}
+                <div className={cn("grid grid-cols-1 sm:grid-cols-2", `mt-${spacing.md}`, `gap-${spacing.sm}`)}>
+                    <Button
+                        onClick={() => setIsCreateModalOpen(true)}
+                        className={cn(
+                            createButtonStyle("primary"),
+                            `py-${spacing.md}`,
+                            "w-full",
+                            animations.scaleIn,
+                        )}
+                    >
+                        <Plus size={18} className={`mr-${spacing.sm}`} />
+                        Создать обычный набор
+                    </Button>
+
+                    <Button
+                        onClick={() => setIsCreateSmartSetOpen(true)}
+                        className={cn(
+                            createButtonStyle("secondary"),
+                            `py-${spacing.md}`,
+                            "w-full border-2 border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/10",
+                            animations.scaleIn,
+                        )}
+                    >
+                        <Zap size={18} className={`mr-${spacing.sm}`} />
+                        Создать умный набор
+                    </Button>
+                </div>
 
                 {/* Список наборов */}
                 <div className={`mt-${spacing.lg} flex-1`}>
@@ -315,6 +331,12 @@ export default function ChannelSetPage() {
                 existingChannels={
                     selectedSetForChannels?.channels?.map((ch) => ch.username) || []
                 }
+            />
+
+            {/* Диалог создания умного набора */}
+            <CreateSmartSetDialog
+                open={isCreateSmartSetOpen}
+                onOpenChange={setIsCreateSmartSetOpen}
             />
         </div>
     );

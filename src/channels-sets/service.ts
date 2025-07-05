@@ -1,4 +1,4 @@
-// src/services/channelSetService.ts
+// src/channels-sets/service.ts
 import { httpClient } from "@/lib/httpClient";
 import {
     ChannelsSet,
@@ -16,8 +16,8 @@ const API_ENDPOINT = "/channel-sets";
 
 export const channelSetService = {
     /**
-   * Get all channel sets
-   */
+     * Get all channel sets
+     */
     getChannelSets: async (
         includePublic: boolean = true,
         includePredefined: boolean = true,
@@ -28,15 +28,15 @@ export const channelSetService = {
     },
 
     /**
-   * Get a specific channel set by ID
-   */
+     * Get a specific channel set by ID
+     */
     getChannelSet: async (id: string): Promise<ChannelsSet> => {
         return httpClient.get<ChannelsSet>(`${API_ENDPOINT}/${id}`);
     },
 
     /**
-   * Create a new channel set
-   */
+     * Create a new channel set (включая умные наборы)
+     */
     createChannelSet: async (
         data: CreateChannelsSetRequest,
     ): Promise<ChannelsSet> => {
@@ -44,8 +44,8 @@ export const channelSetService = {
     },
 
     /**
-   * Update a channel set
-   */
+     * Update a channel set
+     */
     updateChannelSet: async (
         id: string,
         data: UpdateChannelsSetRequest,
@@ -54,15 +54,15 @@ export const channelSetService = {
     },
 
     /**
-   * Delete a channel set
-   */
+     * Delete a channel set
+     */
     deleteChannelSet: async (id: string): Promise<void> => {
         return httpClient.delete(`${API_ENDPOINT}/${id}`);
     },
 
     /**
-   * Add channels to a set
-   */
+     * Add channels to a set
+     */
     addChannelsToSet: async (
         id: string,
         data: AddChannelsRequest,
@@ -71,8 +71,8 @@ export const channelSetService = {
     },
 
     /**
-   * Remove channels from a set
-   */
+     * Remove channels from a set
+     */
     removeChannelsFromSet: async (
         id: string,
         data: RemoveChannelsRequest,
@@ -83,8 +83,8 @@ export const channelSetService = {
     },
 
     /**
-   * Check parsing status for channels in a set
-   */
+     * Check parsing status for channels in a set
+     */
     checkParsingStatus: async (id: string): Promise<ParsingStatusResponse> => {
         return httpClient.get<ParsingStatusResponse>(
             `${API_ENDPOINT}/${id}/parsing-status`,
@@ -92,8 +92,8 @@ export const channelSetService = {
     },
 
     /**
-   * Analyze a channel set
-   */
+     * Analyze a channel set
+     */
     analyzeChannelSet: async (
         id: string,
         data: AnalyzeChannelsSetRequest,
@@ -102,8 +102,8 @@ export const channelSetService = {
     },
 
     /**
-   * Get detailed info about a channel
-   */
+     * Get detailed info about a channel
+     */
     getChannelDetails: async (
         channelId: string | number,
         username: string,
@@ -114,11 +114,33 @@ export const channelSetService = {
     },
 
     /**
-   * Search for channels
-   */
+     * Search for channels
+     */
     searchChannels: async (query: string): Promise<ChannelDetails[]> => {
         return httpClient.get<ChannelDetails[]>(
             `/channels/search?q=${encodeURIComponent(query)}`,
         );
+    },
+
+    // Методы для умных наборов
+    /**
+     * Cancel smart set building
+     */
+    cancelSmartSetBuild: async (id: string): Promise<{ success: boolean }> => {
+        return httpClient.post<{ success: boolean }>(`${API_ENDPOINT}/${id}/cancel-build`);
+    },
+
+    /**
+     * Get smart set build status
+     */
+    getSmartSetBuildStatus: async (id: string): Promise<ChannelsSet> => {
+        return httpClient.get<ChannelsSet>(`${API_ENDPOINT}/${id}/build-status`);
+    },
+
+    /**
+     * Refresh smart set status
+     */
+    refreshSmartSetStatus: async (id: string): Promise<ChannelsSet> => {
+        return httpClient.get<ChannelsSet>(`${API_ENDPOINT}/${id}`);
     },
 };
