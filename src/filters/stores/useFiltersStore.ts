@@ -2,6 +2,7 @@ import { toast } from "@/ui/components/use-toast";
 import { httpClient } from "@/lib/httpClient";
 import { create } from "zustand";
 import { Filter, FilterCreateRequest } from "../types";
+import { filtersService } from "../service";
 
 export interface FiltersStore {
     systemFilters: Filter[];
@@ -35,9 +36,7 @@ export const useFiltersStore = create<FiltersStore>((set, getState) => ({
     fetchSystemFilters: async () => {
         set(state => ({ ...state, isSystemFiltersLoaded: false }));
         try {
-            const filters = await httpClient.get<Filter[]>(
-                "/analysis/filters-system",
-            );
+            const filters = await filtersService.getSystemFilters();
             set(state => ({ ...state, systemFilters: filters }));
         } catch (error) {
             console.error("Error fetching system filters:", error);
@@ -55,7 +54,7 @@ export const useFiltersStore = create<FiltersStore>((set, getState) => ({
     fetchUserFilters: async () => {
         set(state => ({ ...state, isUserFiltersLoaded: false }));
         try {
-            const filters = await httpClient.get<Filter[]>("/analysis/filters");
+            const filters = await filtersService.getUserFilters();
             set(state => ({ ...state, userFilters: filters }));
         } catch (error) {
             console.error("Error fetching user filters:", error);
@@ -72,11 +71,7 @@ export const useFiltersStore = create<FiltersStore>((set, getState) => ({
     // Create a custom filter
     createCustomFilter: async (data: FilterCreateRequest): Promise<Filter | null> => {
         try {
-            // TODO: move to ../service
-            const newFilter = await httpClient.post<Filter>(
-                "/analysis/custom-filters",
-                data,
-            );
+            const newFilter = await filtersService.createCustomFilter(data);
 
             // Update user filters list
             set(state => ({ ...state, userFilters: [...state.userFilters, newFilter] }));
@@ -101,7 +96,7 @@ export const useFiltersStore = create<FiltersStore>((set, getState) => ({
     // Delete a custom filter
     deleteCustomFilter: async (id: string): Promise<boolean> => {
         try {
-            await httpClient.delete(`/analysis/custom-filters/${id}`);
+            await filtersService.deleteCustomFilter(id);
 
             set(state => ({
                 ...state,
