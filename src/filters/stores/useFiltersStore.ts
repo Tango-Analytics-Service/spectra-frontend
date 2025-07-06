@@ -2,12 +2,13 @@ import { toast } from "@/ui/components/use-toast";
 import { create } from "zustand";
 import { Filter, FilterCreateRequest } from "../types";
 import { filtersService } from "../service";
+import { LoadStatus } from "@/lib/types";
 
 export interface FiltersStore {
     systemFilters: Filter[];
     userFilters: Filter[];
-    isSystemFiltersLoaded: boolean;
-    isUserFiltersLoaded: boolean;
+    systemFiltersLoadStatus: LoadStatus;
+    userFiltersLoadStatus: LoadStatus;
     selectedFilters: string[];
     // Methods
     fetchSystemFilters: () => Promise<void>;
@@ -23,8 +24,8 @@ export interface FiltersStore {
 const initialState = {
     systemFilters: [],
     userFilters: [],
-    isSystemFiltersLoaded: false,
-    isUserFiltersLoaded: false,
+    systemFiltersLoadStatus: "idle" as LoadStatus,
+    userFiltersLoadStatus: "idle" as LoadStatus,
     selectedFilters: [],
 };
 
@@ -33,10 +34,10 @@ export const useFiltersStore = create<FiltersStore>((set, getState) => ({
 
     // Fetch system filters (predefined by the system)
     fetchSystemFilters: async () => {
-        set(state => ({ ...state, isSystemFiltersLoaded: false }));
+        set(state => ({ ...state, systemFiltersLoadStatus: "pending" }));
         try {
             const filters = await filtersService.getSystemFilters();
-            set(state => ({ ...state, systemFilters: filters }));
+            set(state => ({ ...state, systemFiltersLoadStatus: "success", systemFilters: filters }));
         } catch (error) {
             console.error("Error fetching system filters:", error);
             toast({
@@ -44,17 +45,16 @@ export const useFiltersStore = create<FiltersStore>((set, getState) => ({
                 description: "Не удалось загрузить системные фильтры",
                 variant: "destructive",
             });
-        } finally {
-            set(state => ({ ...state, isSystemFiltersLoaded: true }));
+            set(state => ({ ...state, systemFiltersLoadStatus: "error" }));
         }
     },
 
     // Fetch all filters available to the user (system + custom)
     fetchUserFilters: async () => {
-        set(state => ({ ...state, isUserFiltersLoaded: false }));
+        set(state => ({ ...state, userFiltersLoadStatus: "pending" }));
         try {
             const filters = await filtersService.getUserFilters();
-            set(state => ({ ...state, userFilters: filters }));
+            set(state => ({ ...state, userFiltersLoadStatus: "success", userFilters: filters }));
         } catch (error) {
             console.error("Error fetching user filters:", error);
             toast({
@@ -62,8 +62,7 @@ export const useFiltersStore = create<FiltersStore>((set, getState) => ({
                 description: "Не удалось загрузить фильтры пользователя",
                 variant: "destructive",
             });
-        } finally {
-            set(state => ({ ...state, isUserFiltersLoaded: true }));
+            set(state => ({ ...state, userFiltersLoadStatus: "error" }));
         }
     },
 

@@ -25,7 +25,7 @@ export default function ChannelSetPage() {
     const navigate = useNavigate();
 
     const channelsSets = useChannelsSetsStore(state => state.channelsSets);
-    const isLoaded = useChannelsSetsStore(state => state.isLoaded);
+    const loadStatus = useChannelsSetsStore(state => state.loadStatus);
     const fetchChannelsSets = useChannelsSetsStore(state => state.fetchChannelsSets);
     const createChannelsSet = useChannelsSetsStore(state => state.createChannelsSet);
 
@@ -47,10 +47,10 @@ export default function ChannelSetPage() {
 
     // Эффекты
     useEffect(() => {
-        if (!isLoaded) {
+        if (loadStatus !== "success") {
             fetchChannelsSets();
         }
-    }, [fetchChannelsSets, isLoaded]);
+    }, [fetchChannelsSets, loadStatus]);
 
     useEffect(() => {
         if (!searchQuery.trim()) {
@@ -208,7 +208,7 @@ export default function ChannelSetPage() {
 
                 {/* Список наборов */}
                 <div className={`mt-${spacing.lg} flex-1`}>
-                    {!isLoaded ? (
+                    {loadStatus === "pending" ? (
                         <div className="space-y-4">
                             {[1, 2, 3].map((i) => (
                                 <LoadingCard key={i} text="Загрузка наборов..." />

@@ -3,10 +3,11 @@ import { channelSetService } from "@/channels-sets/service";
 import { AnalysisOptions, ChannelAnalysisResponse } from "@/analysis/types";
 import { ChannelDetails, ChannelsSet, CreateChannelsSetRequest, UpdateChannelsSetRequest } from "@/channels-sets/types";
 import { create } from "zustand";
+import { LoadStatus } from "@/lib/types";
 
 export interface ChannelsSetsStore {
     channelsSets: ChannelsSet[];
-    isLoaded: boolean;
+    loadStatus: LoadStatus;
     totalSets: number;
     totalChannels: number;
     lastFetched: number;
@@ -31,7 +32,7 @@ export interface ChannelsSetsStore {
 
 const initialState = {
     channelsSets: [],
-    isLoaded: false,
+    loadStatus: "idle" as LoadStatus,
     totalSets: 0,
     totalChannels: 0,
     lastFetched: 0,
@@ -49,7 +50,7 @@ export const useChannelsSetsStore = create<ChannelsSetsStore>((set, getState) =>
             return;
         }
 
-        set(state => ({ ...state, isLoaded: false }));
+        set(state => ({ ...state, loadStatus: "pending" }));
         try {
             const response = await channelSetService.getChannelSets();
             set(state => ({
@@ -67,6 +68,7 @@ export const useChannelsSetsStore = create<ChannelsSetsStore>((set, getState) =>
                 ...state,
                 totalchannels: total,
                 lastfetched: now,
+                loadStatus: "success",
             }));
         } catch (error) {
             console.error("Error fetching channel sets:", error);
@@ -75,8 +77,7 @@ export const useChannelsSetsStore = create<ChannelsSetsStore>((set, getState) =>
                 description: "Не удалось загрузить наборы каналов",
                 variant: "destructive",
             });
-        } finally {
-            set(state => ({ ...state, isLoaded: true }));
+            set(state => ({ ...state, loadStatus: "error" }));
         }
     },
 

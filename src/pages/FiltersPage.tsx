@@ -11,8 +11,8 @@ import { useFiltersStore } from "@/filters/stores/useFiltersStore";
 export default function FiltersPage() {
     const systemFilters = useFiltersStore(state => state.systemFilters);
     const userFilters = useFiltersStore(state => state.userFilters);
-    const isSystemFiltersLoaded = useFiltersStore(state => state.isSystemFiltersLoaded);
-    const isUserFiltersLoaded = useFiltersStore(state => state.isUserFiltersLoaded);
+    const systemFiltersLoadStatus = useFiltersStore(state => state.systemFiltersLoadStatus);
+    const userFilterLoadStatus = useFiltersStore(state => state.userFiltersLoadStatus);
     const fetchSystemFilters = useFiltersStore(state => state.fetchSystemFilters);
     const fetchUserFilters = useFiltersStore(state => state.fetchUserFilters);
 
@@ -20,16 +20,15 @@ export default function FiltersPage() {
 
     // Загрузка фильтров при монтировании
     useEffect(() => {
-        if (!isSystemFiltersLoaded) {
+        if (systemFiltersLoadStatus !== "success") {
             fetchSystemFilters();
         }
-        if (!isUserFiltersLoaded) {
+        if (userFilterLoadStatus !== "success") {
             fetchUserFilters();
         }
-    }, [fetchSystemFilters, fetchUserFilters, isSystemFiltersLoaded, isUserFiltersLoaded]);
+    }, [fetchSystemFilters, fetchUserFilters, systemFiltersLoadStatus, userFilterLoadStatus]);
 
     // Подсчет статистики
-    const isLoaded = isSystemFiltersLoaded && isUserFiltersLoaded;
     const totalFilters = systemFilters.length + userFilters.filter((f) => f.is_custom).length;
     const systemFiltersCount = systemFilters.length;
     const customFiltersCount = userFilters.filter((f) => f.is_custom).length;
@@ -82,21 +81,21 @@ export default function FiltersPage() {
                     >
                         <StatsCard
                             title="Всего"
-                            value={!isLoaded ? "—" : totalFilters}
+                            value={systemFiltersLoadStatus !== "success" || userFilterLoadStatus !== "success" ? "—" : totalFilters}
                             icon={<FilterIcon size={15} className={textColors.accent} />}
-                            loading={!isLoaded}
+                            loading={systemFiltersLoadStatus === "pending" || userFilterLoadStatus === "pending"}
                         />
                         <StatsCard
                             title="Системные"
-                            value={!isLoaded ? "—" : systemFiltersCount}
+                            value={systemFiltersLoadStatus !== "success" ? "—" : systemFiltersCount}
                             icon={<Settings size={15} className="text-purple-400" />}
-                            loading={!isLoaded}
+                            loading={systemFiltersLoadStatus === "pending"}
                         />
                         <StatsCard
                             title="Мои фильтры"
-                            value={!isLoaded ? "—" : customFiltersCount}
+                            value={userFilterLoadStatus !== "success" ? "—" : customFiltersCount}
                             icon={<Plus size={15} className="text-green-400" />}
-                            loading={!isLoaded}
+                            loading={userFilterLoadStatus === "pending"}
                         />
                     </div>
                 </div>

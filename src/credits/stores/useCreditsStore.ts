@@ -2,41 +2,28 @@ import { toast } from "@/ui/components/use-toast";
 import { creditService, PurchasePackageRequest } from "@/credits/service";
 import { ActionType, CreditBalance, CreditCost, CreditPackage, CreditTransaction } from "@/credits/types";
 import { create } from "zustand";
+import { LoadStatus } from "@/lib/types";
 
 export interface CreditsStore {
     balance: CreditBalance | null;
     transactions: CreditTransaction[];
     packages: CreditPackage[];
     costs: CreditCost[];
-    isBalanceLoaded: boolean;
-    isTransactionsLoaded: boolean;
-    isPackagesLoaded: boolean;
-    isCostsLoaded: boolean;
+    balanceLoadStatus: LoadStatus;
+    transactionsLoadStatus: LoadStatus;
+    packagesLoadStatus: LoadStatus;
+    costsLoadStatus: LoadStatus;
     lastBalanceUpdate: number;
     lastTransactionsUpdate: number;
     lastPackagesUpdate: number;
     lastCostsUpdate: number;
     // Methods for managing credits
     fetchBalance: (forceRefresh?: boolean) => Promise<void>;
-    fetchTransactions: (
-        limit?: number,
-        offset?: number,
-        startDate?: string,
-        endDate?: string,
-        actionTypes?: string[],
-        forceRefresh?: boolean,
-    ) => Promise<void>;
+    fetchTransactions: (limit?: number, offset?: number, startDate?: string, endDate?: string, actionTypes?: string[], forceRefresh?: boolean) => Promise<void>;
     fetchPackages: (forceRefresh?: boolean) => Promise<void>;
     fetchCosts: (forceRefresh?: boolean) => Promise<void>;
-    purchasePackage: (
-        packageId: string,
-        paymentMethod: string,
-        paymentDetails?: unknown,
-    ) => Promise<boolean>;
-    checkActionAvailability: (
-        actionType: ActionType,
-        amount?: number,
-    ) => Promise<{ canPerform: boolean; message: string }>;
+    purchasePackage: (packageId: string, paymentMethod: string, paymentDetails?: unknown) => Promise<boolean>;
+    checkActionAvailability: (actionType: ActionType, amount?: number) => Promise<{ canPerform: boolean; message: string }>;
 }
 
 const initialState = {
@@ -44,10 +31,10 @@ const initialState = {
     transactions: [],
     packages: [],
     costs: [],
-    isBalanceLoaded: false,
-    isTransactionsLoaded: false,
-    isPackagesLoaded: false,
-    isCostsLoaded: false,
+    balanceLoadStatus: "idle" as LoadStatus,
+    transactionsLoadStatus: "idle" as LoadStatus,
+    packagesLoadStatus: "idle" as LoadStatus,
+    costsLoadStatus: "idle" as LoadStatus,
     lastBalanceUpdate: 0,
     lastTransactionsUpdate: 0,
     lastPackagesUpdate: 0,
@@ -65,13 +52,14 @@ export const useCreditsStore = create<CreditsStore>((set, getState) => ({
             return;
         }
 
-        set(state => ({ ...state, isBalanceLoaded: false }));
+        set(state => ({ ...state, balanceLoadStatus: "pending" }));
         try {
             const data = await creditService.getCreditBalance();
             set(state => ({
                 ...state,
                 balance: data,
                 lastBalanceUpdate: now,
+                balanceLoadStatus: "success",
             }));
         } catch (error) {
             console.error("Error fetching credit balance:", error);
@@ -80,8 +68,7 @@ export const useCreditsStore = create<CreditsStore>((set, getState) => ({
                 description: "Не удалось загрузить баланс кредитов",
                 variant: "destructive",
             });
-        } finally {
-            set(state => ({ ...state, isBalanceLoaded: true }));
+            set(state => ({ ...state, balanceLoadStatus: "error" }));
         }
     },
 
@@ -100,7 +87,7 @@ export const useCreditsStore = create<CreditsStore>((set, getState) => ({
             return;
         }
 
-        set(state => ({ ...state, isTransactionsLoaded: false }));
+        set(state => ({ ...state, transactionsLoadStatus: "pending" }));
         try {
             const data = await creditService.getCreditTransactions(
                 limit,
@@ -113,6 +100,7 @@ export const useCreditsStore = create<CreditsStore>((set, getState) => ({
                 ...state,
                 transactions: data.transactions,
                 lastTransactionsUpdate: now,
+                transactionsLoadStatus: "success",
             }));
         } catch (error) {
             console.error("Error fetching transactions:", error);
@@ -121,8 +109,7 @@ export const useCreditsStore = create<CreditsStore>((set, getState) => ({
                 description: "Не удалось загрузить историю транзакций",
                 variant: "destructive",
             });
-        } finally {
-            set(state => ({ ...state, isTransactionsLoaded: true }));
+            set(state => ({ ...state, transactionsLoadStatus: "error" }));
         }
     },
 
@@ -134,13 +121,14 @@ export const useCreditsStore = create<CreditsStore>((set, getState) => ({
             return;
         }
 
-        set(state => ({ ...state, isPackagesLoaded: false }));
+        set(state => ({ ...state, packagesLoadStatus: "pending" }));
         try {
             const data = await creditService.getCreditPackages();
             set(state => ({
                 ...state,
                 packages: data.packages,
                 lastPackagesUpdate: now,
+                packagesLoadStatus: "success",
             }));
         } catch (error) {
             console.error("Error fetching credit packages:", error);
@@ -149,8 +137,7 @@ export const useCreditsStore = create<CreditsStore>((set, getState) => ({
                 description: "Не удалось загрузить пакеты кредитов",
                 variant: "destructive",
             });
-        } finally {
-            set(state => ({ ...state, isPackagesLoaded: true }));
+            set(state => ({ ...state, packagesLoadStatus: "error" }));
         }
     },
 
@@ -162,13 +149,14 @@ export const useCreditsStore = create<CreditsStore>((set, getState) => ({
             return;
         }
 
-        set(state => ({ ...state, isCostsLoaded: false }));
+        set(state => ({ ...state, costsLoadStatus: "pending" }));
         try {
             const data = await creditService.getCreditCosts();
             set(state => ({
                 ...state,
                 costs: data.costs,
                 lastCostsUpdate: now,
+                costsLoadStatus: "success",
             }));
         } catch (error) {
             console.error("Error fetching credit costs:", error);
@@ -177,8 +165,7 @@ export const useCreditsStore = create<CreditsStore>((set, getState) => ({
                 description: "Не удалось загрузить стоимость действий",
                 variant: "destructive",
             });
-        } finally {
-            set(state => ({ ...state, isCostsLoaded: true }));
+            set(state => ({ ...state, costsLoadStatus: "error" }));
         }
     },
 

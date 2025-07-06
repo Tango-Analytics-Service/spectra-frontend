@@ -15,10 +15,10 @@ export default function CreditsPage() {
     const transactions = useCreditsStore(state => state.transactions);
     const packages = useCreditsStore(state => state.packages);
     const costs = useCreditsStore(state => state.costs);
-    const isBalanceLoaded = useCreditsStore(state => state.isBalanceLoaded);
-    const isTransactionsLoaded = useCreditsStore(state => state.isTransactionsLoaded);
-    const isPackagesLoaded = useCreditsStore(state => state.isPackagesLoaded);
-    const isCostsLoaded = useCreditsStore(state => state.isCostsLoaded);
+    const balanceLoadStatus = useCreditsStore(state => state.balanceLoadStatus);
+    const transactionsLoadStatus = useCreditsStore(state => state.transactionsLoadStatus);
+    const packagesLoadStatus = useCreditsStore(state => state.packagesLoadStatus);
+    const costsLoadStatus = useCreditsStore(state => state.costsLoadStatus);
     const fetchBalance = useCreditsStore(state => state.fetchBalance);
     const fetchTransactions = useCreditsStore(state => state.fetchTransactions);
     const fetchPackages = useCreditsStore(state => state.fetchPackages);
@@ -74,7 +74,7 @@ export default function CreditsPage() {
 
                 {/* Credit balance */}
                 <div className={`mt-${spacing.md}`}>
-                    {!isBalanceLoaded ? (
+                    {balanceLoadStatus === "pending" ? (
                         <div className={cn(createCardStyle(), "p-6 flex justify-center")}>
                             <Loader2 className="h-8 w-8 animate-spin text-blue-400" />
                         </div>
@@ -89,7 +89,7 @@ export default function CreditsPage() {
 
                 {/* Credit packages */}
                 <div className={`mt-${spacing.lg}`}>
-                    {!isPackagesLoaded ? (
+                    {packagesLoadStatus === "pending" ? (
                         <div className={cn(createCardStyle(), "p-6 flex justify-center")}>
                             <Loader2 className="h-8 w-8 animate-spin text-blue-400" />
                         </div>
@@ -134,7 +134,7 @@ export default function CreditsPage() {
                     )}
                 >
                     {/* Transactions */}
-                    {!isTransactionsLoaded ? (
+                    {transactionsLoadStatus === "pending" ? (
                         <div className={cn(createCardStyle(), "p-6 flex justify-center")}>
                             <Loader2 className="h-8 w-8 animate-spin text-blue-400" />
                         </div>
@@ -147,7 +147,7 @@ export default function CreditsPage() {
                     )}
 
                     {/* Costs */}
-                    {!isCostsLoaded ? (
+                    {costsLoadStatus === "pending" ? (
                         <div className={cn(createCardStyle(), "p-6 flex justify-center")}>
                             <Loader2 className="h-8 w-8 animate-spin text-blue-400" />
                         </div>

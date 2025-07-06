@@ -2,11 +2,12 @@ import { toast } from "@/ui/components/use-toast";
 import { analysisService } from "@/analysis/service";
 import { AnalysisTask, AnalysisTaskBasic } from "@/analysis/types";
 import { create } from "zustand";
+import { LoadStatus } from "@/lib/types";
 
 export interface AnalysisTasksStore {
     tasks: AnalysisTaskBasic[]; // Базовый список задач
     tasksDetails: Record<string, AnalysisTask>; // Кеш детальной информации
-    isLoaded: boolean;
+    loadStatus: LoadStatus;
     selectedTask: AnalysisTask | null;
     lastFetched: number;
     // Methods for managing tasks
@@ -26,7 +27,7 @@ export interface AnalysisTasksStore {
 const initialState = {
     tasks: [],
     tasksDetails: {},
-    isLoaded: false,
+    loadStatus: "idle" as LoadStatus,
     selectedTask: null,
     lastFetched: 0,
 };
@@ -68,13 +69,14 @@ export const useAnalysisTasksStore = create<AnalysisTasksStore>((set, getState) 
         if (!forceRefresh && state.tasks.length > 0 && now - state.lastFetched < 60000) {
             return;
         }
-        set(state => ({ ...state, isLoaded: false }));
+        set(state => ({ ...state, loadStatus: "pending" }));
         try {
             const response = await analysisService.getUserTasks(limit, offset, status);
             set(state => ({
                 ...state,
                 lastFetched: now,
                 tasks: response.tasks,
+                loadStatus: "success",
             }));
 
             // Auto-select first completed task if none selected
@@ -95,9 +97,9 @@ export const useAnalysisTasksStore = create<AnalysisTasksStore>((set, getState) 
                 description: "Не удалось загрузить задачи анализа",
                 variant: "destructive",
             });
-        } finally {
-            set(state => ({ ...state, isLoaded: true }));
+            set(state => ({ ...state, loadStatus: "error" }));
         }
+
     },
 
 

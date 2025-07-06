@@ -75,7 +75,7 @@ export default function AnalysisTasksPage() {
 
     const tasks = useAnalysisTasksStore(state => state.tasks);
     const taskDetails = useAnalysisTasksStore(state => state.tasksDetails);
-    const isLoaded = useAnalysisTasksStore(state => state.isLoaded);
+    const loadStatus = useAnalysisTasksStore(state => state.loadStatus);
     const selectedTask = useAnalysisTasksStore(state => state.selectedTask);
     const fetchTasks = useAnalysisTasksStore(state => state.fetchTasks);
     const refreshTask = useAnalysisTasksStore(state => state.refreshTask);
@@ -93,10 +93,10 @@ export default function AnalysisTasksPage() {
 
     // Загрузка задач при монтировании
     useEffect(() => {
-        if (!isLoaded) {
+        if (loadStatus !== "success") {
             fetchTasks();
         }
-    }, [fetchTasks, isLoaded]);
+    }, [fetchTasks, loadStatus]);
 
     // Обработчик обновления
     const handleRefresh = () => {
@@ -139,10 +139,10 @@ export default function AnalysisTasksPage() {
                         </div>
                         <Button
                             onClick={handleRefresh}
-                            disabled={!isLoaded}
+                            disabled={loadStatus === "pending"}
                             className={createButtonStyle("secondary")}
                         >
-                            {!isLoaded ? (
+                            {loadStatus === "pending" ? (
                                 <RefreshCw size={16} className="mr-2 animate-spin" />
                             ) : (
                                 <RefreshCw size={16} className="mr-2" />
@@ -155,21 +155,21 @@ export default function AnalysisTasksPage() {
                     <div className={cn("grid grid-cols-3", `gap-${spacing.md}`, animations.slideIn)}>
                         <StatsCard
                             title="Всего"
-                            value={!isLoaded ? "—" : tasks.length}
+                            value={loadStatus !== "success" ? "—" : tasks.length}
                             icon={<BarChart3 size={15} className={textColors.accent} />}
-                            loading={!isLoaded}
+                            loading={loadStatus === "pending"}
                         />
                         <StatsCard
                             title="Завершено"
-                            value={!isLoaded ? "—" : tasks.filter(t => t.status === "completed").length}
+                            value={loadStatus !== "success" ? "—" : tasks.filter(t => t.status === "completed").length}
                             icon={<CheckCircle size={15} className={textColors.success} />}
-                            loading={!isLoaded}
+                            loading={loadStatus === "pending"}
                         />
                         <StatsCard
                             title="В процессе"
-                            value={!isLoaded ? "—" : tasks.filter(t => t.status === "processing").length}
+                            value={loadStatus !== "success" ? "—" : tasks.filter(t => t.status === "processing").length}
                             icon={<RefreshCw size={15} className={textColors.accent} />}
-                            loading={!isLoaded}
+                            loading={loadStatus === "pending"}
                         />
                     </div>
                 </div>
@@ -221,7 +221,7 @@ export default function AnalysisTasksPage() {
 
                 {/* Список задач */}
                 <div className={cn("flex-1", animations.fadeIn)}>
-                    {!isLoaded ? (
+                    {loadStatus === "pending" ? (
                         <div className={`space-y-${spacing.sm}`}>
                             {[1, 2, 3].map((i) => (
                                 <Skeleton key={i} className="h-32 w-full rounded-xl" />

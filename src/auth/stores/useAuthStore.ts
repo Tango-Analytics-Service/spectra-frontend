@@ -1,11 +1,12 @@
+import { create } from "zustand";
+import { LoadStatus } from "@/lib/types";
 import { authenticateWithTelegram, isTokenValid, saveToken } from "@/auth/service";
 import { getUserFromTelegram, isTelegramWebApp, notifyAppReady } from "@/telegram/utils";
-import { create } from "zustand";
 
 export interface AuthStore {
     isAuthenticated: boolean;
     user: WebAppUser | null;
-    isLoaded: boolean;
+    loadStatus: LoadStatus;
     error: string | null;
     login: () => Promise<void>;
     logout: () => void;
@@ -15,7 +16,7 @@ export interface AuthStore {
 const initialState = {
     isAuthenticated: false,
     user: null,
-    isLoaded: false,
+    loadStatus: "idle" as LoadStatus,
     error: null,
 };
 
@@ -25,7 +26,7 @@ export const useAuthStore = create<AuthStore>((set, getState) => ({
     login: async (): Promise<void> => {
         set(state => ({
             ...state,
-            isLoaded: false,
+            loadStatus: "pending",
             error: null,
         }));
 
@@ -34,23 +35,21 @@ export const useAuthStore = create<AuthStore>((set, getState) => ({
                 // Only for dev mode, in production this should be await authenticateWithTelegram();
                 const token = await authenticateWithTelegram();
                 saveToken(token);
-                set(state => ({ ...state, isAuthenticated: true }));
+                set(state => ({ ...state, loadStatus: "success", isAuthenticated: true }));
             } else {
                 // Для веб-браузера можно добавить другой способ авторизации
-                set(state => ({ ...state, error: "Non-Telegram authorization not supported yet" }));
+                set(state => ({ ...state, loadStatus: "error", error: "Non-Telegram authorization not supported yet" }));
             }
         } catch (e) {
             const errorMessage = e instanceof Error ? e.message : "Authentication failed";
-            set(state => ({ ...state, error: errorMessage }));
+            set(state => ({ ...state, loadStatus: "error", error: errorMessage }));
             console.error("Login error:", e);
-        } finally {
-            set(state => ({ ...state, isLoaded: true }));
         }
     },
 
     initialize: async () => {
         const state = getState();
-        set(state => ({ ...state, isLoaded: false }));
+        set(state => ({ ...state, loadStatus: "pending" }));
         try {
             // Если находимся в Telegram WebApp и есть данные пользователя
             if (isTelegramWebApp()) {
@@ -63,7 +62,7 @@ export const useAuthStore = create<AuthStore>((set, getState) => ({
                     if (!isTokenValid()) {
                         await state.login();
                     } else {
-                        set(state => ({ ...state, isAuthenticated: true }));
+                        set(state => ({ ...state, loadStatus: "success", isAuthenticated: true }));
                     }
                 }
 
@@ -71,15 +70,13 @@ export const useAuthStore = create<AuthStore>((set, getState) => ({
                 notifyAppReady();
             } else if (isTokenValid()) {
                 // Если это обычный веб-браузер и токен уже есть
-                set(state => ({ ...state, isAuthenticated: true }));
+                set(state => ({ ...state, loadStatus: "success", isAuthenticated: true }));
                 // Тут можно добавить запрос на получение данных пользователя с бэкенда
             }
         } catch (e) {
             const errorMessage = e instanceof Error ? e.message : "Unknown error";
-            set(state => ({ ...state, error: errorMessage }));
+            set(state => ({ ...state, loadStatus: "error", error: errorMessage }));
             console.error("Auth initialization error:", e);
-        } finally {
-            set(state => ({ ...state, isLoaded: true }));
         }
     },
 
@@ -91,6 +88,7 @@ export const useAuthStore = create<AuthStore>((set, getState) => ({
         set(state => ({
             ...state,
             isAuthenticated: false,
+            loadStatus: "idle",
             user: null,
         }));
     },
