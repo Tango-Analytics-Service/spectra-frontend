@@ -1,15 +1,14 @@
 import { createButtonStyle, spacing } from "@/lib/design-system";
 import { cn } from "@/lib/cn";
 import { useAuthStore } from "@/auth/stores/useAuthStore";
-import { Button } from "react-day-picker";
-
+import { Button } from "@/ui/components/button";
+import { isTelegramWebApp } from "@/telegram/utils";
 
 export default function LoginButton() {
     const telegramBotUrl = import.meta.env.VITE_TELEGRAM_BOT_URL;
 
     const isLoaded = useAuthStore(state => state.isLoaded);
     const login = useAuthStore(state => state.login);
-    const isTelegram = useAuthStore(state => state.isTelegram);
 
     const handleLogin = async () => {
         if (isLoaded) {
@@ -17,7 +16,7 @@ export default function LoginButton() {
         }
     };
 
-    if (isTelegram) {
+    if (isTelegramWebApp()) {
         return (
             <Button
                 onClick={handleLogin}
