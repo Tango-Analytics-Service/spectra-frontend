@@ -7,7 +7,6 @@ export interface AuthStore {
     user: WebAppUser | null;
     isLoaded: boolean;
     error: string | null;
-    isTelegram: boolean;
     login: () => Promise<void>;
     logout: () => void;
     initialize: () => Promise<void>,
@@ -18,15 +17,12 @@ const initialState = {
     user: null,
     isLoaded: false,
     error: null,
-    // isTelegram: false,
 };
 
 export const useAuthStore = create<AuthStore>((set, getState) => ({
     ...initialState,
-    isTelegram: isTelegramWebApp(),
 
     login: async (): Promise<void> => {
-        const state = getState();
         set(state => ({
             ...state,
             isLoaded: false,
@@ -34,7 +30,7 @@ export const useAuthStore = create<AuthStore>((set, getState) => ({
         }));
 
         try {
-            if (state.isTelegram) {
+            if (isTelegramWebApp()) {
                 // Only for dev mode, in production this should be await authenticateWithTelegram();
                 const token = await authenticateWithTelegram();
                 saveToken(token);
@@ -57,7 +53,7 @@ export const useAuthStore = create<AuthStore>((set, getState) => ({
         set(state => ({ ...state, isLoaded: false }));
         try {
             // Если находимся в Telegram WebApp и есть данные пользователя
-            if (state.isTelegram) {
+            if (isTelegramWebApp()) {
                 const telegramUser = getUserFromTelegram();
 
                 if (telegramUser) {

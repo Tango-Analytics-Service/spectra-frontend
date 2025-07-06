@@ -6,9 +6,10 @@ import { useAuthStore } from "@/auth/stores/useAuthStore";
 import LoginButton from "@/auth/components/LoginButton";
 
 export default function LoginPage() {
+    const navigate = useNavigate();
+
     const isAuthenticated = useAuthStore(state => state.isAuthenticated);
     const error = useAuthStore(state => state.error);
-    const navigate = useNavigate();
 
     useEffect(() => {
         if (isAuthenticated) {

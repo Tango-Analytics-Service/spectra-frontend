@@ -4,16 +4,14 @@ import { useTelegramNavigation } from "@/telegram/hooks/useTelegramNavigation";
 import { cn } from "@/lib/cn";
 import { gradients, typography, spacing, animations } from "@/lib/design-system";
 import AppHeader from "@/components/common/AppHeader";
-import { useAuthStore } from "@/auth/stores/useAuthStore";
 import PageTransition from "./PageTransition";
+import { isTelegramWebApp } from "@/telegram/utils";
 
 export interface MainLayoutProps {
     children: ReactNode;
 }
 
 export default function MainLayout({ children }: MainLayoutProps) {
-    const isTelegram = useAuthStore(state => state.isTelegram);
-
     useTelegramNavigation();
 
     return (
@@ -54,10 +52,10 @@ export default function MainLayout({ children }: MainLayoutProps) {
             </div>
 
             {/* Нижняя навигация */}
-            {isTelegram && <BottomNavigation />}
+            {isTelegramWebApp() && <BottomNavigation />}
 
             {/* Если не в Telegram, можно показать футер или другой элемент */}
-            {!isTelegram && (
+            {!isTelegramWebApp() && (
                 <div
                     className={cn(
                         "w-full border-t border-gray-800 text-center text-gray-500",
