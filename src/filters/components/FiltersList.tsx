@@ -60,9 +60,13 @@ export default function FiltersList({
 
     // Загрузка фильтров при монтировании
     useEffect(() => {
-        fetchSystemFilters();
-        fetchUserFilters();
-    }, [fetchSystemFilters, fetchUserFilters]);
+        if (!isSystemFiltersLoaded) {
+            fetchSystemFilters();
+        }
+        if (!isUserFiltersLoaded) {
+            fetchUserFilters();
+        }
+    }, [fetchSystemFilters, fetchUserFilters, isSystemFiltersLoaded, isUserFiltersLoaded]);
 
     // Комбинированный список фильтров
     const allFilters = useMemo(() => {

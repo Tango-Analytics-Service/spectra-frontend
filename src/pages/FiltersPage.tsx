@@ -20,14 +20,17 @@ export default function FiltersPage() {
 
     // Загрузка фильтров при монтировании
     useEffect(() => {
-        fetchSystemFilters();
-        fetchUserFilters();
-    }, [fetchSystemFilters, fetchUserFilters]);
+        if (!isSystemFiltersLoaded) {
+            fetchSystemFilters();
+        }
+        if (!isUserFiltersLoaded) {
+            fetchUserFilters();
+        }
+    }, [fetchSystemFilters, fetchUserFilters, isSystemFiltersLoaded, isUserFiltersLoaded]);
 
     // Подсчет статистики
     const isLoaded = isSystemFiltersLoaded && isUserFiltersLoaded;
-    const totalFilters =
-        systemFilters.length + userFilters.filter((f) => f.is_custom).length;
+    const totalFilters = systemFilters.length + userFilters.filter((f) => f.is_custom).length;
     const systemFiltersCount = systemFilters.length;
     const customFiltersCount = userFilters.filter((f) => f.is_custom).length;
 

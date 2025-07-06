@@ -36,11 +36,9 @@ export default function ChannelSetPage() {
     const [isCreateSmartSetOpen, setIsCreateSmartSetOpen] = useState(false);
     const [createLoading, setCreateLoading] = useState(false);
     const [analysisDialogOpen, setAnalysisDialogOpen] = useState(false);
-    const [selectedSetForAnalysis, setSelectedSetForAnalysis] =
-        useState<ChannelsSet>();
+    const [selectedSetForAnalysis, setSelectedSetForAnalysis] = useState<ChannelsSet>();
     const [addChannelsDialogOpen, setAddChannelsDialogOpen] = useState(false);
-    const [selectedSetForChannels, setSelectedSetForChannels] =
-        useState<ChannelsSet | null>(null);
+    const [selectedSetForChannels, setSelectedSetForChannels] = useState<ChannelsSet | null>(null);
 
     // Форма создания набора
     const [newSetName, setNewSetName] = useState("");
@@ -49,8 +47,10 @@ export default function ChannelSetPage() {
 
     // Эффекты
     useEffect(() => {
-        fetchChannelsSets();
-    }, [fetchChannelsSets]);
+        if (!isLoaded) {
+            fetchChannelsSets();
+        }
+    }, [fetchChannelsSets, isLoaded]);
 
     useEffect(() => {
         if (!searchQuery.trim()) {

@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import { useRoutes, Routes, Route } from "react-router-dom";
 import ChannelsSetsPage from "@/pages/ChannelsSetsPage";
 import ChannelSetDetailsPage from "@/pages/ChannelsSetDetailsPage";
@@ -22,7 +22,6 @@ export default function App() {
             <Suspense fallback={<LoadingScreen />}>
                 <>
                     <Routes>
-                        <Route path="/login" element={<LoginPage />} />
                         <Route
                             path="/"
                             element={
@@ -33,6 +32,7 @@ export default function App() {
                                 </AuthGuard>
                             }
                         />
+                        <Route path="/login" element={<LoginPage />} />
                         <Route
                             path="/filters"
                             element={

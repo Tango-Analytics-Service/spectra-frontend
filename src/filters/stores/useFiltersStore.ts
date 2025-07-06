@@ -1,5 +1,4 @@
 import { toast } from "@/ui/components/use-toast";
-import { httpClient } from "@/lib/httpClient";
 import { create } from "zustand";
 import { Filter, FilterCreateRequest } from "../types";
 import { filtersService } from "../service";

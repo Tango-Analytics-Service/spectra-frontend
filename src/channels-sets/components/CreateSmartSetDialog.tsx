@@ -51,6 +51,8 @@ export default function CreateSmartSetDialog({ open, onOpenChange }: CreateSmart
     const acceptanceThreshold = 0.7; // Fixed at 70%
     const batchSize = 20; // Fixed at 20
 
+    const filterDescLines = 5;
+
     // Load filters when dialog opens
     React.useEffect(() => {
         if (open && userFilters.length === 0) {
@@ -127,19 +129,16 @@ export default function CreateSmartSetDialog({ open, onOpenChange }: CreateSmart
             <DialogContent
                 className={cn(
                     createCardStyle(),
-                    "sm:max-w-2xl max-h-[80vh] flex flex-col p-0",
+                    "sm:max-w-2xl max-h-[80vh] translate-x-[0] translate-y-[0] inset-0 top-[64px] flex flex-col p-0",
                 )}
             >
                 {/* Header */}
-                <DialogHeader className={"p-6 pb-0 flex-shrink-0"}>
-                    <DialogTitle className={cn(typography.h3, "flex items-center gap-2")}>
+                <div className={"p-6 pb-0 flex-shrink-0"}>
+                    <h3 className={cn(typography.h3, "flex items-center gap-2")}>
                         <Zap size={20} className={textColors.accent} />
                         Создать умный набор
-                    </DialogTitle>
-                    <DialogDescription className={textColors.secondary}>
-                        Умный набор автоматически находит каналы по заданным критериям
-                    </DialogDescription>
-                </DialogHeader>
+                    </h3>
+                </div>
 
                 {/* Content */}
                 <div className="flex-1 overflow-auto px-6 pt-4">
@@ -239,7 +238,18 @@ export default function CreateSmartSetDialog({ open, onOpenChange }: CreateSmart
                                                         >
                                                             {filter.name}
                                                         </div>
-                                                        <div className={createTextStyle("small", "muted")}>
+                                                        <div
+                                                            className={createTextStyle("small", "muted")}
+                                                            style={{
+                                                                textOverflow: "ellipsis",
+                                                                overflow: "clip",
+                                                                display: "-webkit-box",
+                                                                "-webkit-box-orient": "vertical",
+                                                                maxHeight: `${filterDescLines}lh`,
+                                                                "-webkit-line-clamp": `${filterDescLines}`,
+
+                                                            } as React.CSSProperties}
+                                                        >
                                                             {/* filter.description || */ filter.criteria}
                                                         </div>
                                                     </Label>
@@ -300,38 +310,38 @@ export default function CreateSmartSetDialog({ open, onOpenChange }: CreateSmart
                             </div>
                         </div>
                     </div>
-                </div>
 
-                {/* Footer */}
-                <DialogFooter className={`p-6 pt-4 flex-shrink-0 gap-${spacing.sm}`}>
-                    <Button
-                        variant="outline"
-                        onClick={() => onOpenChange(false)}
-                        className={createButtonStyle("secondary")}
-                        disabled={isCreating}
-                    >
-                        Отмена
-                    </Button>
-                    <Button
-                        onClick={handleCreate}
-                        className={createButtonStyle("primary")}
-                        disabled={
-                            isCreating || !name.trim() || selectedFilters.length === 0
-                        }
-                    >
-                        {isCreating ? (
-                            <>
-                                <LoaderCircle size={16} className="mr-2 animate-spin" />
-                                Создание...
-                            </>
-                        ) : (
-                            <>
-                                <Zap size={16} className="mr-2" />
-                                Создать умный набор
-                            </>
-                        )}
-                    </Button>
-                </DialogFooter>
+                    {/* Footer */}
+                    <div className={`flex flex-col-reverse pt-4 pb-6 flex-shrink-0 gap-${spacing.sm}`}>
+                        <Button
+                            variant="outline"
+                            onClick={() => onOpenChange(false)}
+                            className={createButtonStyle("secondary")}
+                            disabled={isCreating}
+                        >
+                            Отмена
+                        </Button>
+                        <Button
+                            onClick={handleCreate}
+                            className={createButtonStyle("primary")}
+                            disabled={
+                                isCreating || !name.trim() || selectedFilters.length === 0
+                            }
+                        >
+                            {isCreating ? (
+                                <>
+                                    <LoaderCircle size={16} className="mr-2 animate-spin" />
+                                    Создание...
+                                </>
+                            ) : (
+                                <>
+                                    <Zap size={16} className="mr-2" />
+                                    Создать умный набор
+                                </>
+                            )}
+                        </Button>
+                    </div>
+                </div>
             </DialogContent>
         </Dialog>
     );
