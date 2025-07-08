@@ -31,7 +31,6 @@ export default function ChannelSetDetailsPage() {
 
     const getChannelsSet = useChannelsSetsStore(state => state.getChannelsSet);
     const updateChannelsSet = useChannelsSetsStore(state => state.updateChannelsSet);
-    const refreshChannelsSet = useChannelsSetsStore(state => state.refreshChannelsSet);
     const deleteChannelsSet = useChannelsSetsStore(state => state.deleteChannelsSet);
     const analyzeChannelsSet = useChannelsSetsStore(state => state.analyzeChannelsSet);
 
@@ -89,7 +88,7 @@ export default function ChannelSetDetailsPage() {
 
         setIsRefreshing(true);
         try {
-            const refreshedSet = await refreshChannelsSet(id);
+            const refreshedSet = await getChannelsSet(id);
             if (refreshedSet) {
                 setChannelSet(refreshedSet);
                 toast({
@@ -169,7 +168,7 @@ export default function ChannelSetDetailsPage() {
         options?: AnalysisOptions,
     ) => {
         try {
-            const response = await analyzeChannelsSet(
+            await analyzeChannelsSet(
                 channelSet.id,
                 filterIds,
                 options,
