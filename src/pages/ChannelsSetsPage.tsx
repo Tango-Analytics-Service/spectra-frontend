@@ -47,7 +47,7 @@ export default function ChannelSetPage() {
 
     // Эффекты
     useEffect(() => {
-        if (loadStatus !== "success") {
+        if (loadStatus === "idle") {
             fetchChannelsSets();
         }
     }, [fetchChannelsSets, loadStatus]);

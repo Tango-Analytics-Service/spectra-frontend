@@ -62,21 +62,15 @@ export const channelSetService = {
     /**
      * Add channels to a set
      */
-    addChannelsToSet: async (
-        id: string,
-        data: AddChannelsRequest,
-    ): Promise<unknown> => {
-        return httpClient.post<unknown>(`${API_ENDPOINT}/${id}/channels`, data);
+    addChannelsToSet: async (id: string, data: AddChannelsRequest) => {
+        return httpClient.post<{ success: boolean }>(`${API_ENDPOINT}/${id}/channels`, data);
     },
 
     /**
      * Remove channels from a set
      */
-    removeChannelsFromSet: async (
-        id: string,
-        data: RemoveChannelsRequest,
-    ): Promise<unknown> => {
-        return httpClient.delete<unknown>(`${API_ENDPOINT}/${id}/channels`, {
+    removeChannelsFromSet: async (id: string, data: RemoveChannelsRequest) => {
+        return httpClient.delete<{ success: boolean }>(`${API_ENDPOINT}/${id}/channels`, {
             body: JSON.stringify(data),
         });
     },
@@ -93,11 +87,12 @@ export const channelSetService = {
     /**
      * Analyze a channel set
      */
-    analyzeChannelSet: async (
-        id: string,
-        data: AnalyzeChannelsSetRequest,
-    ): Promise<unknown> => {
-        return httpClient.post<unknown>(`${API_ENDPOINT}/${id}/analyze`, data);
+    analyzeChannelSet: async (id: string, data: AnalyzeChannelsSetRequest) => {
+        return httpClient.post<{
+            success: boolean,
+            message: string,
+            task_id: string,
+        }>(`${API_ENDPOINT}/${id}/analyze`, data);
     },
 
     /**
@@ -107,9 +102,7 @@ export const channelSetService = {
         channelId: string | number,
         username: string,
     ): Promise<ChannelDetails> => {
-        return httpClient.get<ChannelDetails>(
-            `/channels/${channelId || username}/details`,
-        );
+        return httpClient.get<ChannelDetails>(`/channels/${channelId || username}/details`);
     },
 
     /**
