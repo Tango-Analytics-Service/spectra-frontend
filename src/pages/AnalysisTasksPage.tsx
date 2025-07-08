@@ -76,15 +76,13 @@ export default function AnalysisTasksPage() {
     const tasks = useAnalysisTasksStore(state => state.tasks);
     const taskDetails = useAnalysisTasksStore(state => state.tasksDetails);
     const loadStatus = useAnalysisTasksStore(state => state.loadStatus);
-    const selectedTask = useAnalysisTasksStore(state => state.selectedTask);
-    const fetchTasks = useAnalysisTasksStore(state => state.fetchTasks);
     const refreshTask = useAnalysisTasksStore(state => state.refreshTask);
-    const selectTaskById = useAnalysisTasksStore(state => state.selectTaskById);
+    const fetchTasksWithDetails = useAnalysisTasksStore(state => state.fetchTasksWithDetails);
 
     // UI состояния
     const [showTaskDetails, setShowTaskDetails] = useState(false);
     const [showActionSheet, setShowActionSheet] = useState(false);
-    const selectedTaskForActions = null;
+    const [selectedTask, setSelectedTask] = useState<AnalysisTask | undefined>(undefined);
 
     // Фильтры
     const [statusFilter, setStatusFilter] = useState("all");
@@ -93,14 +91,14 @@ export default function AnalysisTasksPage() {
 
     // Загрузка задач при монтировании
     useEffect(() => {
-        if (loadStatus !== "success") {
-            fetchTasks();
+        if (loadStatus === "idle") {
+            fetchTasksWithDetails();
         }
-    }, [fetchTasks, loadStatus]);
+    }, [fetchTasksWithDetails, loadStatus]);
 
     // Обработчик обновления
     const handleRefresh = () => {
-        fetchTasks(50, 0, undefined, true);
+        fetchTasksWithDetails();
     };
 
     // Фильтрация задач
@@ -109,7 +107,7 @@ export default function AnalysisTasksPage() {
         if (statusFilter !== "all" && task.status !== statusFilter) {
             return false;
         }
-        return filterQuery(task, taskDetails[task.id], searchQuery, channelsSets)
+        return filterQuery(task, taskDetails[task.id]?.details, searchQuery, channelsSets)
             && filterDate(new Date(task.created_at), dateFilter);
     });
 
@@ -240,8 +238,8 @@ export default function AnalysisTasksPage() {
                     ) : (
                         <div className={`space-y-${spacing.sm}`}>
                             {filteredTasks.map((task) => (
-                                <TaskCard key={task.id} task={task} details={taskDetails[task.id]} onTaskPress={() => {
-                                    selectTaskById(task.id);
+                                <TaskCard key={task.id} task={task} details={taskDetails[task.id]?.details} onTaskPress={() => {
+                                    setSelectedTask(taskDetails[task.id]?.details);
                                     setShowTaskDetails(true);
                                 }} />
                             ))}
@@ -262,7 +260,7 @@ export default function AnalysisTasksPage() {
             <MobileActionSheet
                 isOpen={showActionSheet}
                 onClose={() => setShowActionSheet(false)}
-                actions={getTaskActions(selectedTaskForActions, () => refreshTask(selectedTaskForActions.id))}
+                actions={getTaskActions(selectedTask, () => refreshTask(selectedTask.id))}
             />
         </div>
     );

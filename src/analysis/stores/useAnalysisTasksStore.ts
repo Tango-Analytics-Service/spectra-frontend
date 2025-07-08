@@ -4,18 +4,22 @@ import { AnalysisTask, AnalysisTaskBasic } from "@/analysis/types";
 import { create } from "zustand";
 import { LoadStatus } from "@/lib/types";
 
+const AUTO_REFRESH_TIMEOUT = 60 * 1000;
+
+export interface TaskDetailsRecord {
+    loadStatus: LoadStatus;
+    details: AnalysisTask | undefined;
+}
+
 export interface AnalysisTasksStore {
     tasks: AnalysisTaskBasic[]; // Базовый список задач
-    tasksDetails: Record<string, AnalysisTask>; // Кеш детальной информации
+    tasksDetails: Record<string, TaskDetailsRecord>; // Кеш детальной информации
     loadStatus: LoadStatus;
-    selectedTask: AnalysisTask | null;
-    lastFetched: number;
     // Methods for managing tasks
-    fetchTasks: (limit?: number, offset?: number, status?: string, forceRefresh?: boolean) => Promise<void>;
+    fetchTasks: (limit?: number, offset?: number, status?: string) => Promise<void>;
     fetchTaskDetails: (taskId: string) => Promise<AnalysisTask | null>;
+    fetchTasksWithDetails: (limit?: number, offset?: number, status?: string) => Promise<void>;
     refreshTask: (taskId: string) => Promise<void>;
-    setSelectedTask: (task: AnalysisTask | null) => void;
-    selectTaskById: (taskId: string) => Promise<void>;
     // Efficient method to find and load tasks for a channel set
     findTasksForChannelSet: (channelSetId: string) => Promise<AnalysisTask[]>;
     // Helper methods
@@ -28,68 +32,21 @@ const initialState = {
     tasks: [],
     tasksDetails: {},
     loadStatus: "idle" as LoadStatus,
-    selectedTask: null,
-    lastFetched: 0,
 };
 
 export const useAnalysisTasksStore = create<AnalysisTasksStore>((set, getState) => ({
     ...initialState,
 
-    // Fetch task details by ID
-    fetchTaskDetails: async (taskId: string) => {
-        const state = getState();
-        try {
-            const taskDetails = await analysisService.getUserTask(taskId);
-
-            // Сохраняем детали в кеше
-            set(state => ({ ...state, [taskId]: taskDetails }));
-
-            // Если это выбранная задача, обновляем её
-            if (state.selectedTask?.id === taskId) {
-                set(state => ({ ...state, selectedTask: taskDetails }));
-            }
-
-            return taskDetails;
-        } catch (error) {
-            console.error(`Error fetching task details ${taskId}:`, error);
-            toast({
-                title: "Ошибка",
-                description: "Не удалось загрузить детали задачи",
-                variant: "destructive",
-            });
-            return null;
-        }
-    },
-
     // Fetch all tasks
-    fetchTasks: async (limit = 50, offset = 0, status?: string, forceRefresh = false) => {
-        const state = getState();
-        // Cache control - refetch if more than 1 minute has passed or force refresh
-        const now = Date.now();
-        if (!forceRefresh && state.tasks.length > 0 && now - state.lastFetched < 60000) {
-            return;
-        }
+    fetchTasks: async (limit = 50, offset = 0, status?: string) => {
         set(state => ({ ...state, loadStatus: "pending" }));
         try {
             const response = await analysisService.getUserTasks(limit, offset, status);
             set(state => ({
                 ...state,
-                lastFetched: now,
                 tasks: response.tasks,
                 loadStatus: "success",
             }));
-
-            // Auto-select first completed task if none selected
-            if (!state.selectedTask && response.tasks.length > 0) {
-                const completedTask = response.tasks.find(task => task.status === "completed");
-                if (completedTask) {
-                    // Загружаем детали для автовыбранной задачи
-                    const details = await state.fetchTaskDetails(completedTask.id);
-                    if (details && details.results && details.results.length > 0) {
-                        set(state => ({ ...state, selectedTask: details }));
-                    }
-                }
-            }
         } catch (error) {
             console.error("Error fetching tasks:", error);
             toast({
@@ -98,17 +55,89 @@ export const useAnalysisTasksStore = create<AnalysisTasksStore>((set, getState) 
                 variant: "destructive",
             });
             set(state => ({ ...state, loadStatus: "error" }));
+        } finally {
+            setTimeout(() => {
+                set(state => ({ ...state, loadStatus: "idle" }));
+            }, AUTO_REFRESH_TIMEOUT);
         }
-
     },
 
+    // Fetch task details by ID
+    fetchTaskDetails: async (taskId: string) => {
+        set(state => ({
+            ...state,
+            tasksDetails: {
+                ...state.tasksDetails,
+                [taskId]: { loadStatus: "pending", details: state.tasksDetails[taskId]?.details },
+            },
+        }));
+        try {
+            const taskDetails = await analysisService.getUserTask(taskId);
+            // Сохраняем детали в кеше
+            set(state => ({
+                ...state,
+                tasksDetails: {
+                    ...state.tasksDetails,
+                    [taskId]: { loadStatus: "success", details: taskDetails },
+                },
+            }));
+            return taskDetails;
+        } catch (error) {
+            console.error(`Error fetching task details ${taskId}:`, error);
+            toast({
+                title: "Ошибка",
+                description: "Не удалось загрузить детали задачи",
+                variant: "destructive",
+            });
+            set(state => ({
+                ...state,
+                tasksDetails: {
+                    ...state.tasksDetails,
+                    [taskId]: { loadStatus: "error", details: undefined },
+                },
+            }));
+            setTimeout(() => {
+                set(state => ({
+                    tasksDetails: {
+                        ...state.tasksDetails,
+                        [taskId]: { loadStatus: "idle", details: state.tasksDetails[taskId]?.details },
+                    },
+                }));
+            }, AUTO_REFRESH_TIMEOUT);
+            return null;
+        }
+    },
+
+    fetchTasksWithDetails: async (limit = 50, offset = 0, status?: string) => {
+        let state = getState();
+        await state.fetchTasks(limit, offset, status);
+        state = getState();
+        const tasksWithoutDetailsList = state.tasks.filter(task => {
+            const detailsRecord = state.tasksDetails[task.id];
+            if (detailsRecord === undefined) {
+                return true;
+            }
+            if (detailsRecord.loadStatus === "idle") {
+                return true;
+            }
+            return false;
+        });
+        const tasksDetailsPromises = tasksWithoutDetailsList.map(task => state.fetchTaskDetails(task.id));
+        // Fetch all tasks details at once
+        await Promise.allSettled(tasksDetailsPromises);
+    },
 
     // Refresh single task
     refreshTask: async (taskId: string) => {
-        const state = getState();
+        set(state => ({
+            ...state,
+            tasksDetails: {
+                ...state.tasksDetails,
+                [taskId]: { loadStatus: "pending", details: state.tasksDetails[taskId]?.details },
+            },
+        }));
         try {
             const updatedTaskDetails = await analysisService.getUserTask(taskId);
-
             set(state => ({
                 ...state,
                 // Обновляем базовую информацию в списке задач
@@ -125,17 +154,12 @@ export const useAnalysisTasksStore = create<AnalysisTasksStore>((set, getState) 
                 // Обновляем детали в кеше
                 tasksDetails: {
                     ...state.tasksDetails,
-                    [taskId]: updatedTaskDetails,
+                    [taskId]: { loadStatus: "success", details: updatedTaskDetails },
                 },
             }));
 
-            // Update selected task if it matches
-            if (state.selectedTask?.id === taskId) {
-                set(state => ({ ...state, selectedTask: updatedTaskDetails }));
-            }
-
             // Show success message if task completed
-            if (updatedTaskDetails.status === "completed" && state.selectedTask?.status !== "completed") {
+            if (updatedTaskDetails.status === "completed") {
                 toast({
                     title: "Задача завершена",
                     description: "Результаты анализа готовы",
@@ -148,24 +172,35 @@ export const useAnalysisTasksStore = create<AnalysisTasksStore>((set, getState) 
                 description: "Не удалось обновить задачу",
                 variant: "destructive",
             });
+            set(state => ({
+                ...state,
+                tasksDetails: {
+                    ...state.tasksDetails,
+                    [taskId]: { loadStatus: "error", details: undefined },
+                },
+            }));
+            setTimeout(() => {
+                set(state => ({
+                    tasksDetails: {
+                        ...state.tasksDetails,
+                        [taskId]: { loadStatus: "idle", details: state.tasksDetails[taskId]?.details },
+                    },
+                }));
+            }, AUTO_REFRESH_TIMEOUT);
         }
-    },
-
-    setSelectedTask(task: AnalysisTask) {
-        set(state => ({ ...state, selectedTask: task }));
     },
 
     // Efficient method to find tasks for a specific channel set
     findTasksForChannelSet: async (channelSetId: string): Promise<AnalysisTask[]> => {
         const state = getState();
         // Сначала проверяем уже загруженные детали
-        const existingTasks = Object.values(state.tasksDetails).filter(
-            task => task.channel_set_id === channelSetId
+        const existingRecords = Object.values(state.tasksDetails).filter(
+            record => record.details.channel_set_id === channelSetId
         );
 
         // Если у нас есть детали для некоторых задач, возвращаем их
-        if (existingTasks.length > 0) {
-            return existingTasks;
+        if (existingRecords.length > 0) {
+            return existingRecords.map(record => record.details);
         }
 
         // Если деталей нет, попробуем загрузить детали для последних нескольких задач
@@ -191,35 +226,20 @@ export const useAnalysisTasksStore = create<AnalysisTasksStore>((set, getState) 
                 } catch {
                     console.warn(`Failed to load details for task ${task.id}`);
                 }
-            } else if (state.tasksDetails[task.id].channel_set_id === channelSetId) {
-                channelSetTasks.push(state.tasksDetails[task.id]);
+            } else if (state.tasksDetails[task.id]?.details.channel_set_id === channelSetId) {
+                channelSetTasks.push(state.tasksDetails[task.id]?.details);
             }
         }
 
         return channelSetTasks;
     },
 
-    // Select task by ID
-    selectTaskById: async (taskId: string) => {
-        const state = getState();
-        // Проверяем, есть ли детали в кеше
-        const cachedDetails = state.tasksDetails[taskId];
-        if (cachedDetails) {
-            set(state => ({ ...state, selsectedTask: cachedDetails }));
-            return;
-        }
-
-        // Если деталей нет, загружаем их
-        const details = await state.fetchTaskDetails(taskId);
-        if (details) {
-            state.setSelectedTask(details);
-        }
-    },
-
     // Helper: Get tasks by channel set (только детальные)
     getTasksByChannelSet: (channelSetId: string): AnalysisTask[] => {
         const state = getState();
-        return Object.values(state.tasksDetails).filter(task => task.channel_set_id === channelSetId);
+        return Object.values(state.tasksDetails)
+            .filter(record => record.details.channel_set_id === channelSetId)
+            .map(record => record.details);
     },
 
     // Helper: Get latest task for channel set (с автозагрузкой)
