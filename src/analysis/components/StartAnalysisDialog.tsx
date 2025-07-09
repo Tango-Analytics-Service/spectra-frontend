@@ -2,9 +2,6 @@
 import { useState, useEffect } from "react";
 import { Dialog } from "@/ui/components/dialog";
 import DialogContent from "@/ui/components/dialog/DialogContent";
-import DialogDescription from "@/ui/components/dialog/DialogDescription";
-import DialogFooter from "@/ui/components/dialog/DialogFooter";
-import DialogHeader from "@/ui/components/dialog/DialogHeader";
 import DialogTitle from "@/ui/components/dialog/DialogTitle";
 import { Button } from "@/ui/components/button";
 import { AnalysisOptions, ProcessingMode } from "@/analysis/types";
@@ -24,9 +21,7 @@ export interface StartAnalysisDialogProps {
 }
 
 export default function StartAnalysisDialog({ open, onOpenChange, onStart, channelCount, }: StartAnalysisDialogProps) {
-    const selectedFilters = useFiltersStore(state => state.selectedFilters);
-    const toggleFilterSelection = useFiltersStore(state => state.toggleFilterSelection);
-    const clearSelectedFilters = useFiltersStore(state => state.clearSelectedFilters);
+    const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
 
     const [isStarting, setIsStarting] = useState(false);
     const [showFiltersList, setShowFiltersList] = useState(true);
@@ -39,12 +34,21 @@ export default function StartAnalysisDialog({ open, onOpenChange, onStart, chann
         ProcessingMode.BATCH,
     );
 
+
+    const toggleFilterSelection = (id: string) => {
+        if (selectedFilters.includes(id)) {
+            setSelectedFilters(selectedFilters.filter(filterId => filterId !== id));
+        } else {
+            setSelectedFilters([...selectedFilters, id]);
+        }
+    };
+
     // Clear selected filters when dialog closes
     useEffect(() => {
         if (!open) {
             // Small delay to avoid flash during closing animation
             setTimeout(() => {
-                clearSelectedFilters();
+                setSelectedFilters([]);
                 setShowFiltersList(true);
                 // Reset options to defaults
                 setMaxPosts(20);
@@ -53,7 +57,7 @@ export default function StartAnalysisDialog({ open, onOpenChange, onStart, chann
                 setProcessingMode(ProcessingMode.DIRECT);
             }, 300);
         }
-    }, [open, clearSelectedFilters]);
+    }, [open]);
 
     const handleStartAnalysis = async () => {
         if (selectedFilters.length === 0) {

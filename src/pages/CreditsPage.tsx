@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import CreditsBalanceCard from "@/credits/components/CreditsBalanceCard";
 import CreditsTransactionsList from "@/credits/components/CreditsTransactionsList";
 import CreditsPackagesGrid from "@/credits/components/CreditsPackagesGrid";
@@ -27,13 +26,10 @@ export default function CreditsPage() {
     // Toast for notifications
     const { toast } = useToast();
 
-    // Load all data on component mount
-    useEffect(() => {
-        fetchBalance();
-        fetchTransactions();
-        fetchPackages();
-        fetchCosts();
-    }, [fetchBalance, fetchTransactions, fetchPackages, fetchCosts]);
+    fetchBalance();
+    fetchTransactions();
+    fetchPackages();
+    fetchCosts();
 
     const handlePurchaseClick = (packageId: string) => {
         const pkg = packages.find((p) => p.id === packageId);

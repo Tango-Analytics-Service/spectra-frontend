@@ -15,7 +15,7 @@ export interface ChannelsSetsStore {
     channelsSetsCache: Record<string, ChannelsSet>,
 
     // Methods for managing channel sets
-    fetchChannelsSets: () => Promise<void>;
+    fetchChannelsSets: (force?: boolean) => Promise<void>;
     getChannelsSet: (id: string) => Promise<ChannelsSet | undefined>;
     createChannelsSet: (data: CreateChannelsSetRequest) => Promise<ChannelsSet | undefined>;
     updateChannelsSet: (id: string, data: UpdateChannelsSetRequest) => Promise<ChannelsSet | undefined>;
@@ -41,7 +41,14 @@ const initialState = {
 export const useChannelsSetsStore = create<ChannelsSetsStore>((set, getState) => ({
     ...initialState,
 
-    fetchChannelsSets: async () => {
+    fetchChannelsSets: async (force = false) => {
+        const state = getState();
+        if (!force) {
+            if (state.loadStatus !== "idle") {
+                return;
+            }
+        }
+
         set(state => ({ ...state, loadStatus: "pending" }));
         try {
             const response = await channelSetService.getChannelSets();

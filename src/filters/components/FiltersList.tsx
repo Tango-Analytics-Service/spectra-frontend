@@ -45,7 +45,7 @@ export default function FiltersList({
 }: FiltersListProps) {
     const systemFilters = useFiltersStore(state => state.systemFilters);
     const userFilters = useFiltersStore(state => state.userFilters);
-    const systeFilterLoadStatus = useFiltersStore(state => state.systemFiltersLoadStatus);
+    const systemFiltersLoadStatus = useFiltersStore(state => state.systemFiltersLoadStatus);
     const userFiltersLoadStatus = useFiltersStore(state => state.userFiltersLoadStatus);
     const fetchSystemFilters = useFiltersStore(state => state.fetchSystemFilters);
     const fetchUserFilters = useFiltersStore(state => state.fetchUserFilters);
@@ -58,15 +58,8 @@ export default function FiltersList({
     const [showCreateDialog, setShowCreateDialog] = useState(false);
     const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
 
-    // Загрузка фильтров при монтировании
-    useEffect(() => {
-        if (systeFilterLoadStatus !== "success") {
-            fetchSystemFilters();
-        }
-        if (userFiltersLoadStatus !== "success") {
-            fetchUserFilters();
-        }
-    }, [fetchSystemFilters, fetchUserFilters, systeFilterLoadStatus, userFiltersLoadStatus]);
+    fetchUserFilters();
+    fetchSystemFilters();
 
     // Комбинированный список фильтров
     const allFilters = useMemo(() => {
@@ -147,7 +140,7 @@ export default function FiltersList({
     };
 
     // Состояние загрузки
-    const areFiltersLoading = systeFilterLoadStatus === "pending" || userFiltersLoadStatus === "pending";
+    const areFiltersLoading = systemFiltersLoadStatus === "pending" || userFiltersLoadStatus === "pending";
 
     return (
         <div className={cn("space-y-4", animations.fadeIn)}>

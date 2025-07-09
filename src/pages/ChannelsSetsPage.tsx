@@ -45,12 +45,7 @@ export default function ChannelSetPage() {
     const [newSetDescription, setNewSetDescription] = useState("");
     const [newSetIsPublic, setNewSetIsPublic] = useState(false);
 
-    // Эффекты
-    useEffect(() => {
-        if (loadStatus === "idle") {
-            fetchChannelsSets();
-        }
-    }, [fetchChannelsSets, loadStatus]);
+    fetchChannelsSets();
 
     useEffect(() => {
         if (!searchQuery.trim()) {

@@ -18,15 +18,8 @@ export default function FiltersPage() {
 
     const [showCreateDialog, setShowCreateDialog] = useState(false);
 
-    // Загрузка фильтров при монтировании
-    useEffect(() => {
-        if (systemFiltersLoadStatus !== "success") {
-            fetchSystemFilters();
-        }
-        if (userFilterLoadStatus !== "success") {
-            fetchUserFilters();
-        }
-    }, [fetchSystemFilters, fetchUserFilters, systemFiltersLoadStatus, userFilterLoadStatus]);
+    fetchUserFilters();
+    fetchSystemFilters();
 
     // Подсчет статистики
     const totalFilters = systemFilters.length + userFilters.filter((f) => f.is_custom).length;

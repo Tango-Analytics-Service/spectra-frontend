@@ -4,20 +4,18 @@ import { Filter, FilterCreateRequest } from "../types";
 import { filtersService } from "../service";
 import { LoadStatus } from "@/lib/types";
 
+const AUTO_REFRESH_TIMEOUT = 60 * 1000;
+
 export interface FiltersStore {
     systemFilters: Filter[];
     userFilters: Filter[];
     systemFiltersLoadStatus: LoadStatus;
     userFiltersLoadStatus: LoadStatus;
-    selectedFilters: string[];
     // Methods
-    fetchSystemFilters: () => Promise<void>;
-    fetchUserFilters: () => Promise<void>;
+    fetchSystemFilters: (force?: boolean) => Promise<void>;
+    fetchUserFilters: (force?: boolean) => Promise<void>;
     createCustomFilter: (data: FilterCreateRequest) => Promise<Filter | null>;
     deleteCustomFilter: (id: string) => Promise<boolean>;
-    toggleFilterSelection: (id: string) => void;
-    setSelectedFilters: (filterIds: string[]) => void;
-    clearSelectedFilters: () => void;
     getFilterById: (id: string) => Filter | undefined;
 }
 
@@ -26,14 +24,20 @@ const initialState = {
     userFilters: [],
     systemFiltersLoadStatus: "idle" as LoadStatus,
     userFiltersLoadStatus: "idle" as LoadStatus,
-    selectedFilters: [],
 };
 
 export const useFiltersStore = create<FiltersStore>((set, getState) => ({
     ...initialState,
 
     // Fetch system filters (predefined by the system)
-    fetchSystemFilters: async () => {
+    fetchSystemFilters: async (force = false) => {
+        const state = getState();
+        if (!force) {
+            if (state.systemFiltersLoadStatus !== "idle") {
+                return;
+            }
+        }
+
         set(state => ({ ...state, systemFiltersLoadStatus: "pending" }));
         try {
             const filters = await filtersService.getSystemFilters();
@@ -46,11 +50,22 @@ export const useFiltersStore = create<FiltersStore>((set, getState) => ({
                 variant: "destructive",
             });
             set(state => ({ ...state, systemFiltersLoadStatus: "error" }));
+        } finally {
+            setTimeout(() => {
+                set(state => ({ ...state, systemFiltersLoadStatus: "idle" }));
+            }, AUTO_REFRESH_TIMEOUT);
         }
     },
 
     // Fetch all filters available to the user (system + custom)
-    fetchUserFilters: async () => {
+    fetchUserFilters: async (force = false) => {
+        const state = getState();
+        if (!force) {
+            if (state.userFiltersLoadStatus !== "idle") {
+                return;
+            }
+        }
+
         set(state => ({ ...state, userFiltersLoadStatus: "pending" }));
         try {
             const filters = await filtersService.getUserFilters();
@@ -63,6 +78,10 @@ export const useFiltersStore = create<FiltersStore>((set, getState) => ({
                 variant: "destructive",
             });
             set(state => ({ ...state, userFiltersLoadStatus: "error" }));
+        } finally {
+            setTimeout(() => {
+                set(state => ({ ...state, userFiltersLoadStatus: "idle" }));
+            }, AUTO_REFRESH_TIMEOUT);
         }
     },
 
@@ -95,20 +114,14 @@ export const useFiltersStore = create<FiltersStore>((set, getState) => ({
     deleteCustomFilter: async (id: string): Promise<boolean> => {
         try {
             await filtersService.deleteCustomFilter(id);
-
             set(state => ({
                 ...state,
-                // Update user filters list
                 userFilters: state.userFilters.filter((filter) => filter.id !== id),
-                // Remove from selected filters if it was selected
-                selectedFilters: state.selectedFilters.filter((filterId) => filterId !== id),
             }));
-
             toast({
                 title: "Успешно",
                 description: "Фильтр удален",
             });
-
             return true;
         } catch (error) {
             console.error(`Error deleting custom filter ${id}:`, error);
@@ -121,26 +134,6 @@ export const useFiltersStore = create<FiltersStore>((set, getState) => ({
         }
     },
 
-    // Toggle filter selection (add/remove from selected)
-    toggleFilterSelection: (id: string) => {
-        set(state => ({
-            ...state,
-            selectedFilters: state.selectedFilters.includes(id)
-                ? state.selectedFilters.filter((filterId) => filterId !== id)
-                : [...state.selectedFilters, id],
-        }));
-    },
-
-    // Set selected filters directly
-    setSelectedFilters: (filtersIds: string[]) => {
-        set(state => ({ ...state, selectedFilters: filtersIds }));
-    },
-
-    // Clear all selected filters
-    clearSelectedFilters: () => {
-        set(state => ({ ...state, selectedFilters: [] }));
-    },
-
     // Get filter by ID
     getFilterById: (id: string): Filter | undefined => {
         const state = getState();
@@ -148,5 +141,4 @@ export const useFiltersStore = create<FiltersStore>((set, getState) => ({
             (filter) => filter.id === id,
         );
     },
-
 }));

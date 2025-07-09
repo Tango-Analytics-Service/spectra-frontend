@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { RefreshCw, Search, CheckCircle, AlertCircle, BarChart3 } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { Button } from "@/ui/components/button";
@@ -90,15 +90,11 @@ export default function AnalysisTasksPage() {
     const dateFilter = "all";
 
     // Загрузка задач при монтировании
-    useEffect(() => {
-        if (loadStatus === "idle") {
-            fetchTasksWithDetails();
-        }
-    }, [fetchTasksWithDetails, loadStatus]);
+    fetchTasksWithDetails();
 
     // Обработчик обновления
     const handleRefresh = () => {
-        fetchTasksWithDetails();
+        fetchTasksWithDetails({}, true);
     };
 
     // Фильтрация задач

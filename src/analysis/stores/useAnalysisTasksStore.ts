@@ -11,14 +11,20 @@ export interface TaskDetailsRecord {
     details: AnalysisTask | undefined;
 }
 
+interface FetchTasksRequestOptions {
+    limit?: number;
+    offset?: number;
+    status?: string;
+}
+
 export interface AnalysisTasksStore {
     tasks: AnalysisTaskBasic[]; // Базовый список задач
     tasksDetails: Record<string, TaskDetailsRecord>; // Кеш детальной информации
     loadStatus: LoadStatus;
     // Methods for managing tasks
-    fetchTasks: (limit?: number, offset?: number, status?: string) => Promise<void>;
-    fetchTaskDetails: (taskId: string) => Promise<AnalysisTask | null>;
-    fetchTasksWithDetails: (limit?: number, offset?: number, status?: string) => Promise<void>;
+    fetchTasks: (options?: FetchTasksRequestOptions, force?: boolean) => Promise<void>;
+    fetchTaskDetails: (taskId: string, force?: boolean) => Promise<AnalysisTask | null>;
+    fetchTasksWithDetails: (options?: FetchTasksRequestOptions, force?: boolean) => Promise<void>;
     refreshTask: (taskId: string) => Promise<void>;
     // Efficient method to find and load tasks for a channel set
     findTasksForChannelSet: (channelSetId: string) => Promise<AnalysisTask[]>;
@@ -38,10 +44,24 @@ export const useAnalysisTasksStore = create<AnalysisTasksStore>((set, getState) 
     ...initialState,
 
     // Fetch all tasks
-    fetchTasks: async (limit = 50, offset = 0, status?: string) => {
+    fetchTasks: async (options?: FetchTasksRequestOptions, force = false) => {
+        const state = getState();
+        if (!force) {
+            if (state.loadStatus !== "idle") {
+                return;
+            }
+        }
+
+        options = {
+            limit: 50,
+            offset: 0,
+            status: undefined,
+            ...options,
+        };
+
         set(state => ({ ...state, loadStatus: "pending" }));
         try {
-            const response = await analysisService.getUserTasks(limit, offset, status);
+            const response = await analysisService.getUserTasks(options.limit, options.offset, options.status);
             set(state => ({
                 ...state,
                 tasks: response.tasks,
@@ -63,7 +83,14 @@ export const useAnalysisTasksStore = create<AnalysisTasksStore>((set, getState) 
     },
 
     // Fetch task details by ID
-    fetchTaskDetails: async (taskId: string) => {
+    fetchTaskDetails: async (taskId: string, force = false) => {
+        const state = getState();
+        if (!force) {
+            if (state.tasks[taskId]?.loadStatus !== undefined && state.tasks[taskId]?.loadStatus !== "idle") {
+                return;
+            }
+        }
+
         set(state => ({
             ...state,
             tasksDetails: {
@@ -108,9 +135,9 @@ export const useAnalysisTasksStore = create<AnalysisTasksStore>((set, getState) 
         }
     },
 
-    fetchTasksWithDetails: async (limit = 50, offset = 0, status?: string) => {
+    fetchTasksWithDetails: async (options?: FetchTasksRequestOptions, force = false) => {
         let state = getState();
-        await state.fetchTasks(limit, offset, status);
+        await state.fetchTasks(options, force);
         state = getState();
         const tasksWithoutDetailsList = state.tasks.filter(task => {
             const detailsRecord = state.tasksDetails[task.id];
@@ -122,13 +149,20 @@ export const useAnalysisTasksStore = create<AnalysisTasksStore>((set, getState) 
             }
             return false;
         });
-        const tasksDetailsPromises = tasksWithoutDetailsList.map(task => state.fetchTaskDetails(task.id));
+        const tasksDetailsPromises = tasksWithoutDetailsList.map(task => state.fetchTaskDetails(task.id, force));
         // Fetch all tasks details at once
         await Promise.allSettled(tasksDetailsPromises);
     },
 
     // Refresh single task
-    refreshTask: async (taskId: string) => {
+    refreshTask: async (taskId: string, force = false) => {
+        const state = getState();
+        if (!force) {
+            if (state.tasks[taskId]?.loadStatus !== undefined && state.tasks[taskId]?.loadStatus !== "idle") {
+                return;
+            }
+        }
+
         set(state => ({
             ...state,
             tasksDetails: {
