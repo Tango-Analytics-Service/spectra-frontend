@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { RefreshCw, Search, CheckCircle, AlertCircle, BarChart3 } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { Button } from "@/ui/components/button";
@@ -75,16 +75,14 @@ export default function AnalysisTasksPage() {
 
     const tasks = useAnalysisTasksStore(state => state.tasks);
     const taskDetails = useAnalysisTasksStore(state => state.tasksDetails);
-    const isLoaded = useAnalysisTasksStore(state => state.isLoaded);
-    const selectedTask = useAnalysisTasksStore(state => state.selectedTask);
-    const fetchTasks = useAnalysisTasksStore(state => state.fetchTasks);
+    const loadStatus = useAnalysisTasksStore(state => state.loadStatus);
     const refreshTask = useAnalysisTasksStore(state => state.refreshTask);
-    const selectTaskById = useAnalysisTasksStore(state => state.selectTaskById);
+    const fetchTasksWithDetails = useAnalysisTasksStore(state => state.fetchTasksWithDetails);
 
     // UI состояния
     const [showTaskDetails, setShowTaskDetails] = useState(false);
     const [showActionSheet, setShowActionSheet] = useState(false);
-    const selectedTaskForActions = null;
+    const [selectedTask, setSelectedTask] = useState<AnalysisTask | undefined>(undefined);
 
     // Фильтры
     const [statusFilter, setStatusFilter] = useState("all");
@@ -92,15 +90,11 @@ export default function AnalysisTasksPage() {
     const dateFilter = "all";
 
     // Загрузка задач при монтировании
-    useEffect(() => {
-        if (!isLoaded) {
-            fetchTasks();
-        }
-    }, [fetchTasks, isLoaded]);
+    fetchTasksWithDetails();
 
     // Обработчик обновления
     const handleRefresh = () => {
-        fetchTasks(50, 0, undefined, true);
+        fetchTasksWithDetails({}, true);
     };
 
     // Фильтрация задач
@@ -109,7 +103,7 @@ export default function AnalysisTasksPage() {
         if (statusFilter !== "all" && task.status !== statusFilter) {
             return false;
         }
-        return filterQuery(task, taskDetails[task.id], searchQuery, channelsSets)
+        return filterQuery(task, taskDetails[task.id]?.details, searchQuery, channelsSets)
             && filterDate(new Date(task.created_at), dateFilter);
     });
 
@@ -139,10 +133,10 @@ export default function AnalysisTasksPage() {
                         </div>
                         <Button
                             onClick={handleRefresh}
-                            disabled={!isLoaded}
+                            disabled={loadStatus === "pending"}
                             className={createButtonStyle("secondary")}
                         >
-                            {!isLoaded ? (
+                            {loadStatus === "pending" ? (
                                 <RefreshCw size={16} className="mr-2 animate-spin" />
                             ) : (
                                 <RefreshCw size={16} className="mr-2" />
@@ -155,21 +149,21 @@ export default function AnalysisTasksPage() {
                     <div className={cn("grid grid-cols-3", `gap-${spacing.md}`, animations.slideIn)}>
                         <StatsCard
                             title="Всего"
-                            value={!isLoaded ? "—" : tasks.length}
+                            value={loadStatus !== "success" ? "—" : tasks.length}
                             icon={<BarChart3 size={15} className={textColors.accent} />}
-                            loading={!isLoaded}
+                            loading={loadStatus === "pending"}
                         />
                         <StatsCard
                             title="Завершено"
-                            value={!isLoaded ? "—" : tasks.filter(t => t.status === "completed").length}
+                            value={loadStatus !== "success" ? "—" : tasks.filter(t => t.status === "completed").length}
                             icon={<CheckCircle size={15} className={textColors.success} />}
-                            loading={!isLoaded}
+                            loading={loadStatus === "pending"}
                         />
                         <StatsCard
                             title="В процессе"
-                            value={!isLoaded ? "—" : tasks.filter(t => t.status === "processing").length}
+                            value={loadStatus !== "success" ? "—" : tasks.filter(t => t.status === "processing").length}
                             icon={<RefreshCw size={15} className={textColors.accent} />}
-                            loading={!isLoaded}
+                            loading={loadStatus === "pending"}
                         />
                     </div>
                 </div>
@@ -221,7 +215,7 @@ export default function AnalysisTasksPage() {
 
                 {/* Список задач */}
                 <div className={cn("flex-1", animations.fadeIn)}>
-                    {!isLoaded ? (
+                    {loadStatus === "pending" ? (
                         <div className={`space-y-${spacing.sm}`}>
                             {[1, 2, 3].map((i) => (
                                 <Skeleton key={i} className="h-32 w-full rounded-xl" />
@@ -240,8 +234,8 @@ export default function AnalysisTasksPage() {
                     ) : (
                         <div className={`space-y-${spacing.sm}`}>
                             {filteredTasks.map((task) => (
-                                <TaskCard key={task.id} task={task} details={taskDetails[task.id]} onTaskPress={() => {
-                                    selectTaskById(task.id);
+                                <TaskCard key={task.id} task={task} details={taskDetails[task.id]?.details} onTaskPress={() => {
+                                    setSelectedTask(taskDetails[task.id]?.details);
                                     setShowTaskDetails(true);
                                 }} />
                             ))}
@@ -262,7 +256,7 @@ export default function AnalysisTasksPage() {
             <MobileActionSheet
                 isOpen={showActionSheet}
                 onClose={() => setShowActionSheet(false)}
-                actions={getTaskActions(selectedTaskForActions, () => refreshTask(selectedTaskForActions.id))}
+                actions={getTaskActions(selectedTask, () => refreshTask(selectedTask.id))}
             />
         </div>
     );

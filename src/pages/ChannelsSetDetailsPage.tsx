@@ -23,6 +23,7 @@ import SmartSetBuildProgress from "@/channels-sets/components/SmartSetBuildProgr
 import { createCardStyle, createButtonStyle, createTextStyle, typography, spacing, components, animations, textColors } from "@/lib/design-system";
 import StartAnalysisDialog from "@/analysis/components/StartAnalysisDialog";
 import { useChannelsSetsStore } from "@/channels-sets/stores/useChannelsSetsStore";
+import { AnalysisOptions } from "@/analysis/types";
 
 export default function ChannelSetDetailsPage() {
     const { id } = useParams<{ id: string }>();
@@ -30,8 +31,8 @@ export default function ChannelSetDetailsPage() {
 
     const getChannelsSet = useChannelsSetsStore(state => state.getChannelsSet);
     const updateChannelsSet = useChannelsSetsStore(state => state.updateChannelsSet);
-    const refreshChannelsSet = useChannelsSetsStore(state => state.refreshChannelsSet);
     const deleteChannelsSet = useChannelsSetsStore(state => state.deleteChannelsSet);
+    const analyzeChannelsSet = useChannelsSetsStore(state => state.analyzeChannelsSet);
 
     // Состояния
     const [channelSet, setChannelSet] = useState<ChannelsSet | null>(null);
@@ -87,7 +88,7 @@ export default function ChannelSetDetailsPage() {
 
         setIsRefreshing(true);
         try {
-            const refreshedSet = await refreshChannelsSet(id);
+            const refreshedSet = await getChannelsSet(id);
             if (refreshedSet) {
                 setChannelSet(refreshedSet);
                 toast({
@@ -162,8 +163,17 @@ export default function ChannelSetDetailsPage() {
         }
     };
 
-    const handleStartAnalysis = async () => {
+    const handleStartAnalysis = async (
+        filterIds: string[],
+        options?: AnalysisOptions,
+    ) => {
         try {
+            await analyzeChannelsSet(
+                channelSet.id,
+                filterIds,
+                options,
+            );
+
             toast({
                 title: "Анализ запущен",
                 description: "Результаты анализа будут доступны в скором времени",

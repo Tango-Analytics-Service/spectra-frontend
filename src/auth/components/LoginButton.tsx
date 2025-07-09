@@ -7,11 +7,11 @@ import { isTelegramWebApp } from "@/telegram/utils";
 export default function LoginButton() {
     const telegramBotUrl = import.meta.env.VITE_TELEGRAM_BOT_URL;
 
-    const isLoaded = useAuthStore(state => state.isLoaded);
+    const loadStatus = useAuthStore(state => state.loadStatus);
     const login = useAuthStore(state => state.login);
 
     const handleLogin = async () => {
-        if (isLoaded) {
+        if (loadStatus !== "success") {
             await login();
         }
     };
@@ -20,14 +20,14 @@ export default function LoginButton() {
         return (
             <Button
                 onClick={handleLogin}
-                disabled={!isLoaded}
+                disabled={loadStatus === "pending"}
                 className={cn(
                     createButtonStyle("primary"),
                     "w-full sm:w-auto shadow-md hover:shadow-lg transition-all",
                     `px-${spacing.lg} py-${spacing.sm}`,
                 )}
             >
-                {isLoaded ? "Авторизация..." : "Войти через Telegram"}
+                {loadStatus === "pending" ? "Авторизация..." : "Войти через Telegram"}
             </Button>
         );
     } else {

@@ -9,14 +9,14 @@ export interface AuthGuardProps {
 
 export default function AuthGuard({ children }: AuthGuardProps) {
     const isAuthenticated = useAuthStore(state => state.isAuthenticated);
-    const isLoaded = useAuthStore(state => state.isLoaded);
+    const loadStatus = useAuthStore(state => state.loadStatus);
     const initialize = useAuthStore(state => state.initialize);
 
     useEffect(() => {
         initialize();
     }, [initialize]);
 
-    if (!isLoaded) {
+    if (loadStatus === "pending") {
         return <LoadingScreen />;
     }
 

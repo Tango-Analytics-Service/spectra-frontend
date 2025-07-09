@@ -2,41 +2,35 @@ import { toast } from "@/ui/components/use-toast";
 import { creditService, PurchasePackageRequest } from "@/credits/service";
 import { ActionType, CreditBalance, CreditCost, CreditPackage, CreditTransaction } from "@/credits/types";
 import { create } from "zustand";
+import { LoadStatus } from "@/lib/types";
+
+const AUTO_REFRESH_TIMEOUT = 60 * 1000;
+
+
+interface FetchTransactionsRequestOptions {
+    limit?: number;
+    offset?: number;
+    startDate?: string;
+    endDate?: string;
+    actionTypes?: string[];
+}
 
 export interface CreditsStore {
     balance: CreditBalance | null;
     transactions: CreditTransaction[];
     packages: CreditPackage[];
     costs: CreditCost[];
-    isBalanceLoaded: boolean;
-    isTransactionsLoaded: boolean;
-    isPackagesLoaded: boolean;
-    isCostsLoaded: boolean;
-    lastBalanceUpdate: number;
-    lastTransactionsUpdate: number;
-    lastPackagesUpdate: number;
-    lastCostsUpdate: number;
+    balanceLoadStatus: LoadStatus;
+    transactionsLoadStatus: LoadStatus;
+    packagesLoadStatus: LoadStatus;
+    costsLoadStatus: LoadStatus;
     // Methods for managing credits
-    fetchBalance: (forceRefresh?: boolean) => Promise<void>;
-    fetchTransactions: (
-        limit?: number,
-        offset?: number,
-        startDate?: string,
-        endDate?: string,
-        actionTypes?: string[],
-        forceRefresh?: boolean,
-    ) => Promise<void>;
-    fetchPackages: (forceRefresh?: boolean) => Promise<void>;
-    fetchCosts: (forceRefresh?: boolean) => Promise<void>;
-    purchasePackage: (
-        packageId: string,
-        paymentMethod: string,
-        paymentDetails?: unknown,
-    ) => Promise<boolean>;
-    checkActionAvailability: (
-        actionType: ActionType,
-        amount?: number,
-    ) => Promise<{ canPerform: boolean; message: string }>;
+    fetchBalance: (force?: boolean) => Promise<void>;
+    fetchTransactions: (options?: FetchTransactionsRequestOptions, force?: boolean) => Promise<void>;
+    fetchPackages: (force?: boolean) => Promise<void>;
+    fetchCosts: (force?: boolean) => Promise<void>;
+    purchasePackage: (packageId: string, paymentMethod: string, paymentDetails?: unknown) => Promise<boolean>;
+    checkActionAvailability: (actionType: ActionType, amount?: number) => Promise<{ canPerform: boolean; message: string }>;
 }
 
 const initialState = {
@@ -44,34 +38,30 @@ const initialState = {
     transactions: [],
     packages: [],
     costs: [],
-    isBalanceLoaded: false,
-    isTransactionsLoaded: false,
-    isPackagesLoaded: false,
-    isCostsLoaded: false,
-    lastBalanceUpdate: 0,
-    lastTransactionsUpdate: 0,
-    lastPackagesUpdate: 0,
-    lastCostsUpdate: 0,
+    balanceLoadStatus: "idle" as LoadStatus,
+    transactionsLoadStatus: "idle" as LoadStatus,
+    packagesLoadStatus: "idle" as LoadStatus,
+    costsLoadStatus: "idle" as LoadStatus,
 };
 
 export const useCreditsStore = create<CreditsStore>((set, getState) => ({
     ...initialState,
 
-    fetchBalance: async (forceRefresh = false) => {
+    fetchBalance: async (force = false) => {
         const state = getState();
-        // If data was fetched less than 1 minute ago and no force refresh is requested, use cached data
-        const now = Date.now();
-        if (!forceRefresh && state.balance && now - state.lastBalanceUpdate < 60000) {
-            return;
+        if (!force) {
+            if (state.balanceLoadStatus !== "idle") {
+                return;
+            }
         }
 
-        set(state => ({ ...state, isBalanceLoaded: false }));
+        set(state => ({ ...state, balanceLoadStatus: "pending" }));
         try {
             const data = await creditService.getCreditBalance();
             set(state => ({
                 ...state,
                 balance: data,
-                lastBalanceUpdate: now,
+                balanceLoadStatus: "success",
             }));
         } catch (error) {
             console.error("Error fetching credit balance:", error);
@@ -80,39 +70,43 @@ export const useCreditsStore = create<CreditsStore>((set, getState) => ({
                 description: "Не удалось загрузить баланс кредитов",
                 variant: "destructive",
             });
+            set(state => ({ ...state, balanceLoadStatus: "error" }));
         } finally {
-            set(state => ({ ...state, isBalanceLoaded: true }));
+            setTimeout(() => {
+                set(state => ({ ...state, balanceLoadStatus: "idle" }));
+            }, AUTO_REFRESH_TIMEOUT);
         }
     },
 
-    fetchTransactions: async (
-        limit = 10,
-        offset = 0,
-        startDate?: string,
-        endDate?: string,
-        actionTypes?: string[],
-        forceRefresh = false,
-    ) => {
+    fetchTransactions: async (options?: FetchTransactionsRequestOptions, force = false) => {
         const state = getState();
-        // Check cache for transactions
-        const now = Date.now();
-        if (!forceRefresh && state.transactions.length > 0 && now - state.lastTransactionsUpdate < 60000) {
-            return;
+        if (!force) {
+            if (state.transactionsLoadStatus !== "idle") {
+                return;
+            }
         }
+        options = {
+            limit: 10,
+            offset: 0,
+            startDate: undefined,
+            endDate: undefined,
+            actionTypes: undefined,
+            ...options,
+        };
 
-        set(state => ({ ...state, isTransactionsLoaded: false }));
+        set(state => ({ ...state, transactionsLoadStatus: "pending" }));
         try {
             const data = await creditService.getCreditTransactions(
-                limit,
-                offset,
-                startDate,
-                endDate,
-                actionTypes,
+                options.limit,
+                options.offset,
+                options.startDate,
+                options.endDate,
+                options.actionTypes,
             );
             set(state => ({
                 ...state,
                 transactions: data.transactions,
-                lastTransactionsUpdate: now,
+                transactionsLoadStatus: "success",
             }));
         } catch (error) {
             console.error("Error fetching transactions:", error);
@@ -121,26 +115,29 @@ export const useCreditsStore = create<CreditsStore>((set, getState) => ({
                 description: "Не удалось загрузить историю транзакций",
                 variant: "destructive",
             });
+            set(state => ({ ...state, transactionsLoadStatus: "error" }));
         } finally {
-            set(state => ({ ...state, isTransactionsLoaded: true }));
+            setTimeout(() => {
+                set(state => ({ ...state, transactionsLoadStatus: "idle" }));
+            }, AUTO_REFRESH_TIMEOUT);
         }
     },
 
-    fetchPackages: async (forceRefresh = false) => {
+    fetchPackages: async (force = false) => {
         const state = getState();
-        // Check cache for packages - here we cache for longer (5 minutes) as packages change less frequently
-        const now = Date.now();
-        if (!forceRefresh && state.packages.length > 0 && now - state.lastPackagesUpdate < 300000) {
-            return;
+        if (!force) {
+            if (state.packagesLoadStatus !== "idle") {
+                return;
+            }
         }
 
-        set(state => ({ ...state, isPackagesLoaded: false }));
+        set(state => ({ ...state, packagesLoadStatus: "pending" }));
         try {
             const data = await creditService.getCreditPackages();
             set(state => ({
                 ...state,
                 packages: data.packages,
-                lastPackagesUpdate: now,
+                packagesLoadStatus: "success",
             }));
         } catch (error) {
             console.error("Error fetching credit packages:", error);
@@ -149,26 +146,28 @@ export const useCreditsStore = create<CreditsStore>((set, getState) => ({
                 description: "Не удалось загрузить пакеты кредитов",
                 variant: "destructive",
             });
+            set(state => ({ ...state, packagesLoadStatus: "error" }));
         } finally {
-            set(state => ({ ...state, isPackagesLoaded: true }));
+            setTimeout(() => {
+                set(state => ({ ...state, packagesLoadStatus: "idle" }));
+            }, AUTO_REFRESH_TIMEOUT);
         }
     },
 
-    fetchCosts: async (forceRefresh = false) => {
+    fetchCosts: async (force = false) => {
         const state = getState();
-        // Check cache for costs - cache for even longer (1 hour) as these rarely change
-        const now = Date.now();
-        if (!forceRefresh && state.costs.length > 0 && now - state.lastCostsUpdate < 3600000) {
-            return;
+        if (!force) {
+            if (state.costsLoadStatus !== "idle") {
+                return;
+            }
         }
-
-        set(state => ({ ...state, isCostsLoaded: false }));
+        set(state => ({ ...state, costsLoadStatus: "pending" }));
         try {
             const data = await creditService.getCreditCosts();
             set(state => ({
                 ...state,
                 costs: data.costs,
-                lastCostsUpdate: now,
+                costsLoadStatus: "success",
             }));
         } catch (error) {
             console.error("Error fetching credit costs:", error);
@@ -177,25 +176,25 @@ export const useCreditsStore = create<CreditsStore>((set, getState) => ({
                 description: "Не удалось загрузить стоимость действий",
                 variant: "destructive",
             });
+            set(state => ({ ...state, costsLoadStatus: "error" }));
         } finally {
-            set(state => ({ ...state, isCostsLoaded: true }));
+            setTimeout(() => {
+                set(state => ({ ...state, costsLoadStatus: "idle" }));
+            }, AUTO_REFRESH_TIMEOUT);
         }
     },
 
     purchasePackage: async (packageId: string, paymentMethod: string, paymentDetails?: unknown): Promise<boolean> => {
         const state = getState();
-
         try {
             const request: PurchasePackageRequest = {
                 payment_method: paymentMethod,
                 payment_details: paymentDetails,
             };
-
             const result = await creditService.purchaseCreditPackage(
                 packageId,
                 request,
             );
-
             if (result.success) {
                 // Update balance after successful purchase
                 set(state => ({

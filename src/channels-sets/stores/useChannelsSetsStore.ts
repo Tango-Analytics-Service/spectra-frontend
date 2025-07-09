@@ -3,17 +3,19 @@ import { channelSetService } from "@/channels-sets/service";
 import { AnalysisOptions, ChannelAnalysisResponse } from "@/analysis/types";
 import { ChannelDetails, ChannelsSet, CreateChannelsSetRequest, UpdateChannelsSetRequest } from "@/channels-sets/types";
 import { create } from "zustand";
+import { LoadStatus } from "@/lib/types";
+
+const AUTO_REFRESH_TIMEOUT = 60 * 1000;
 
 export interface ChannelsSetsStore {
     channelsSets: ChannelsSet[];
-    isLoaded: boolean;
+    loadStatus: LoadStatus;
     totalSets: number;
     totalChannels: number;
-    lastFetched: number;
-    channelsSetsCache: Record<string, { data: ChannelsSet; timestamp: number }>,
+    channelsSetsCache: Record<string, ChannelsSet>,
 
     // Methods for managing channel sets
-    fetchChannelsSets: (forceRefresh?: boolean) => Promise<void>;
+    fetchChannelsSets: (force?: boolean) => Promise<void>;
     getChannelsSet: (id: string) => Promise<ChannelsSet | undefined>;
     createChannelsSet: (data: CreateChannelsSetRequest) => Promise<ChannelsSet | undefined>;
     updateChannelsSet: (id: string, data: UpdateChannelsSetRequest) => Promise<ChannelsSet | undefined>;
@@ -21,7 +23,6 @@ export interface ChannelsSetsStore {
     addChannelsToSet: (setId: string, usernames: string[]) => Promise<unknown>;
     removeChannelsFromSet: (setId: string, usernames: string[]) => Promise<unknown>;
     analyzeChannelsSet: (setId: string, filterIds: string[], options?: AnalysisOptions) => Promise<unknown>;
-    refreshChannelsSet: (id: string) => Promise<ChannelsSet | undefined>;
     searchChannels: (query: string) => Promise<ChannelDetails[]>;
 
     // Methods for smart sets
@@ -31,42 +32,34 @@ export interface ChannelsSetsStore {
 
 const initialState = {
     channelsSets: [],
-    isLoaded: false,
+    loadStatus: "idle" as LoadStatus,
     totalSets: 0,
     totalChannels: 0,
-    lastFetched: 0,
     channelsSetsCache: {},
 };
 
 export const useChannelsSetsStore = create<ChannelsSetsStore>((set, getState) => ({
     ...initialState,
 
-    fetchChannelsSets: async (forceRefresh = false) => {
+    fetchChannelsSets: async (force = false) => {
         const state = getState();
-        // If data was fetched less than 1 minute ago and no force refresh is requested, use cached data
-        const now = Date.now();
-        if (!forceRefresh && state.channelsSets.length > 0 && now - state.lastFetched < 60000) {
-            return;
+        if (!force) {
+            if (state.loadStatus !== "idle") {
+                return;
+            }
         }
 
-        set(state => ({ ...state, isLoaded: false }));
+        set(state => ({ ...state, loadStatus: "pending" }));
         try {
             const response = await channelSetService.getChannelSets();
+            // Calculate total channels across all sets
+            const total = response.sets.reduce((acc, set) => acc + set.channel_count, 0);
             set(state => ({
                 ...state,
+                loadStatus: "success",
                 channelsSets: response.sets,
                 totalSets: response.count,
-            }));
-
-            // Calculate total channels across all sets
-            const total = response.sets.reduce(
-                (acc, set) => acc + set.channel_count,
-                0,
-            );
-            set(state => ({
-                ...state,
                 totalchannels: total,
-                lastfetched: now,
             }));
         } catch (error) {
             console.error("Error fetching channel sets:", error);
@@ -75,61 +68,33 @@ export const useChannelsSetsStore = create<ChannelsSetsStore>((set, getState) =>
                 description: "Не удалось загрузить наборы каналов",
                 variant: "destructive",
             });
+            set(state => ({ ...state, loadStatus: "error" }));
         } finally {
-            set(state => ({ ...state, isLoaded: true }));
+            setTimeout(() => {
+                set(state => ({ ...state, loadStatus: "idle" }));
+            }, AUTO_REFRESH_TIMEOUT);
         }
     },
 
     getChannelsSet: async (id: string): Promise<ChannelsSet | undefined> => {
         const state = getState();
-        // Check if we have a fresh cached version (less than 30 seconds old)
-        const now = Date.now();
-        const cached = state.channelsSetsCache[id];
-        if (cached && now - cached.timestamp < 30000) {
-            return cached.data;
-        }
-
         try {
             const channelsSet = await channelSetService.getChannelSet(id);
+            const sets = state.channelsSets;
+            const idx = sets.findIndex(s => s.id === id);
+            if (idx === -1) {
+                sets.push(channelsSet);
+            } else {
+                sets[idx] = channelsSet;
+            }
             // Update cache
-            set(state => ({
-                ...state,
-                channelsSetsCache: {
-                    ...state.channelsSetsCache,
-                    [id]: { data: channelsSet, timestamp: now },
-                },
-            }));
+            set(state => ({ ...state, channelsSets: sets }));
             return channelsSet;
         } catch (error) {
             console.error(`Error fetching channel set ${id}:`, error);
             toast({
                 title: "Ошибка",
                 description: "Не удалось загрузить детали набора каналов",
-                variant: "destructive",
-            });
-            return undefined;
-        }
-    },
-
-    refreshChannelsSet: async (id: string): Promise<ChannelsSet | undefined> => {
-        try {
-            const channelsSet = await channelSetService.getChannelSet(id);
-            set(state => ({
-                ...state,
-                // Update cache
-                channelsSetsCache: {
-                    ...state.channelsSetsCache,
-                    [id]: { data: channelsSet, timestamp: Date.now() },
-                },
-                // Also update the set in the channelSets array
-                channelsSets: state.channelsSets.map((prevSet) => (prevSet.id === id ? channelsSet : prevSet)),
-            }));
-            return channelsSet;
-        } catch (error) {
-            console.error(`Error refreshing channel set ${id}:`, error);
-            toast({
-                title: "Ошибка",
-                description: "Не удалось обновить данные набора каналов",
                 variant: "destructive",
             });
             return undefined;
@@ -176,24 +141,21 @@ export const useChannelsSetsStore = create<ChannelsSetsStore>((set, getState) =>
         id: string,
         data: UpdateChannelsSetRequest,
     ): Promise<ChannelsSet | undefined> => {
+        const state = getState();
         try {
             const updatedSet = await channelSetService.updateChannelSet(id, data);
-
-            set(state => ({
-                ...state,
-                // Update local state
-                channelsSets: state.channelsSets.map((set) => (set.id === id ? updatedSet : set)),
-                // Update cache
-                channelsSetsCache: {
-                    ...state.channelsSetsCache,
-                    [id]: { data: updatedSet, timestamp: Date.now() },
-                },
-            }));
+            const sets = state.channelsSets;
+            const idx = sets.findIndex(s => s.id === id);
+            if (idx === -1) {
+                sets.push(updatedSet);
+            } else {
+                sets[idx] = updatedSet;
+            }
+            set(state => ({ ...state, channelsSets: sets }));
             toast({
                 title: "Успешно",
                 description: `Набор "${updatedSet.name}" обновлен`,
             });
-
             return updatedSet;
         } catch (error) {
             console.error(`Error updating channel set ${id}:`, error);
@@ -209,25 +171,15 @@ export const useChannelsSetsStore = create<ChannelsSetsStore>((set, getState) =>
     deleteChannelsSet: async (id: string): Promise<boolean> => {
         try {
             await channelSetService.deleteChannelSet(id);
-
-            set(state => {
-                const newCache = { ...state.channelsSetsCache };
-                delete newCache[id];
-                return ({
-                    ...state,
-                    // Update local state
-                    channelsSets: state.channelsSets.filter((set) => set.id !== id),
-                    totalSets: state.totalSets - 1,
-                    // Remove from cache
-                    channelsSetsCache: newCache
-                });
-            });
-
+            set(state => ({
+                ...state,
+                channelsSets: state.channelsSets.filter((set) => set.id !== id),
+                totalSets: state.totalSets - 1,
+            }));
             toast({
                 title: "Успешно",
                 description: "Набор каналов удален",
             });
-
             return true;
         } catch (error) {
             console.error(`Error deleting channel set ${id}:`, error);
@@ -243,22 +195,14 @@ export const useChannelsSetsStore = create<ChannelsSetsStore>((set, getState) =>
     addChannelsToSet: async (setId: string, usernames: string[]): Promise<unknown> => {
         const state = getState();
         try {
-            const result = await channelSetService.addChannelsToSet(setId, {
-                usernames,
-            }) as {
-                success: boolean,
-            };
-
+            const result = await channelSetService.addChannelsToSet(setId, { usernames });
             if (result.success) {
-                // Refresh the channel set to get updated data
-                await state.refreshChannelsSet(setId);
-
+                await state.getChannelsSet(setId);
                 toast({
                     title: "Успешно",
                     description: "Каналы добавлены в набор",
                 });
             }
-
             return result;
         } catch (error) {
             console.error(`Error adding channels to set ${setId}:`, error);
@@ -282,8 +226,7 @@ export const useChannelsSetsStore = create<ChannelsSetsStore>((set, getState) =>
 
             if (result.success) {
                 // Refresh the channel set to get updated data
-                await state.refreshChannelsSet(setId);
-
+                await state.getChannelsSet(setId);
                 toast({
                     title: "Успешно",
                     description: "Каналы удалены из набора",
@@ -319,11 +262,7 @@ export const useChannelsSetsStore = create<ChannelsSetsStore>((set, getState) =>
             const response = await channelSetService.analyzeChannelSet(setId, {
                 filter_ids: filterIds,
                 options: options,
-            }) as {
-                success: boolean,
-                message: string,
-                task_id: string,
-            };
+            });
 
             if (response.success) {
                 toast({
@@ -370,20 +309,17 @@ export const useChannelsSetsStore = create<ChannelsSetsStore>((set, getState) =>
 
     // Smart sets methods
     cancelSmartSetBuild: async (setId: string): Promise<boolean> => {
+        const state = getState();
         try {
             const result = await channelSetService.cancelSmartSetBuild(setId);
-
             if (result.success) {
                 // Refresh the set to get updated status
-                const state = getState();
-                await state.refreshChannelsSet(setId);
-
+                await state.getChannelsSet(setId);
                 toast({
                     title: "Построение отменено",
                     description: "Построение умного набора было отменено",
                 });
             }
-
             return result.success;
         } catch (error) {
             console.error(`Error cancelling smart set build ${setId}:`, error);
@@ -396,24 +332,22 @@ export const useChannelsSetsStore = create<ChannelsSetsStore>((set, getState) =>
         }
     },
 
-    refreshSmartSetStatus: async (setId: string): Promise<ChannelsSet | undefined> => {
+    refreshSmartSetStatus: async (id: string): Promise<ChannelsSet | undefined> => {
+        const state = getState();
         try {
-            const channelsSet = await channelSetService.refreshSmartSetStatus(setId);
-
-            set(state => ({
-                ...state,
-                // Update cache
-                channelsSetsCache: {
-                    ...state.channelsSetsCache,
-                    [setId]: { data: channelsSet, timestamp: Date.now() },
-                },
-                // Also update the set in the channelSets array
-                channelsSets: state.channelsSets.map((prevSet) => (prevSet.id === setId ? channelsSet : prevSet)),
-            }));
-
+            const channelsSet = await channelSetService.refreshSmartSetStatus(id);
+            const sets = state.channelsSets;
+            const idx = sets.findIndex(s => s.id === id);
+            if (idx === -1) {
+                sets.push(channelsSet);
+            } else {
+                sets[idx] = channelsSet;
+            }
+            // Update cache
+            set(state => ({ ...state, channelsSets: sets }));
             return channelsSet;
         } catch (error) {
-            console.error(`Error refreshing smart set status ${setId}:`, error);
+            console.error(`Error refreshing smart set status ${id}:`, error);
             return undefined;
         }
     },

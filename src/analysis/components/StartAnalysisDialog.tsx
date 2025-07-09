@@ -2,9 +2,6 @@
 import { useState, useEffect } from "react";
 import { Dialog } from "@/ui/components/dialog";
 import DialogContent from "@/ui/components/dialog/DialogContent";
-import DialogDescription from "@/ui/components/dialog/DialogDescription";
-import DialogFooter from "@/ui/components/dialog/DialogFooter";
-import DialogHeader from "@/ui/components/dialog/DialogHeader";
 import DialogTitle from "@/ui/components/dialog/DialogTitle";
 import { Button } from "@/ui/components/button";
 import { AnalysisOptions, ProcessingMode } from "@/analysis/types";
@@ -24,9 +21,7 @@ export interface StartAnalysisDialogProps {
 }
 
 export default function StartAnalysisDialog({ open, onOpenChange, onStart, channelCount, }: StartAnalysisDialogProps) {
-    const selectedFilters = useFiltersStore(state => state.selectedFilters);
-    const toggleFilterSelection = useFiltersStore(state => state.toggleFilterSelection);
-    const clearSelectedFilters = useFiltersStore(state => state.clearSelectedFilters);
+    const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
 
     const [isStarting, setIsStarting] = useState(false);
     const [showFiltersList, setShowFiltersList] = useState(true);
@@ -39,12 +34,21 @@ export default function StartAnalysisDialog({ open, onOpenChange, onStart, chann
         ProcessingMode.BATCH,
     );
 
+
+    const toggleFilterSelection = (id: string) => {
+        if (selectedFilters.includes(id)) {
+            setSelectedFilters(selectedFilters.filter(filterId => filterId !== id));
+        } else {
+            setSelectedFilters([...selectedFilters, id]);
+        }
+    };
+
     // Clear selected filters when dialog closes
     useEffect(() => {
         if (!open) {
             // Small delay to avoid flash during closing animation
             setTimeout(() => {
-                clearSelectedFilters();
+                setSelectedFilters([]);
                 setShowFiltersList(true);
                 // Reset options to defaults
                 setMaxPosts(20);
@@ -53,7 +57,7 @@ export default function StartAnalysisDialog({ open, onOpenChange, onStart, chann
                 setProcessingMode(ProcessingMode.DIRECT);
             }, 300);
         }
-    }, [open, clearSelectedFilters]);
+    }, [open]);
 
     const handleStartAnalysis = async () => {
         if (selectedFilters.length === 0) {
@@ -89,13 +93,10 @@ export default function StartAnalysisDialog({ open, onOpenChange, onStart, chann
                     "sm:max-w-[750px] max-h-[80vh] flex flex-col p-0",
                 )}
             >
-                {/* Фиксированный заголовок */}
-                <DialogHeader className={"p-6 pb-0 flex-shrink-0"}>
-                    <DialogTitle className={typography.h3}>Запуск анализа</DialogTitle>
-                    <DialogDescription className={textColors.secondary}>
-                        Выберите фильтры и настройте параметры для анализа каналов
-                    </DialogDescription>
-                </DialogHeader>
+                {/* Header */}
+                <DialogTitle className={"p-6 pb-0 flex-shrink-0"}>
+                    Запуск анализа
+                </DialogTitle>
 
                 {/* Контент с правильным скроллом */}
                 <div className="flex-1 overflow-auto px-6 pt-4">
@@ -140,41 +141,40 @@ export default function StartAnalysisDialog({ open, onOpenChange, onStart, chann
                             <FiltersList
                                 onSelectFilter={toggleFilterSelection}
                                 selectedFilters={selectedFilters}
-                                height="h-[400px]" // Фиксированная высота для внутреннего скролла
                             />
                         </div>
                     )}
-                </div>
 
-                {/* Фиксированный футер */}
-                <DialogFooter className={`p-6 pt-4 flex-shrink-0 gap-${spacing.sm}`}>
-                    <Button
-                        variant="outline"
-                        onClick={() => onOpenChange(false)}
-                        className={createButtonStyle("secondary")}
-                        disabled={isStarting}
-                    >
-                        Отмена
-                    </Button>
-                    <Button
-                        onClick={handleStartAnalysis}
-                        className={createButtonStyle("primary")}
-                        disabled={isStarting || selectedFilters.length === 0}
-                    >
-                        {isStarting ? (
-                            <>
-                                <LoaderCircle
-                                    size={16}
-                                    className={`mr-${spacing.sm} animate-spin`}
-                                />
-                                Запуск анализа...
-                            </>
-                        ) : (
-                            "Запустить анализ"
-                        )}
-                    </Button>
-                </DialogFooter>
+                    {/* Footer */}
+                    <div className={`flex flex-col-reverse pt-4 pb-6 flex-shrink-0 gap-${spacing.sm}`}>
+                        <Button
+                            variant="outline"
+                            onClick={() => onOpenChange(false)}
+                            className={createButtonStyle("secondary")}
+                            disabled={isStarting}
+                        >
+                            Отмена
+                        </Button>
+                        <Button
+                            onClick={handleStartAnalysis}
+                            className={createButtonStyle("primary")}
+                            disabled={isStarting || selectedFilters.length === 0}
+                        >
+                            {isStarting ? (
+                                <>
+                                    <LoaderCircle
+                                        size={16}
+                                        className={`mr-${spacing.sm} animate-spin`}
+                                    />
+                                    Запуск анализа...
+                                </>
+                            ) : (
+                                "Запустить анализ"
+                            )}
+                        </Button>
+                    </div>
+                </div>
             </DialogContent>
-        </Dialog>
+        </Dialog >
     );
 };

@@ -1,10 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Dialog } from "@/ui/components/dialog";
 import DialogContent from "@/ui/components/dialog/DialogContent";
-import DialogDescription from "@/ui/components/dialog/DialogDescription";
-import DialogFooter from "@/ui/components/dialog/DialogFooter";
-import DialogHeader from "@/ui/components/dialog/DialogHeader";
-import DialogTitle from "@/ui/components/dialog/DialogTitle";
 import { Button } from "@/ui/components/button";
 import { Input } from "@/ui/components/input";
 import { Label } from "@/ui/components/label";
@@ -35,7 +31,9 @@ interface CreateSmartSetDialogProps {
 
 export default function CreateSmartSetDialog({ open, onOpenChange }: CreateSmartSetDialogProps) {
     const createChannelsSet = useChannelsSetsStore(state => state.createChannelsSet);
+
     const userFilters = useFiltersStore(state => state.userFilters);
+    const userFiltersLoadStatus = useFiltersStore(state => state.userFiltersLoadStatus);
     const fetchUserFilters = useFiltersStore(state => state.fetchUserFilters);
 
     // Form state
@@ -54,14 +52,16 @@ export default function CreateSmartSetDialog({ open, onOpenChange }: CreateSmart
     const filterDescLines = 5;
 
     // Load filters when dialog opens
-    React.useEffect(() => {
+    useEffect(() => {
         if (open && userFilters.length === 0) {
-            fetchUserFilters();
+            if (userFiltersLoadStatus === "idle") {
+                fetchUserFilters();
+            }
         }
-    }, [open, userFilters.length, fetchUserFilters]);
+    }, [open, userFilters, userFiltersLoadStatus, fetchUserFilters]);
 
     // Reset form when dialog closes
-    React.useEffect(() => {
+    useEffect(() => {
         if (!open) {
             setTimeout(() => {
                 setName("");

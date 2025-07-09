@@ -45,8 +45,8 @@ export default function FiltersList({
 }: FiltersListProps) {
     const systemFilters = useFiltersStore(state => state.systemFilters);
     const userFilters = useFiltersStore(state => state.userFilters);
-    const isSystemFiltersLoaded = useFiltersStore(state => state.isSystemFiltersLoaded);
-    const isUserFiltersLoaded = useFiltersStore(state => state.isUserFiltersLoaded);
+    const systemFiltersLoadStatus = useFiltersStore(state => state.systemFiltersLoadStatus);
+    const userFiltersLoadStatus = useFiltersStore(state => state.userFiltersLoadStatus);
     const fetchSystemFilters = useFiltersStore(state => state.fetchSystemFilters);
     const fetchUserFilters = useFiltersStore(state => state.fetchUserFilters);
     const deleteCustomFilter = useFiltersStore(state => state.deleteCustomFilter);
@@ -58,15 +58,8 @@ export default function FiltersList({
     const [showCreateDialog, setShowCreateDialog] = useState(false);
     const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
 
-    // Загрузка фильтров при монтировании
-    useEffect(() => {
-        if (!isSystemFiltersLoaded) {
-            fetchSystemFilters();
-        }
-        if (!isUserFiltersLoaded) {
-            fetchUserFilters();
-        }
-    }, [fetchSystemFilters, fetchUserFilters, isSystemFiltersLoaded, isUserFiltersLoaded]);
+    fetchUserFilters();
+    fetchSystemFilters();
 
     // Комбинированный список фильтров
     const allFilters = useMemo(() => {
@@ -147,7 +140,7 @@ export default function FiltersList({
     };
 
     // Состояние загрузки
-    const isLoaded = isSystemFiltersLoaded && isUserFiltersLoaded;
+    const areFiltersLoading = systemFiltersLoadStatus === "pending" || userFiltersLoadStatus === "pending";
 
     return (
         <div className={cn("space-y-4", animations.fadeIn)}>
@@ -223,7 +216,7 @@ export default function FiltersList({
             </div>
             {/* Список фильтров */}
             <ScrollArea className={cn(height, "w-full max-w-full overflow-hidden")}>
-                {!isLoaded ? (
+                {areFiltersLoading ? (
                     <LoadingState text="Загрузка фильтров..." />
                 ) : filteredFilters.length === 0 ? (
                     <EmptyState

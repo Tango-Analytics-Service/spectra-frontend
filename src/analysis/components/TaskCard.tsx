@@ -67,7 +67,7 @@ export default function TaskCard({ task, details, onTaskPress }: TaskCardProps) 
         <button
             className={cn(
                 createCardStyle(),
-                `p-${spacing.md}`,
+                `p-${spacing.md} w-full`,
                 "transition-all duration-200 active:scale-[0.98]",
                 "hover:border-blue-500/30 hover:bg-slate-800/70",
                 "cursor-pointer"
@@ -92,7 +92,7 @@ export default function TaskCard({ task, details, onTaskPress }: TaskCardProps) 
             <div className={cn("grid grid-cols-2", `gap-${spacing.sm} mb-${spacing.sm}`)}>
                 <div className={cn("bg-slate-900/50 rounded-lg", `p-${spacing.sm}`)}>
                     <div className={createTextStyle("tiny", "accent")}>Каналов</div>
-                    <div className={cn(typography.weight.semibold, textColors.primary)}>{details?.summary?.total_channels || "-"}</div>
+                    <div className={cn(typography.weight.semibold, textColors.primary)}>{details?.summary?.total_channels ?? "-"}</div>
                 </div>
 
                 {task.status === "completed" && successRate !== null && (
