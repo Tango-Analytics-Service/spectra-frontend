@@ -14,6 +14,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
                     input.className
                 )}
                 ref={ref}
+                onInput={input.onInput}
             />
         );
     }

@@ -13,6 +13,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
                     textarea.className
                 )}
                 ref={ref}
+                onInput={textarea.onInput}
             />
         );
     }
