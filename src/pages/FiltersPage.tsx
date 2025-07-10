@@ -20,8 +20,7 @@ export default function FiltersPage() {
 
     fetchUserFilters();
     fetchSystemFilters();
-  
-    const isLoaded = isSystemFiltersLoaded && isUserFiltersLoaded;
+
     const totalFilters = systemFilters.length + userFilters.filter((f) => f.is_custom).length;
     const systemFiltersCount = systemFilters.length;
     const customFiltersCount = userFilters.filter((f) => f.is_custom).length;
