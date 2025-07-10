@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/ui/components/button";
 import { Plus, Filter as FilterIcon, Settings } from "lucide-react";
 import FiltersList from "@/filters/components/FiltersList";
@@ -20,8 +20,7 @@ export default function FiltersPage() {
 
     fetchUserFilters();
     fetchSystemFilters();
-  
-    const isLoaded = isSystemFiltersLoaded && isUserFiltersLoaded;
+
     const totalFilters = systemFilters.length + userFilters.filter((f) => f.is_custom).length;
     const systemFiltersCount = systemFilters.length;
     const customFiltersCount = userFilters.filter((f) => f.is_custom).length;
