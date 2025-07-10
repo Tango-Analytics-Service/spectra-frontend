@@ -14,7 +14,7 @@ import MobileActionSheet from "@/analysis/components/MobileActionSheet";
 import { ChannelsSet } from "@/channels-sets/types";
 import TaskDetailsModal from "@/analysis/components/TaskDetailsModal";
 import { useAnalysisTasksStore } from "@/analysis/stores/useAnalysisTasksStore";
-import { useChannelsSetsStore } from "@/channels-sets/stores/useChannelsSetsStore";
+import { useFetchChannelsSets } from "@/channels-sets/api/hooks/channels-sets";
 
 function filterDate(taskDate: Date, dateFilter: string) {
     if (dateFilter === "all") {
@@ -71,7 +71,7 @@ function getTaskActions(task: AnalysisTaskBasic | null, onPress: () => void) {
 };
 
 export default function AnalysisTasksPage() {
-    const channelsSets = useChannelsSetsStore(state => state.channelsSets);
+    const { data: channelsSets } = useFetchChannelsSets();
 
     const tasks = useAnalysisTasksStore(state => state.tasks);
     const taskDetails = useAnalysisTasksStore(state => state.tasksDetails);

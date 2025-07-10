@@ -207,7 +207,7 @@ export const useCreditsStore = create<CreditsStore>((set, getState) => ({
                 }));
 
                 // Also refresh transactions
-                state.fetchTransactions(10, 0, undefined, undefined, undefined, true);
+                state.fetchTransactions({ limit: 10, offset: 0 }, true);
 
                 toast({
                     title: "Успешно",

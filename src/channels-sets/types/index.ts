@@ -1,5 +1,3 @@
-import { AnalysisOptions } from "@/analysis/types";
-
 export interface ChannelsSetPermissions {
     can_view: boolean;
     can_edit: boolean;
@@ -48,53 +46,11 @@ export interface ChannelsSet {
     channels: ChannelInSet[];
     all_parsed: boolean;
     permissions: ChannelsSetPermissions;
+    type: "smart" | "manual";
     // Поля для умных наборов
     build_criteria?: SmartSetBuildCriteria;
     build_status?: SmartSetBuildStatus;
     build_progress?: SmartSetBuildProgress;
-}
-
-export interface CreateChannelsSetRequest {
-    name: string;
-    description: string;
-    is_public: boolean;
-    build_criteria?: SmartSetBuildCriteria; // Для умных наборов
-}
-
-export interface UpdateChannelsSetRequest {
-    name?: string;
-    description?: string;
-    is_public?: boolean;
-}
-
-export interface AddChannelsRequest {
-    usernames: string[];
-}
-
-export interface RemoveChannelsRequest {
-    usernames: string[];
-}
-
-export interface AnalyzeChannelsSetRequest {
-    filter_ids: string[];
-    options?: AnalysisOptions;
-}
-
-export interface ChannelsSetListResponse {
-    sets: ChannelsSet[];
-    count: number;
-}
-
-export interface ParsingStatusResponse {
-    success: boolean;
-    all_parsed: boolean;
-    total_channels: number;
-    parsed_channels: number;
-    unparsed_channels: number;
-    newly_parsed: string[];
-    still_unparsed: string[];
-    channels_status: unknown[];
-    message?: string;
 }
 
 // Дополнительные типы для удобства

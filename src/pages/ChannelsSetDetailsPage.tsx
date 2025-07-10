@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Edit, Calendar, Users, Trash2, Save, X, Lock, Globe, Plus, RefreshCw, Star, AlertCircle, LoaderCircle, Crown, Eye } from "lucide-react";
 import { cn } from "@/lib/cn";
@@ -15,28 +15,25 @@ import DialogHeader from "@/ui/components/dialog/DialogHeader";
 import DialogTitle from "@/ui/components/dialog/DialogTitle";
 import { Skeleton } from "@/ui/components/skeleton";
 import { toast } from "@/ui/components/use-toast";
-import { ChannelsSet } from "@/channels-sets/types";
 import ChannelsList from "@/channels-sets/components/ChannelsList";
 import AddChannelsDialog from "@/channels-sets/components/AddChannelsDialog";
 import ChannelsSetStatus from "@/channels-sets/components/ChannelsSetStatus";
 import SmartSetBuildProgress from "@/channels-sets/components/SmartSetBuildProgress";
 import { createCardStyle, createButtonStyle, createTextStyle, typography, spacing, components, animations, textColors } from "@/lib/design-system";
 import StartAnalysisDialog from "@/analysis/components/StartAnalysisDialog";
-import { useChannelsSetsStore } from "@/channels-sets/stores/useChannelsSetsStore";
 import { AnalysisOptions } from "@/analysis/types";
+import { useDeleteChannelsSet, useFetchChannelsSet, useUpdateChannelsSet } from "@/channels-sets/api/hooks/channels-sets";
+import { analyzeChannelsSet } from "@/channels-sets/api/services/channels-sets";
 
 export default function ChannelSetDetailsPage() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
 
-    const getChannelsSet = useChannelsSetsStore(state => state.getChannelsSet);
-    const updateChannelsSet = useChannelsSetsStore(state => state.updateChannelsSet);
-    const deleteChannelsSet = useChannelsSetsStore(state => state.deleteChannelsSet);
-    const analyzeChannelsSet = useChannelsSetsStore(state => state.analyzeChannelsSet);
+    const { data: channelSet, isPending: isLoading, refetch: getChannelsSet } = useFetchChannelsSet(id);
+    const updateChannelsSet = useUpdateChannelsSet(id);
+    const deleteChannelsSet = useDeleteChannelsSet(id);
 
     // Состояния
-    const [channelSet, setChannelSet] = useState<ChannelsSet | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [editForm, setEditForm] = useState({
@@ -45,60 +42,15 @@ export default function ChannelSetDetailsPage() {
         is_public: false,
     });
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-    const [isDeleting, setIsDeleting] = useState(false);
     const [showAddChannelsDialog, setShowAddChannelsDialog] = useState(false);
     const [analysisDialogOpen, setAnalysisDialogOpen] = useState(false);
 
-    // Загрузка данных набора
-    useEffect(() => {
-        if (!id) return;
-
-        const loadChannelSet = async () => {
-            setIsLoading(true);
-            try {
-                const set = await getChannelsSet(id);
-                if (set) {
-                    setChannelSet(set);
-                    setEditForm({
-                        name: set.name,
-                        description: set.description,
-                        is_public: set.is_public,
-                    });
-                } else {
-                    toast({
-                        title: "Ошибка",
-                        description: "Набор каналов не найден",
-                        variant: "destructive",
-                    });
-                    navigate("/");
-                }
-            } catch (error) {
-                console.error("Error loading channel set:", error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        loadChannelSet();
-    }, [id, getChannelsSet, navigate]);
-
     // Обработчики
     const handleRefresh = async () => {
-        if (!id || !channelSet) return;
-
         setIsRefreshing(true);
-        try {
-            const refreshedSet = await getChannelsSet(id);
-            if (refreshedSet) {
-                setChannelSet(refreshedSet);
-                toast({
-                    title: "Обновлено",
-                    description: "Данные набора обновлены",
-                });
-            }
-        } finally {
+        getChannelsSet().finally(() => {
             setIsRefreshing(false);
-        }
+        });
     };
 
     const handleStartEditing = () => {
@@ -117,44 +69,36 @@ export default function ChannelSetDetailsPage() {
 
     const handleSaveEditing = async () => {
         if (!id || !channelSet) return;
-
-        try {
-            const updatedSet = await updateChannelsSet(id, {
-                name: editForm.name,
-                description: editForm.description,
-                is_public: editForm.is_public,
-            });
-
-            if (updatedSet) {
-                setChannelSet(updatedSet);
-                setIsEditing(false);
+        updateChannelsSet.mutate({
+            name: editForm.name,
+            description: editForm.description,
+            is_public: editForm.is_public,
+        }, {
+            onSuccess() {
                 toast({
                     title: "Сохранено",
                     description: "Изменения сохранены",
                 });
+            },
+            onError(error) {
+                console.error("Error updating channel set:", error);
             }
-        } catch (error) {
-            console.error("Error updating channel set:", error);
-        }
+        });
+        setIsEditing(false);
     };
 
     const handleDeleteSet = async () => {
         if (!id) return;
-
-        setIsDeleting(true);
-        try {
-            const success = await deleteChannelsSet(id);
-            if (success) {
+        deleteChannelsSet.mutate(undefined, {
+            onSuccess() {
                 toast({
                     title: "Удалено",
                     description: "Набор каналов удален",
                 });
                 navigate("/");
-            }
-        } finally {
-            setIsDeleting(false);
-            setShowDeleteDialog(false);
-        }
+            },
+        });
+        setShowDeleteDialog(false);
     };
 
     const handleAnalyze = () => {
@@ -163,17 +107,12 @@ export default function ChannelSetDetailsPage() {
         }
     };
 
-    const handleStartAnalysis = async (
-        filterIds: string[],
-        options?: AnalysisOptions,
-    ) => {
+    const handleStartAnalysis = async (filterIds: string[], options?: AnalysisOptions) => {
         try {
-            await analyzeChannelsSet(
-                channelSet.id,
-                filterIds,
+            await analyzeChannelsSet(channelSet.id, {
+                filter_ids: filterIds,
                 options,
-            );
-
+            });
             toast({
                 title: "Анализ запущен",
                 description: "Результаты анализа будут доступны в скором времени",
@@ -191,7 +130,6 @@ export default function ChannelSetDetailsPage() {
     // Получение статуса доступа для отображения
     const getAccessStatusInfo = () => {
         if (!channelSet) return null;
-
         if (channelSet.is_owned_by_user) {
             return {
                 icon: Crown,
@@ -199,7 +137,6 @@ export default function ChannelSetDetailsPage() {
                 color: "text-yellow-400",
             };
         }
-
         if (channelSet.permissions.can_edit) {
             return {
                 icon: Edit,
@@ -207,7 +144,6 @@ export default function ChannelSetDetailsPage() {
                 color: "text-blue-400",
             };
         }
-
         return {
             icon: Eye,
             text: "Просмотр",
@@ -536,24 +472,15 @@ export default function ChannelSetDetailsPage() {
                             variant="outline"
                             onClick={() => setShowDeleteDialog(false)}
                             className={createButtonStyle("secondary")}
-                            disabled={isDeleting}
                         >
                             Отмена
                         </Button>
                         <Button
                             variant="destructive"
                             onClick={handleDeleteSet}
-                            disabled={isDeleting}
                             className={createButtonStyle("danger")}
                         >
-                            {isDeleting ? (
-                                <>
-                                    <LoaderCircle size={16} className="mr-1 animate-spin" />
-                                    Удаление...
-                                </>
-                            ) : (
-                                "Удалить"
-                            )}
+                            Удалить
                         </Button>
                     </DialogFooter>
                 </DialogContent>

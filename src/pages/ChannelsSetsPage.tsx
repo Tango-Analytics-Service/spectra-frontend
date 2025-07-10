@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, Plus, LoaderCircle, Zap } from "lucide-react";
+import { Search, Plus, Zap } from "lucide-react";
 import { Button } from "@/ui/components/button";
 import { Input } from "@/ui/components/input";
 import { Dialog } from "@/ui/components/dialog";
@@ -19,22 +19,18 @@ import LoadingCard from "@/ui/components/loading/LoadingCard";
 import { createButtonStyle, createCardStyle, createTextStyle, spacing, typography, gradients, components, textColors, animations } from "@/lib/design-system";
 import { cn } from "@/lib/cn";
 import { ChannelsSet } from "@/channels-sets/types";
-import { useChannelsSetsStore } from "@/channels-sets/stores/useChannelsSetsStore";
+import { useCreateChannelsSet, useFetchChannelsSets } from "@/channels-sets/api/hooks/channels-sets";
 
 export default function ChannelSetPage() {
     const navigate = useNavigate();
 
-    const channelsSets = useChannelsSetsStore(state => state.channelsSets);
-    const loadStatus = useChannelsSetsStore(state => state.loadStatus);
-    const fetchChannelsSets = useChannelsSetsStore(state => state.fetchChannelsSets);
-    const createChannelsSet = useChannelsSetsStore(state => state.createChannelsSet);
+    const { data: channelsSets, status: loadStatus } = useFetchChannelsSets();
+    const createChannelsSet = useCreateChannelsSet();
 
     // Состояния
     const [searchQuery, setSearchQuery] = useState("");
-    const [filteredSets, setFilteredSets] = useState<ChannelsSet[]>([]);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isCreateSmartSetOpen, setIsCreateSmartSetOpen] = useState(false);
-    const [createLoading, setCreateLoading] = useState(false);
     const [analysisDialogOpen, setAnalysisDialogOpen] = useState(false);
     const [selectedSetForAnalysis, setSelectedSetForAnalysis] = useState<ChannelsSet>();
     const [addChannelsDialogOpen, setAddChannelsDialogOpen] = useState(false);
@@ -43,24 +39,17 @@ export default function ChannelSetPage() {
     // Форма создания набора
     const [newSetName, setNewSetName] = useState("");
     const [newSetDescription, setNewSetDescription] = useState("");
-    const [newSetIsPublic, setNewSetIsPublic] = useState(false);
 
-    fetchChannelsSets();
-
-    useEffect(() => {
+    const filteredSets = useMemo(() => {
         if (!searchQuery.trim()) {
-            setFilteredSets(channelsSets);
-            return;
+            return channelsSets;
         }
-
         const query = searchQuery.toLowerCase();
-        const filtered = channelsSets.filter(
-            (set) =>
-                set.name.toLowerCase().includes(query) ||
-                set.description.toLowerCase().includes(query),
-        );
-        setFilteredSets(filtered);
-    }, [searchQuery, channelsSets]);
+        return channelsSets.filter(set => {
+            return set.name.toLowerCase().includes(query) ||
+                set.description.toLowerCase().includes(query);
+        });
+    }, [channelsSets, searchQuery]);
 
     // Обработчики
     const handleCreateNewSet = async () => {
@@ -72,31 +61,12 @@ export default function ChannelSetPage() {
             });
             return;
         }
-
-        setCreateLoading(true);
-        try {
-            const data = {
-                name: newSetName,
-                description: newSetDescription,
-                is_public: newSetIsPublic,
-            };
-
-            const newSet = await createChannelsSet(data);
-
-            if (newSet) {
-                setNewSetName("");
-                setNewSetDescription("");
-                setNewSetIsPublic(false);
-                setIsCreateModalOpen(false);
-
-                toast({
-                    title: "Успешно",
-                    description: "Набор каналов создан",
-                });
-            }
-        } finally {
-            setCreateLoading(false);
-        }
+        createChannelsSet.mutate({
+            name: newSetName,
+            description: newSetDescription,
+            is_public: false,
+        });
+        setIsCreateModalOpen(false);
     };
 
     const handleAnalyze = (setId: string) => {
@@ -110,10 +80,8 @@ export default function ChannelSetPage() {
     const handleConfirmAnalysis = async (setId: string) => {
         // TODO: Реализовать создание задачи анализа
         console.log("Starting analysis for set:", setId);
-
         // Имитация API вызова
         await new Promise((resolve) => setTimeout(resolve, 1000));
-
         toast({
             title: "Анализ запущен",
             description: "Задача создана и поставлена в очередь",
@@ -285,26 +253,14 @@ export default function ChannelSetPage() {
                             variant="outline"
                             onClick={() => setIsCreateModalOpen(false)}
                             className={createButtonStyle("secondary")}
-                            disabled={createLoading}
                         >
                             Отмена
                         </Button>
                         <Button
                             onClick={handleCreateNewSet}
                             className={cn(createButtonStyle("primary"), "mb-2")}
-                            disabled={createLoading}
                         >
-                            {createLoading ? (
-                                <>
-                                    <LoaderCircle
-                                        size={16}
-                                        className={`mr-${spacing.sm} animate-spin`}
-                                    />
-                                    Создание...
-                                </>
-                            ) : (
-                                "Создать набор"
-                            )}
+                            Создать набор
                         </Button>
                     </DialogFooter>
                 </DialogContent>

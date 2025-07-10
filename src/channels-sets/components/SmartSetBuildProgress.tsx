@@ -1,5 +1,4 @@
-// src/channels-sets/components/SmartSetBuildProgress.tsx
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
     CheckCircle,
@@ -28,7 +27,58 @@ import {
     animations,
 } from "@/lib/design-system";
 import { ChannelsSet, SmartSetBuildStatus } from "@/channels-sets/types";
-import { useChannelsSetsStore } from "@/channels-sets/stores/useChannelsSetsStore";
+import { useCancelSmartSetBuild, useRefreshSmartSetStatus } from "../api/hooks/channels-sets";
+
+// Get status configuration
+const getStatusConfig = (status: SmartSetBuildStatus) => {
+    switch (status) {
+        case "building":
+            return {
+                icon: Loader2,
+                text: "Построение",
+                color: textColors.accent,
+                bgColor: "bg-blue-500/10",
+                borderColor: "border-blue-500/20",
+                animate: true,
+            };
+        case "completed":
+            return {
+                icon: CheckCircle,
+                text: "Завершено",
+                color: textColors.success,
+                bgColor: "bg-green-500/10",
+                borderColor: "border-green-500/20",
+                animate: false,
+            };
+        case "failed":
+            return {
+                icon: XCircle,
+                text: "Ошибка",
+                color: textColors.error,
+                bgColor: "bg-red-500/10",
+                borderColor: "border-red-500/20",
+                animate: false,
+            };
+        case "cancelled":
+            return {
+                icon: Square,
+                text: "Отменено",
+                color: textColors.warning,
+                bgColor: "bg-amber-500/10",
+                borderColor: "border-amber-500/20",
+                animate: false,
+            };
+        default:
+            return {
+                icon: Play,
+                text: "Готов к запуску",
+                color: textColors.muted,
+                bgColor: "bg-slate-500/10",
+                borderColor: "border-slate-500/20",
+                animate: false,
+            };
+    }
+};
 
 interface SmartSetBuildProgressProps {
     channelSet: ChannelsSet;
@@ -36,13 +86,9 @@ interface SmartSetBuildProgressProps {
     className?: string;
 }
 
-export default function SmartSetBuildProgress({
-    channelSet,
-    onRefresh,
-    className,
-}: SmartSetBuildProgressProps) {
-    const cancelSmartSetBuild = useChannelsSetsStore(state => state.cancelSmartSetBuild);
-    const refreshSmartSetStatus = useChannelsSetsStore(state => state.refreshSmartSetStatus);
+export default function SmartSetBuildProgress({ channelSet, onRefresh, className }: SmartSetBuildProgressProps) {
+    const cancelSmartSetBuild = useCancelSmartSetBuild(channelSet.id);
+    const refreshSmartSetStatus = useRefreshSmartSetStatus(channelSet.id);
 
     const [isCancelling, setIsCancelling] = useState(false);
     const [isRefreshing, setIsRefreshing] = useState(false);
@@ -53,83 +99,34 @@ export default function SmartSetBuildProgress({
     useEffect(() => {
         if (build_status === "building") {
             const interval = setInterval(() => {
-                refreshSmartSetStatus(channelSet.id);
+                refreshSmartSetStatus.mutate();
             }, 5000); // Refresh every 5 seconds
 
             return () => clearInterval(interval);
         }
     }, [build_status, channelSet.id, refreshSmartSetStatus]);
 
-    // Get status configuration
-    const getStatusConfig = (status: SmartSetBuildStatus) => {
-        switch (status) {
-            case "building":
-                return {
-                    icon: Loader2,
-                    text: "Построение",
-                    color: textColors.accent,
-                    bgColor: "bg-blue-500/10",
-                    borderColor: "border-blue-500/20",
-                    animate: true,
-                };
-            case "completed":
-                return {
-                    icon: CheckCircle,
-                    text: "Завершено",
-                    color: textColors.success,
-                    bgColor: "bg-green-500/10",
-                    borderColor: "border-green-500/20",
-                    animate: false,
-                };
-            case "failed":
-                return {
-                    icon: XCircle,
-                    text: "Ошибка",
-                    color: textColors.error,
-                    bgColor: "bg-red-500/10",
-                    borderColor: "border-red-500/20",
-                    animate: false,
-                };
-            case "cancelled":
-                return {
-                    icon: Square,
-                    text: "Отменено",
-                    color: textColors.warning,
-                    bgColor: "bg-amber-500/10",
-                    borderColor: "border-amber-500/20",
-                    animate: false,
-                };
-            default:
-                return {
-                    icon: Play,
-                    text: "Готов к запуску",
-                    color: textColors.muted,
-                    bgColor: "bg-slate-500/10",
-                    borderColor: "border-slate-500/20",
-                    animate: false,
-                };
-        }
-    };
-
     const handleCancel = async () => {
         if (build_status !== "building") return;
-
         setIsCancelling(true);
-        try {
-            await cancelSmartSetBuild(channelSet.id);
-        } finally {
-            setIsCancelling(false);
-        }
+        cancelSmartSetBuild.mutate(undefined, {
+            onSettled() {
+
+                setIsCancelling(false);
+            },
+        });
     };
 
     const handleRefresh = async () => {
         setIsRefreshing(true);
-        try {
-            await refreshSmartSetStatus(channelSet.id);
-            onRefresh?.();
-        } finally {
-            setIsRefreshing(false);
-        }
+        refreshSmartSetStatus.mutate(undefined, {
+            onSuccess() {
+                onRefresh?.();
+            },
+            onSettled() {
+                setIsRefreshing(false);
+            },
+        });
     };
 
     if (!build_status) {
@@ -141,9 +138,7 @@ export default function SmartSetBuildProgress({
 
     // Calculate progress percentage
     const progressPercentage = build_progress
-        ? Math.round(
-            (build_progress.channels_accepted / build_progress.target_count) * 100,
-        )
+        ? Math.round((build_progress.channels_accepted / build_progress.target_count) * 100)
         : 0;
 
     return (

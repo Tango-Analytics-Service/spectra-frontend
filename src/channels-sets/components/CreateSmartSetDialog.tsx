@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Dialog } from "@/ui/components/dialog";
 import DialogContent from "@/ui/components/dialog/DialogContent";
 import { Button } from "@/ui/components/button";
@@ -12,7 +12,6 @@ import { LoaderCircle, Zap, Settings, Filter } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { toast } from "@/ui/components/use-toast";
 import { useFiltersStore } from "@/filters/stores/useFiltersStore";
-import { useChannelsSetsStore } from "@/channels-sets/stores/useChannelsSetsStore";
 import { SmartSetBuildCriteria } from "@/channels-sets/types";
 import {
     createCardStyle,
@@ -23,6 +22,7 @@ import {
     components,
     textColors,
 } from "@/lib/design-system";
+import { useCreateChannelsSet } from "../api/hooks/channels-sets";
 
 interface CreateSmartSetDialogProps {
     open: boolean;
@@ -30,10 +30,9 @@ interface CreateSmartSetDialogProps {
 }
 
 export default function CreateSmartSetDialog({ open, onOpenChange }: CreateSmartSetDialogProps) {
-    const createChannelsSet = useChannelsSetsStore(state => state.createChannelsSet);
+    const createChannelsSet = useCreateChannelsSet();
 
     const userFilters = useFiltersStore(state => state.userFilters);
-    const userFiltersLoadStatus = useFiltersStore(state => state.userFiltersLoadStatus);
     const fetchUserFilters = useFiltersStore(state => state.fetchUserFilters);
 
     // Form state
@@ -52,23 +51,17 @@ export default function CreateSmartSetDialog({ open, onOpenChange }: CreateSmart
     const filterDescLines = 5;
 
     // Load filters when dialog opens
-    useEffect(() => {
-        if (open && userFilters.length === 0) {
-            if (userFiltersLoadStatus === "idle") {
-                fetchUserFilters();
-            }
-        }
-    }, [open, userFilters, userFiltersLoadStatus, fetchUserFilters]);
+    if (open) {
+        fetchUserFilters();
+    }
 
     // Reset form when dialog closes
     useEffect(() => {
         if (!open) {
-            setTimeout(() => {
-                setName("");
-                setDescription("");
-                setSelectedFilters([]);
-                setTargetCount([50]);
-            }, 300);
+            setName("");
+            setDescription("");
+            setSelectedFilters([]);
+            setTargetCount([50]);
         }
     }, [open]);
 
@@ -101,27 +94,26 @@ export default function CreateSmartSetDialog({ open, onOpenChange }: CreateSmart
         }
 
         setIsCreating(true);
-        try {
-            const buildCriteria: SmartSetBuildCriteria = {
-                filter_ids: selectedFilters,
-                target_count: targetCount[0],
-                acceptance_threshold: acceptanceThreshold,
-                batch_size: batchSize,
-            };
+        const buildCriteria: SmartSetBuildCriteria = {
+            filter_ids: selectedFilters,
+            target_count: targetCount[0],
+            acceptance_threshold: acceptanceThreshold,
+            batch_size: batchSize,
+        };
 
-            const newSet = await createChannelsSet({
-                name: name.trim(),
-                description: description.trim(),
-                is_public: false, // Fixed to false
-                build_criteria: buildCriteria,
-            });
-
-            if (newSet) {
+        createChannelsSet.mutate({
+            name: name.trim(),
+            description: description.trim(),
+            is_public: false, // Fixed to false
+            build_criteria: buildCriteria,
+        }, {
+            onSuccess() {
                 onOpenChange(false);
-            }
-        } finally {
-            setIsCreating(false);
-        }
+            },
+            onSettled() {
+                setIsCreating(false);
+            },
+        });
     };
 
     return (

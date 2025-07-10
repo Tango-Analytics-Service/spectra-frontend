@@ -125,27 +125,29 @@ export default function ChannelsList({ channels, setId, canManageChannels = fals
     // Обработчик массового удаления
     const handleBulkRemove = async () => {
         if (selectedChannels.length === 0) return;
+
         setRemovingChannels([...selectedChannels]);
-        removeChannelsFromSet.mutate(selectedChannels, {
-            onSuccess() {
-                toast({
-                    title: "Каналы удалены",
-                    description: `Удалено каналов: ${selectedChannels.length}`,
-                });
-                setSelectedChannels([]);
-            },
-            onError() {
-                toast({
-                    title: "Ошибка",
-                    description: "Не удалось удалить каналы",
-                    variant: "destructive",
-                });
-            },
-            onSettled() {
-                setRemovingChannels([]);
-                setShowBulkRemoveDialog(false);
-            },
-        });
+        try {
+            removeChannelsFromSet.mutate(selectedChannels);
+            // const success = await removeChannelsFromSet(setId, selectedChannels);
+            // if (success) {
+            //     toast({
+            //         title: "Каналы удалены",
+            //         description: `Удалено каналов: ${selectedChannels.length}`,
+            //     });
+            //     setSelectedChannels([]);
+            // }
+        } catch (error) {
+            console.error("Error removing channels:", error);
+            toast({
+                title: "Ошибка",
+                description: "Не удалось удалить каналы",
+                variant: "destructive",
+            });
+        } finally {
+            setRemovingChannels([]);
+            setShowBulkRemoveDialog(false);
+        }
     };
 
     // Состояние пустого списка

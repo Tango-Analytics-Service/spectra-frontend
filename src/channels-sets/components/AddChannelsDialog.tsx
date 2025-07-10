@@ -14,7 +14,7 @@ import DialogTitle from "@/ui/components/dialog/DialogTitle";
 import { Label } from "@/ui/components/label";
 import { createButtonStyle, createCardStyle, createTextStyle, components, typography, spacing, textColors } from "@/lib/design-system";
 import ChannelPreviewItem from "./ChannelPreviewItem";
-import { useChannelsSetsStore } from "@/channels-sets/stores/useChannelsSetsStore";
+import { useAddChannelsToSet } from "../api/hooks/channels-sets";
 
 const MAX_CHANNELS_PER_SET = 20;
 
@@ -22,19 +22,15 @@ const MAX_CHANNELS_PER_SET = 20;
 const getChannelWord = (count: number): string => {
     const lastDigit = count % 10;
     const lastTwoDigits = count % 100;
-
     if (lastTwoDigits >= 11 && lastTwoDigits <= 19) {
         return "каналов";
     }
-
     if (lastDigit === 1) {
         return "канал";
     }
-
     if (lastDigit >= 2 && lastDigit <= 4) {
         return "канала";
     }
-
     return "каналов";
 };
 
@@ -46,7 +42,7 @@ export interface AddChannelsDialogProps {
 }
 
 export default function AddChannelsDialog({ open, onOpenChange, setId, existingChannels = [] }: AddChannelsDialogProps) {
-    const addChannelsToSet = useChannelsSetsStore(state => state.addChannelsToSet);
+    const addChannelsToSet = useAddChannelsToSet(setId);
 
     // State
     const [bulkInput, setBulkInput] = useState("");
@@ -133,66 +129,29 @@ export default function AddChannelsDialog({ open, onOpenChange, setId, existingC
 
     const handleAddChannels = async () => {
         if (validChannels.length === 0) return;
-
         setIsAdding(true);
-        try {
-            const usernames = validChannels.map((ch) => ch.username);
-            const result = await addChannelsToSet(setId, usernames) as {
-                success: boolean,
-                added: unknown[],
-                failed: unknown[],
-                message: string,
-            };
-
-            if (result.success) {
-                // Проверяем, были ли частичные ошибки
-                if (result.added && result.failed) {
-                    const addedCount = result.added.length;
-                    const failedCount = result.failed.length;
-
-                    if (addedCount > 0 && failedCount > 0) {
-                        toast({
-                            title: "Частично выполнено",
-                            description: `Добавлено ${addedCount} ${getChannelWord(addedCount)}. ${failedCount} не удалось добавить.`,
-                        });
-                    } else if (addedCount > 0) {
-                        toast({
-                            title: "Успешно",
-                            description: `Добавлено ${addedCount} ${getChannelWord(addedCount)} в набор`,
-                        });
-                    }
-                } else {
-                    toast({
-                        title: "Успешно",
-                        description: `Добавлено ${validChannels.length} ${getChannelWord(validChannels.length)} в набор`,
-                    });
-                }
+        const usernames = validChannels.map((ch) => ch.username);
+        addChannelsToSet.mutate(usernames, {
+            onSuccess() {
                 onOpenChange(false);
-            } else {
+            },
+            onError() {
                 toast({
                     title: "Ошибка",
-                    description: result.message || "Не удалось добавить каналы",
+                    description: "Произошла ошибка при добавлении каналов",
                     variant: "destructive",
                 });
-            }
-        } catch (error) {
-            console.error("Error adding channels:", error);
-            toast({
-                title: "Ошибка",
-                description: "Произошла ошибка при добавлении каналов",
-                variant: "destructive",
-            });
-        } finally {
-            setIsAdding(false);
-        }
+            },
+            onSettled() {
+                setIsAdding(false);
+            },
+        });
     };
 
     // Сброс при закрытии
     useEffect(() => {
         if (!open) {
-            setTimeout(() => {
-                setBulkInput("");
-            }, 300);
+            setBulkInput("");
         }
     }, [open]);
 
@@ -495,8 +454,7 @@ channel_name
                         onClick={handleAddChannels}
                         className={createButtonStyle("primary")}
                         disabled={!isFormValid || isAdding}
-                    >
-                        {isAdding ? (
+                    >  {isAdding ? (
                             <>
                                 <LoaderCircle
                                     size={16}
