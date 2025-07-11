@@ -52,18 +52,3 @@ export interface PackageInfo {
     credits: number;
     price: number;
 }
-
-export interface PurchasePackageResponse {
-    success: boolean;
-    message: string;
-    package: PackageInfo;
-    payment: PaymentInfo;
-    new_balance: number;
-}
-
-export interface CheckActionResponse {
-    can_perform: boolean;
-    message: string;
-    required: number;
-    available: number;
-}

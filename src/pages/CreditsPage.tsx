@@ -6,30 +6,16 @@ import { Loader2, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { useToast } from "@/ui/components/use-toast";
 import { gradients, typography, spacing, createCardStyle, animations } from "@/lib/design-system";
-import { useCreditsStore } from "@/credits/stores/useCreditsStore";
+import { useFetchCreditBalance, useFetchCreditTransactions, useFetchCreditPackages, useFetchCreditCosts } from "@/credits/api/hooks";
 
 export default function CreditsPage() {
-    // Get data and methods from context
-    const balance = useCreditsStore(state => state.balance);
-    const transactions = useCreditsStore(state => state.transactions);
-    const packages = useCreditsStore(state => state.packages);
-    const costs = useCreditsStore(state => state.costs);
-    const balanceLoadStatus = useCreditsStore(state => state.balanceLoadStatus);
-    const transactionsLoadStatus = useCreditsStore(state => state.transactionsLoadStatus);
-    const packagesLoadStatus = useCreditsStore(state => state.packagesLoadStatus);
-    const costsLoadStatus = useCreditsStore(state => state.costsLoadStatus);
-    const fetchBalance = useCreditsStore(state => state.fetchBalance);
-    const fetchTransactions = useCreditsStore(state => state.fetchTransactions);
-    const fetchPackages = useCreditsStore(state => state.fetchPackages);
-    const fetchCosts = useCreditsStore(state => state.fetchCosts);
+    const { data: balance, status: balanceLoadStatus } = useFetchCreditBalance();
+    const { data: transactions, status: transactionsLoadStatus } = useFetchCreditTransactions();
+    const { data: packages, status: packagesLoadStatus } = useFetchCreditPackages();
+    const { data: costs, status: costsLoadStatus } = useFetchCreditCosts();
 
     // Toast for notifications
     const { toast } = useToast();
-
-    fetchBalance();
-    fetchTransactions();
-    fetchPackages();
-    fetchCosts();
 
     const handlePurchaseClick = (packageId: string) => {
         const pkg = packages.find((p) => p.id === packageId);
