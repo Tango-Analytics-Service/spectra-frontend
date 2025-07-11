@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/ui/components/button";
 import { Plus, Filter as FilterIcon, Settings } from "lucide-react";
 import FiltersList from "@/filters/components/FiltersList";
