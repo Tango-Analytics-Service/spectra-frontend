@@ -12,18 +12,6 @@ export interface AnalysisOptions {
     processing_mode?: ProcessingMode;
 }
 
-export interface ChannelAnalysisRequest {
-    channels: string[];
-    filter_ids: string[];
-    options?: AnalysisOptions;
-}
-
-export interface ChannelAnalysisResponse {
-    success: boolean;
-    task_id: string;
-    message: string;
-}
-
 export interface ProblematicPost {
     post_id: string | number;
     url: string;
@@ -82,12 +70,6 @@ export interface AnalysisTask extends AnalysisTaskBasic {
     filter_ids?: string[];
     options?: AnalysisOptions;
     channel_usernames?: string[];
-}
-
-// ТИП: Ответ от API со списком задач
-export interface AnalysisTasksListResponse {
-    tasks: AnalysisTaskBasic[];
-    count: number;
 }
 
 // ВСПОМОГАТЕЛЬНЫЙ ТИП: Для компонента AnalysisResultsCard
