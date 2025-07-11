@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { RefreshCw, Search, CheckCircle, AlertCircle, BarChart3 } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { Button } from "@/ui/components/button";
@@ -13,8 +13,8 @@ import TaskCard from "@/analysis/components/TaskCard";
 import MobileActionSheet from "@/analysis/components/MobileActionSheet";
 import { ChannelsSet } from "@/channels-sets/types";
 import TaskDetailsModal from "@/analysis/components/TaskDetailsModal";
-import { useAnalysisTasksStore } from "@/analysis/stores/useAnalysisTasksStore";
 import { useFetchChannelsSets } from "@/channels-sets/api/hooks/channels-sets";
+import { useFetchUserTasks, useFetchUserTasksWithDetails } from "@/analysis/api/hooks";
 
 function filterDate(taskDate: Date, dateFilter: string) {
     if (dateFilter === "all") {
@@ -73,11 +73,25 @@ function getTaskActions(task: AnalysisTaskBasic | null, onPress: () => void) {
 export default function AnalysisTasksPage() {
     const { data: channelsSets } = useFetchChannelsSets();
 
-    const tasks = useAnalysisTasksStore(state => state.tasks);
-    const taskDetails = useAnalysisTasksStore(state => state.tasksDetails);
-    const loadStatus = useAnalysisTasksStore(state => state.loadStatus);
-    const refreshTask = useAnalysisTasksStore(state => state.refreshTask);
-    const fetchTasksWithDetails = useAnalysisTasksStore(state => state.fetchTasksWithDetails);
+    const { data: tasks, status: loadStatus, fetchStatus, refetch: refreshTasks } = useFetchUserTasks();
+    const queries = useFetchUserTasksWithDetails(tasks);
+
+    // data load status
+    const isSuccess = loadStatus === "success" && queries.every(query => query.status === "success");
+    const isPending = loadStatus === "pending" || queries.some(query => query.status === "pending");
+    // actial logic fetching status
+    const isFetching = fetchStatus === "fetching" || queries.some(query => query.fetchStatus === "fetching");
+
+    const rawDetails = queries.map(query => query.data);
+    const taskDetails = useMemo(() => {
+        const res = {};
+        for (const detail of rawDetails) {
+            if (detail !== undefined) {
+                res[detail.id] = detail;
+            }
+        }
+        return res;
+    }, [rawDetails]);
 
     // UI состояния
     const [showTaskDetails, setShowTaskDetails] = useState(false);
@@ -89,13 +103,21 @@ export default function AnalysisTasksPage() {
     const [searchQuery, setSearchQuery] = useState("");
     const dateFilter = "all";
 
-    // Загрузка задач при монтировании
-    fetchTasksWithDetails();
-
     // Обработчик обновления
     const handleRefresh = () => {
-        fetchTasksWithDetails({}, true);
+        console.log("refetchong", isFetching);
+        refreshTasks({}).then(() => {
+            queries.forEach(query => query.refetch());
+        });
     };
+
+    const refreshTask = useCallback((id: string) => {
+        const idx = queries.findIndex(query => query.data?.id === id);
+        if (idx === -1) {
+            return;
+        }
+        queries[idx].refetch();
+    }, [queries]);
 
     // Фильтрация задач
     const filteredTasks = tasks.filter(task => {
@@ -103,7 +125,7 @@ export default function AnalysisTasksPage() {
         if (statusFilter !== "all" && task.status !== statusFilter) {
             return false;
         }
-        return filterQuery(task, taskDetails[task.id]?.details, searchQuery, channelsSets)
+        return filterQuery(task, taskDetails[task.id], searchQuery, channelsSets)
             && filterDate(new Date(task.created_at), dateFilter);
     });
 
@@ -133,10 +155,10 @@ export default function AnalysisTasksPage() {
                         </div>
                         <Button
                             onClick={handleRefresh}
-                            disabled={loadStatus === "pending"}
+                            disabled={isPending}
                             className={createButtonStyle("secondary")}
                         >
-                            {loadStatus === "pending" ? (
+                            {isFetching ? (
                                 <RefreshCw size={16} className="mr-2 animate-spin" />
                             ) : (
                                 <RefreshCw size={16} className="mr-2" />
@@ -149,21 +171,21 @@ export default function AnalysisTasksPage() {
                     <div className={cn("grid grid-cols-3", `gap-${spacing.md}`, animations.slideIn)}>
                         <StatsCard
                             title="Всего"
-                            value={loadStatus !== "success" ? "—" : tasks.length}
+                            value={isSuccess ? tasks.length : "—"}
                             icon={<BarChart3 size={15} className={textColors.accent} />}
-                            loading={loadStatus === "pending"}
+                            loading={isPending}
                         />
                         <StatsCard
                             title="Завершено"
-                            value={loadStatus !== "success" ? "—" : tasks.filter(t => t.status === "completed").length}
+                            value={isSuccess ? tasks.filter(t => t.status === "completed").length : "—"}
                             icon={<CheckCircle size={15} className={textColors.success} />}
-                            loading={loadStatus === "pending"}
+                            loading={isPending}
                         />
                         <StatsCard
                             title="В процессе"
-                            value={loadStatus !== "success" ? "—" : tasks.filter(t => t.status === "processing").length}
+                            value={isSuccess ? tasks.filter(t => t.status === "processing").length : "—"}
                             icon={<RefreshCw size={15} className={textColors.accent} />}
-                            loading={loadStatus === "pending"}
+                            loading={isPending}
                         />
                     </div>
                 </div>
@@ -215,7 +237,7 @@ export default function AnalysisTasksPage() {
 
                 {/* Список задач */}
                 <div className={cn("flex-1", animations.fadeIn)}>
-                    {loadStatus === "pending" ? (
+                    {isPending ? (
                         <div className={`space-y-${spacing.sm}`}>
                             {[1, 2, 3].map((i) => (
                                 <Skeleton key={i} className="h-32 w-full rounded-xl" />
@@ -234,8 +256,8 @@ export default function AnalysisTasksPage() {
                     ) : (
                         <div className={`space-y-${spacing.sm}`}>
                             {filteredTasks.map((task) => (
-                                <TaskCard key={task.id} task={task} details={taskDetails[task.id]?.details} onTaskPress={() => {
-                                    setSelectedTask(taskDetails[task.id]?.details);
+                                <TaskCard key={task.id} task={task} details={taskDetails[task.id]} onTaskPress={() => {
+                                    setSelectedTask(taskDetails[task.id]);
                                     setShowTaskDetails(true);
                                 }} />
                             ))}
