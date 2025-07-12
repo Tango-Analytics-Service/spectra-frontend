@@ -22,7 +22,7 @@ import SmartSetBuildProgress from "@/channels-sets/components/SmartSetBuildProgr
 import { createCardStyle, createButtonStyle, createTextStyle, typography, spacing, components, animations, textColors } from "@/lib/design-system";
 import StartAnalysisDialog from "@/analysis/components/StartAnalysisDialog";
 import { AnalysisOptions } from "@/analysis/types";
-import { useDeleteChannelsSet, useFetchChannelsSet, useUpdateChannelsSet } from "@/channels-sets/api/hooks/channels-sets";
+import { useDeleteChannelsSet, useFetchChannelsSet, useUpdateChannelsSet } from "@/channels-sets/api/hooks";
 import { analyzeChannelsSet } from "@/channels-sets/api/services/channels-sets";
 
 export default function ChannelSetDetailsPage() {
@@ -73,31 +73,22 @@ export default function ChannelSetDetailsPage() {
             name: editForm.name,
             description: editForm.description,
             is_public: editForm.is_public,
-        }, {
-            onSuccess() {
-                toast({
-                    title: "Сохранено",
-                    description: "Изменения сохранены",
-                });
-            },
-            onError(error) {
-                console.error("Error updating channel set:", error);
-            }
+        });
+        toast({
+            title: "Сохранено",
+            description: "Изменения сохранены",
         });
         setIsEditing(false);
     };
 
     const handleDeleteSet = async () => {
         if (!id) return;
-        deleteChannelsSet.mutate(undefined, {
-            onSuccess() {
-                toast({
-                    title: "Удалено",
-                    description: "Набор каналов удален",
-                });
-                navigate("/");
-            },
+        deleteChannelsSet.mutate(undefined);
+        toast({
+            title: "Удалено",
+            description: "Набор каналов удален",
         });
+        navigate("/");
         setShowDeleteDialog(false);
     };
 

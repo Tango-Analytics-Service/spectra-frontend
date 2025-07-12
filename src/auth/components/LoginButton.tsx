@@ -1,17 +1,16 @@
 import { createButtonStyle, spacing } from "@/lib/design-system";
 import { cn } from "@/lib/cn";
-import { useAuthStore } from "@/auth/stores/useAuthStore";
 import { Button } from "@/ui/components/button";
 import { isTelegramWebApp } from "@/telegram/utils";
+import { useAuth } from "@/auth/api/hooks";
 
 export default function LoginButton() {
     const telegramBotUrl = import.meta.env.VITE_TELEGRAM_BOT_URL;
 
-    const loadStatus = useAuthStore(state => state.loadStatus);
-    const login = useAuthStore(state => state.login);
+    const { status, refetch: login } = useAuth();
 
     const handleLogin = async () => {
-        if (loadStatus !== "success") {
+        if (status !== "success") {
             await login();
         }
     };
@@ -20,14 +19,14 @@ export default function LoginButton() {
         return (
             <Button
                 onClick={handleLogin}
-                disabled={loadStatus === "pending"}
+                disabled={status === "pending"}
                 className={cn(
                     createButtonStyle("primary"),
                     "w-full sm:w-auto shadow-md hover:shadow-lg transition-all",
                     `px-${spacing.lg} py-${spacing.sm}`,
                 )}
             >
-                {loadStatus === "pending" ? "Авторизация..." : "Войти через Telegram"}
+                {status === "pending" ? "Авторизация..." : "Войти через Telegram"}
             </Button>
         );
     } else {

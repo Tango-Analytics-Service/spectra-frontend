@@ -19,7 +19,7 @@ import LoadingCard from "@/ui/components/loading/LoadingCard";
 import { createButtonStyle, createCardStyle, createTextStyle, spacing, typography, gradients, components, textColors, animations } from "@/lib/design-system";
 import { cn } from "@/lib/cn";
 import { ChannelsSet } from "@/channels-sets/types";
-import { useCreateChannelsSet, useFetchChannelsSets } from "@/channels-sets/api/hooks/channels-sets";
+import { useCreateChannelsSet, useFetchChannelsSets } from "@/channels-sets/api/hooks";
 
 export default function ChannelSetPage() {
     const navigate = useNavigate();

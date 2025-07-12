@@ -1,26 +1,20 @@
-import { ReactNode, useEffect } from "react";
+import { ReactNode } from "react";
 import { Navigate } from "react-router-dom";
-import { useAuthStore } from "@/auth/stores/useAuthStore";
 import LoadingScreen from "./LoadingScreen";
+import { useAuth } from "@/auth/api/hooks";
 
 export interface AuthGuardProps {
     children: ReactNode;
 }
 
 export default function AuthGuard({ children }: AuthGuardProps) {
-    const isAuthenticated = useAuthStore(state => state.isAuthenticated);
-    const loadStatus = useAuthStore(state => state.loadStatus);
-    const initialize = useAuthStore(state => state.initialize);
+    const { data, status } = useAuth();
 
-    useEffect(() => {
-        initialize();
-    }, [initialize]);
-
-    if (loadStatus === "pending") {
+    if (status === "pending") {
         return <LoadingScreen />;
     }
 
-    if (!isAuthenticated) {
+    if (data.token === undefined) {
         return <Navigate to="/login" replace />;
     }
 

@@ -222,7 +222,7 @@ export function useAddChannelsToSet(id: string) {
             });
         },
         onSuccess() {
-            // No useful response to update data for now
+            // TODO: No useful response to update data for now
             return queryClient.invalidateQueries({ queryKey: singleSetCacheKeys, });
         },
     });

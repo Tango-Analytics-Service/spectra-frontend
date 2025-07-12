@@ -17,7 +17,7 @@ import DialogTitle from "@/ui/components/dialog/DialogTitle";
 import { toast } from "@/ui/components/use-toast";
 import { ChannelInSet } from "@/channels-sets/types";
 import { createCardStyle, createButtonStyle, createBadgeStyle, createTextStyle, typography, spacing, components, animations, textColors } from "@/lib/design-system";
-import { useRemoveChannelsFromSet } from "../api/hooks/channels-sets";
+import { useRemoveChannelsFromSet } from "@/channels-sets/api/hooks";
 
 interface ChannelsListProps {
     channels: ChannelInSet[];
@@ -100,52 +100,28 @@ export default function ChannelsList({ channels, setId, canManageChannels = fals
     // Обработчик удаления одного канала
     const handleRemoveChannel = async (username: string) => {
         setRemovingChannels((prev) => [...prev, username]);
-        removeChannelsFromSet.mutate([username], {
-            onSuccess() {
-                toast({
-                    title: "Канал удален",
-                    description: "Канал успешно удален из набора",
-                });
-            },
-            onError() {
-                toast({
-                    title: "Ошибка",
-                    description: "Не удалось удалить канал",
-                    variant: "destructive",
-                });
-            },
-            onSettled() {
-                setRemovingChannels((prev) => prev.filter((u) => u !== username));
-                setShowRemoveDialog(false);
-                setChannelToRemove(null);
-            },
+        removeChannelsFromSet.mutate([username]);
+        toast({
+            title: "Канал удален",
+            description: "Канал успешно удален из набора",
         });
+        setRemovingChannels((prev) => prev.filter((u) => u !== username));
+        setShowRemoveDialog(false);
+        setChannelToRemove(null);
     };
 
     // Обработчик массового удаления
     const handleBulkRemove = async () => {
         if (selectedChannels.length === 0) return;
         setRemovingChannels([...selectedChannels]);
-        removeChannelsFromSet.mutate(selectedChannels, {
-            onSuccess() {
-                toast({
-                    title: "Каналы удалены",
-                    description: `Удалено каналов: ${selectedChannels.length}`,
-                });
-                setSelectedChannels([]);
-            },
-            onError() {
-                toast({
-                    title: "Ошибка",
-                    description: "Не удалось удалить каналы",
-                    variant: "destructive",
-                });
-            },
-            onSettled() {
-                setRemovingChannels([]);
-                setShowBulkRemoveDialog(false);
-            },
+        removeChannelsFromSet.mutate(selectedChannels);
+        toast({
+            title: "Каналы удалены",
+            description: `Удалено каналов: ${selectedChannels.length}`,
         });
+        setSelectedChannels([]);
+        setRemovingChannels([]);
+        setShowBulkRemoveDialog(false);
     };
 
     // Состояние пустого списка

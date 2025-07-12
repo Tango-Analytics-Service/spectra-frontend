@@ -1,4 +1,3 @@
-// src/components/filters/CreateFilterDialog.tsx
 import { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
 import { Input } from "@/ui/components/input";
@@ -12,8 +11,8 @@ import { spacing, components } from "@/lib/design-system";
 import DialogWrapper from "@/ui/components/dialog-components/DialogWrapper";
 import FormField from "@/ui/components/dialog-components/FormFiels";
 import ActionButtons from "@/ui/components/dialog-components/ActionButtons";
-import { useFiltersStore } from "@/filters/stores/useFiltersStore";
-import { FilterCreateRequest } from "../types";
+import { FilterCreateRequest } from "@/filters/api/types";
+import { useCreateCustomFilter } from "@/filters/api/hooks";
 
 export interface CreateFilterDialogProps {
     open: boolean;
@@ -31,7 +30,7 @@ const FILTER_CATEGORIES = [
 ];
 
 export default function CreateFilterDialog({ open, onOpenChange, }: CreateFilterDialogProps) {
-    const createCustomFilter = useFiltersStore(state => state.createCustomFilter);
+    const createCustomFilter = useCreateCustomFilter();
 
     // Состояние формы
     const [formData, setFormData] = useState<FilterCreateRequest>({
@@ -48,22 +47,17 @@ export default function CreateFilterDialog({ open, onOpenChange, }: CreateFilter
         criteria?: string;
     }>({});
 
-    // Состояние загрузки
-    const [isCreating, setIsCreating] = useState(false);
-
     // Сброс формы при закрытии диалога
     useEffect(() => {
         if (!open) {
-            setTimeout(() => {
-                setFormData({
-                    name: "",
-                    criteria: "",
-                    threshold: 5,
-                    strictness: 0.5,
-                    category: "Содержание",
-                });
-                setErrors({});
-            }, 300);
+            setErrors({});
+            setFormData({
+                name: "",
+                criteria: "",
+                threshold: 5,
+                strictness: 0.5,
+                category: "Содержание",
+            });
         }
     }, [open]);
 
@@ -101,18 +95,8 @@ export default function CreateFilterDialog({ open, onOpenChange, }: CreateFilter
         if (!validateForm()) {
             return;
         }
-
-        setIsCreating(true);
-        try {
-            const newFilter = await createCustomFilter(formData);
-            if (newFilter) {
-                onOpenChange(false);
-            }
-        } catch (error) {
-            console.error("Error creating filter:", error);
-        } finally {
-            setIsCreating(false);
-        }
+        createCustomFilter.mutate(formData);
+        onOpenChange(false);
     };
 
     // Проверка валидности формы для блокировки кнопки
@@ -186,7 +170,6 @@ export default function CreateFilterDialog({ open, onOpenChange, }: CreateFilter
                 onConfirm={handleCreateFilter}
                 confirmText="Создать фильтр"
                 confirmDisabled={!isFormValid}
-                isLoading={isCreating}
                 loadingText="Создание..."
                 confirmIcon={<Plus size={16} />}
             />

@@ -8,4 +8,3 @@ export interface TokenResponse {
 export interface TelegramAuthRequest {
     data_check_string: string;
 }
-

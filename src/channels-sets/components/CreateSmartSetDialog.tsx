@@ -11,7 +11,6 @@ import ScrollArea from "@/ui/components/scroll-area/ScrollArea";
 import { LoaderCircle, Zap, Settings, Filter } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { toast } from "@/ui/components/use-toast";
-import { useFiltersStore } from "@/filters/stores/useFiltersStore";
 import { SmartSetBuildCriteria } from "@/channels-sets/types";
 import {
     createCardStyle,
@@ -22,7 +21,8 @@ import {
     components,
     textColors,
 } from "@/lib/design-system";
-import { useCreateChannelsSet } from "../api/hooks/channels-sets";
+import { useCreateChannelsSet } from "@/channels-sets/api/hooks";
+import { useFetchUserFilters } from "@/filters/api/hooks";
 
 interface CreateSmartSetDialogProps {
     open: boolean;
@@ -31,9 +31,7 @@ interface CreateSmartSetDialogProps {
 
 export default function CreateSmartSetDialog({ open, onOpenChange }: CreateSmartSetDialogProps) {
     const createChannelsSet = useCreateChannelsSet();
-
-    const userFilters = useFiltersStore(state => state.userFilters);
-    const fetchUserFilters = useFiltersStore(state => state.fetchUserFilters);
+    const { data: userFilters } = useFetchUserFilters();
 
     // Form state
     const [name, setName] = useState("");
@@ -49,11 +47,6 @@ export default function CreateSmartSetDialog({ open, onOpenChange }: CreateSmart
     const batchSize = 20; // Fixed at 20
 
     const filterDescLines = 5;
-
-    // Load filters when dialog opens
-    if (open) {
-        fetchUserFilters();
-    }
 
     // Reset form when dialog closes
     useEffect(() => {
@@ -106,14 +99,9 @@ export default function CreateSmartSetDialog({ open, onOpenChange }: CreateSmart
             description: description.trim(),
             is_public: false, // Fixed to false
             build_criteria: buildCriteria,
-        }, {
-            onSuccess() {
-                onOpenChange(false);
-            },
-            onSettled() {
-                setIsCreating(false);
-            },
         });
+        onOpenChange(false);
+        setIsCreating(false);
     };
 
     return (

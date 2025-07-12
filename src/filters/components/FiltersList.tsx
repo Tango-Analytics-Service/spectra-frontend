@@ -1,5 +1,4 @@
-// src/components/filters/FiltersList.tsx
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { Input } from "@/ui/components/input";
 import { Button } from "@/ui/components/button";
 import ScrollArea from "@/ui/components/scroll-area/ScrollArea";
@@ -10,7 +9,7 @@ import { cn } from "@/lib/cn";
 import { createButtonStyle, spacing, animations, components, createTextStyle } from "@/lib/design-system";
 import EmptyState from "@/ui/components/dialog-components/EmptyState";
 import LoadingState from "@/ui/components/dialog-components/LoadingState";
-import { useFiltersStore } from "@/filters/stores/useFiltersStore";
+import { useFetchFilters, useDeleteCustomFilter } from "@/filters/api/hooks";
 
 export interface FiltersListProps {
     onSelectFilter?: (id: string) => void;
@@ -43,13 +42,8 @@ export default function FiltersList({
     showActions = true,
     height = "h-[600px]",
 }: FiltersListProps) {
-    const systemFilters = useFiltersStore(state => state.systemFilters);
-    const userFilters = useFiltersStore(state => state.userFilters);
-    const systemFiltersLoadStatus = useFiltersStore(state => state.systemFiltersLoadStatus);
-    const userFiltersLoadStatus = useFiltersStore(state => state.userFiltersLoadStatus);
-    const fetchSystemFilters = useFiltersStore(state => state.fetchSystemFilters);
-    const fetchUserFilters = useFiltersStore(state => state.fetchUserFilters);
-    const deleteCustomFilter = useFiltersStore(state => state.deleteCustomFilter);
+    const { data: allFilters, isPending: areFiltersLoading } = useFetchFilters();
+    const deleteCustomFilter = useDeleteCustomFilter();
 
     // Локальное состояние
     const [searchQuery, setSearchQuery] = useState("");
@@ -58,18 +52,6 @@ export default function FiltersList({
     const [showCreateDialog, setShowCreateDialog] = useState(false);
     const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
 
-    fetchUserFilters();
-    fetchSystemFilters();
-
-    // Комбинированный список фильтров
-    const allFilters = useMemo(() => {
-        const combined = [...systemFilters, ...userFilters];
-        // Удаляем дубликаты по id
-        return combined.filter(
-            (filter, index, self) =>
-                index === self.findIndex((f) => f.id === filter.id),
-        );
-    }, [systemFilters, userFilters]);
 
     // Фильтрация по типу
     const filteredByType = useMemo(() => {
@@ -121,8 +103,8 @@ export default function FiltersList({
         setExpandedCards(newExpanded);
     };
 
-    const handleDeleteFilter = async (id: string) => {
-        await deleteCustomFilter(id);
+    const handleDeleteFilter = (id: string) => {
+        deleteCustomFilter.mutate(id);
         // Убираем из развернутых если был развернут
         const newExpanded = new Set(expandedCards);
         newExpanded.delete(id);
@@ -138,9 +120,6 @@ export default function FiltersList({
         // TODO: Реализовать дублирование фильтра
         console.log("Duplicate filter:", id);
     };
-
-    // Состояние загрузки
-    const areFiltersLoading = systemFiltersLoadStatus === "pending" || userFiltersLoadStatus === "pending";
 
     return (
         <div className={cn("space-y-4", animations.fadeIn)}>

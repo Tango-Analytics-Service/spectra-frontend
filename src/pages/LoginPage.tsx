@@ -2,14 +2,14 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/cn";
 import { typography, spacing, gradients, animations } from "@/lib/design-system";
-import { useAuthStore } from "@/auth/stores/useAuthStore";
 import LoginButton from "@/auth/components/LoginButton";
+import { useAuth } from "@/auth/api/hooks";
 
 export default function LoginPage() {
     const navigate = useNavigate();
 
-    const isAuthenticated = useAuthStore(state => state.isAuthenticated);
-    const error = useAuthStore(state => state.error);
+    const { data, error } = useAuth();
+    const isAuthenticated = data.token !== undefined;
 
     useEffect(() => {
         if (isAuthenticated) {
@@ -45,7 +45,7 @@ export default function LoginPage() {
                         "bg-red-500/20 border border-red-500/40 text-red-300",
                     )}
                 >
-                    {error}
+                    {error.message}
                 </div>
             )}
 

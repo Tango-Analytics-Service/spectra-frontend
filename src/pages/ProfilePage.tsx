@@ -1,12 +1,14 @@
-// src/components/profile/ProfilePage.tsx
 import { Button } from "@/ui/components/button";
 import { cn } from "@/lib/cn";
 import { components, typography, createCardStyle, animations } from "@/lib/design-system";
-import { useAuthStore } from "@/auth/stores/useAuthStore";
+import { getUserFromTelegram } from "@/telegram/utils";
 
 export default function ProfilePage() {
-    const user = useAuthStore(state => state.user);
-    const logout = useAuthStore(state => state.logout);
+    const user = getUserFromTelegram();
+
+    const logout = () => {
+        // TODO: Impl logout
+    };
 
     return (
         <div className={cn("px-4 sm:px-6", "pt-4 pb-4", animations.fadeIn)}>

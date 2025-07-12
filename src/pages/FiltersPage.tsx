@@ -6,20 +6,13 @@ import CreateFilterDialog from "@/filters/components/CreateFilterDialog";
 import StatsCard from "@/ui/components/stats-card";
 import { cn } from "@/lib/cn";
 import { createButtonStyle, createCardStyle, typography, spacing, gradients, animations, textColors, createTextStyle } from "@/lib/design-system";
-import { useFiltersStore } from "@/filters/stores/useFiltersStore";
+import { useFetchSystemFilters } from "@/filters/api/hooks";
 
 export default function FiltersPage() {
-    const systemFilters = useFiltersStore(state => state.systemFilters);
-    const userFilters = useFiltersStore(state => state.userFilters);
-    const systemFiltersLoadStatus = useFiltersStore(state => state.systemFiltersLoadStatus);
-    const userFilterLoadStatus = useFiltersStore(state => state.userFiltersLoadStatus);
-    const fetchSystemFilters = useFiltersStore(state => state.fetchSystemFilters);
-    const fetchUserFilters = useFiltersStore(state => state.fetchUserFilters);
+    const { data: systemFilters, status: systemFiltersLoadStatus } = useFetchSystemFilters();
+    const { data: userFilters, status: userFiltersLoadStatus } = useFetchSystemFilters();
 
     const [showCreateDialog, setShowCreateDialog] = useState(false);
-
-    fetchUserFilters();
-    fetchSystemFilters();
 
     const totalFilters = systemFilters.length + userFilters.filter((f) => f.is_custom).length;
     const systemFiltersCount = systemFilters.length;
@@ -73,9 +66,9 @@ export default function FiltersPage() {
                     >
                         <StatsCard
                             title="Всего"
-                            value={systemFiltersLoadStatus !== "success" || userFilterLoadStatus !== "success" ? "—" : totalFilters}
+                            value={systemFiltersLoadStatus !== "success" || userFiltersLoadStatus !== "success" ? "—" : totalFilters}
                             icon={<FilterIcon size={15} className={textColors.accent} />}
-                            loading={systemFiltersLoadStatus === "pending" || userFilterLoadStatus === "pending"}
+                            loading={systemFiltersLoadStatus === "pending" || userFiltersLoadStatus === "pending"}
                         />
                         <StatsCard
                             title="Системные"
@@ -85,9 +78,9 @@ export default function FiltersPage() {
                         />
                         <StatsCard
                             title="Мои фильтры"
-                            value={userFilterLoadStatus !== "success" ? "—" : customFiltersCount}
+                            value={userFiltersLoadStatus !== "success" ? "—" : customFiltersCount}
                             icon={<Plus size={15} className="text-green-400" />}
-                            loading={userFilterLoadStatus === "pending"}
+                            loading={userFiltersLoadStatus === "pending"}
                         />
                     </div>
                 </div>
@@ -117,7 +110,7 @@ export default function FiltersPage() {
                     </div>
 
                     <div className="flex-1 overflow-hidden">
-                        <FiltersList height="h-full" showActions={true} />
+                        <FiltersList height="h-full" showActions={true} onSelectFilter={(id) => { console.log(id); }} />
                     </div>
                 </div>
             </main>
