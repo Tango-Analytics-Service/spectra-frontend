@@ -1,4 +1,3 @@
-// src/components/analysis/StartAnalysisDialog.tsx - версия со скроллом
 import { useState, useEffect } from "react";
 import { Dialog } from "@/ui/components/dialog";
 import DialogContent from "@/ui/components/dialog/DialogContent";
@@ -10,7 +9,6 @@ import FiltersList from "@/filters/components/FiltersList";
 import { toast } from "@/ui/components/use-toast";
 import { cn } from "@/lib/cn";
 import { createCardStyle, createButtonStyle, createTextStyle, typography, spacing, textColors } from "@/lib/design-system";
-import { useFiltersStore } from "@/filters/stores/useFiltersStore";
 
 export interface StartAnalysisDialogProps {
     open: boolean;
@@ -47,15 +45,13 @@ export default function StartAnalysisDialog({ open, onOpenChange, onStart, chann
     useEffect(() => {
         if (!open) {
             // Small delay to avoid flash during closing animation
-            setTimeout(() => {
-                setSelectedFilters([]);
-                setShowFiltersList(true);
-                // Reset options to defaults
-                setMaxPosts(20);
-                setDetailed(true);
-                setIncludeExamples(true);
-                setProcessingMode(ProcessingMode.DIRECT);
-            }, 300);
+            setSelectedFilters([]);
+            setShowFiltersList(true);
+            // Reset options to defaults
+            setMaxPosts(20);
+            setDetailed(true);
+            setIncludeExamples(true);
+            setProcessingMode(ProcessingMode.DIRECT);
         }
     }, [open]);
 

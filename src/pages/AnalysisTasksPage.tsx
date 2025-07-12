@@ -13,7 +13,7 @@ import TaskCard from "@/analysis/components/TaskCard";
 import MobileActionSheet from "@/analysis/components/MobileActionSheet";
 import { ChannelsSet } from "@/channels-sets/types";
 import TaskDetailsModal from "@/analysis/components/TaskDetailsModal";
-import { useFetchChannelsSets } from "@/channels-sets/api/hooks/channels-sets";
+import { useFetchChannelsSets } from "@/channels-sets/api/hooks";
 import { useFetchUserTasks, useFetchUserTasksWithDetails } from "@/analysis/api/hooks";
 
 function filterDate(taskDate: Date, dateFilter: string) {
@@ -105,7 +105,6 @@ export default function AnalysisTasksPage() {
 
     // Обработчик обновления
     const handleRefresh = () => {
-        console.log("refetchong", isFetching);
         refreshTasks({}).then(() => {
             queries.forEach(query => query.refetch());
         });

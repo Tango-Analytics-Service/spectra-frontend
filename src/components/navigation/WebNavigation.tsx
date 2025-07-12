@@ -8,15 +8,22 @@ import DropdownMenuContent from "@/ui/components/dropdown-menu/DropdownMenuConte
 import DropdownMenuItem from "@/ui/components/dropdown-menu/DropdownMenuItem";
 import DropdownMenuSeparator from "@/ui/components/dropdown-menu/DropdownMenuSeparator";
 import { Menu, X, User, LogOut, Settings, CreditCard, Search, Home } from "lucide-react";
-import { useAuthStore } from "@/auth/stores/useAuthStore";
 import NavLink from "./NavLink";
 import MobileNavLink from "./MobileNavLink";
+import { getUserFromTelegram } from "@/telegram/utils";
+import { useAuth } from "@/auth/api/hooks";
 
 export default function WebNavigation() {
-    const isAuthenticated = useAuthStore(state => state.isAuthenticated);
-    const user = useAuthStore(state => state.user);
-    const logout = useAuthStore(state => state.logout);
+    const { data } = useAuth();
+    const isAuthenticated = data.token !== undefined;
+
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+    const user = getUserFromTelegram();
+
+    const logout = () => {
+        // TODO: Impl logout
+    };
 
     return (
         <header

@@ -4,10 +4,11 @@ import { typography, animations } from "@/lib/design-system";
 import { Button } from "@/ui/components/button";
 import { BarChart2, Users, Filter, CreditCard } from "lucide-react";
 import FeatureCard from "@/components/home/FeatureCard";
-import { useAuthStore } from "@/auth/stores/useAuthStore";
+import { useAuth } from "@/auth/api/hooks";
 
 export default function WebHomePage() {
-    const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+    const { data } = useAuth();
+    const isAuthenticated = data.token !== undefined;
 
     return (
         <div className={cn("container mx-auto", animations.fadeIn)}>

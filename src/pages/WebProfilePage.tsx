@@ -7,11 +7,14 @@ import CardHeader from "@/ui/components/card/CardHeader";
 import CardTitle from "@/ui/components/card/CardTitle";
 import { User, Settings, LogOut, Bell, Shield, CreditCard } from "lucide-react";
 import ProfileNavButton from "@/components/profile/ProfileNavButton";
-import { useAuthStore } from "@/auth/stores/useAuthStore";
+import { getUserFromTelegram } from "@/telegram/utils";
 
 export default function WebProfilePage() {
-    const user = useAuthStore(state => state.user);
-    const logout = useAuthStore(state => state.logout);
+    const user = getUserFromTelegram();
+
+    const logout = () => {
+        // TODO: Impl logout
+    };
 
     return (
         <div className={cn("container mx-auto", animations.fadeIn)}>

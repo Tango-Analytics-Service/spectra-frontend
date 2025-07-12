@@ -27,7 +27,7 @@ import {
     animations,
 } from "@/lib/design-system";
 import { ChannelsSet, SmartSetBuildStatus } from "@/channels-sets/types";
-import { useCancelSmartSetBuild, useRefreshSmartSetStatus } from "../api/hooks/channels-sets";
+import { useCancelSmartSetBuild, useRefreshSmartSetStatus } from "@/channels-sets/api/hooks";
 
 // Get status configuration
 const getStatusConfig = (status: SmartSetBuildStatus) => {
@@ -90,7 +90,7 @@ export default function SmartSetBuildProgress({ channelSet, onRefresh, className
     const cancelSmartSetBuild = useCancelSmartSetBuild(channelSet.id);
     const refreshSmartSetStatus = useRefreshSmartSetStatus(channelSet.id);
 
-    const [isCancelling, setIsCancelling] = useState(false);
+    const isCancelling = false;
     const [isRefreshing, setIsRefreshing] = useState(false);
 
     const { build_status, build_progress } = channelSet;
@@ -108,25 +108,14 @@ export default function SmartSetBuildProgress({ channelSet, onRefresh, className
 
     const handleCancel = async () => {
         if (build_status !== "building") return;
-        setIsCancelling(true);
-        cancelSmartSetBuild.mutate(undefined, {
-            onSettled() {
-
-                setIsCancelling(false);
-            },
-        });
+        cancelSmartSetBuild.mutate(undefined);
     };
 
     const handleRefresh = async () => {
         setIsRefreshing(true);
-        refreshSmartSetStatus.mutate(undefined, {
-            onSuccess() {
-                onRefresh?.();
-            },
-            onSettled() {
-                setIsRefreshing(false);
-            },
-        });
+        refreshSmartSetStatus.mutate(undefined);
+        onRefresh?.();
+        setIsRefreshing(false);
     };
 
     if (!build_status) {

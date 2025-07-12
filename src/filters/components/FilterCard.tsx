@@ -1,9 +1,10 @@
 import React from "react";
-import { CheckCircle2, Tag, Info, ChevronDown, Settings, } from "lucide-react";
+import { CheckCircle2, Tag, Info, ChevronDown, Settings, Trash2, } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { Button } from "@/ui/components/button";
 import { createCardStyle, createBadgeStyle, createButtonStyle, typography, spacing, animations, textColors, createTextStyle } from "@/lib/design-system";
 import { Filter } from "../types";
+import { useDeleteCustomFilter } from "../api/hooks";
 
 export interface FilterCardProps {
     filter: Filter;
@@ -47,6 +48,8 @@ export default function FilterCard({
     showActions = true,
     className,
 }: FilterCardProps) {
+    const deleteFilter = useDeleteCustomFilter();
+
     const handleCardClick = () => {
         if (onSelect) {
             onSelect(filter.id);
@@ -65,6 +68,10 @@ export default function FilterCard({
             e.stopPropagation();
             action();
         };
+    };
+
+    const handleDeleteFilter = () => {
+        deleteFilter.mutate(filter.id);
     };
 
     return (
@@ -183,6 +190,19 @@ export default function FilterCard({
                                     Создан: {new Date(filter.created_at).toLocaleDateString()}
                                 </span>
                             </div>
+
+                            {/* Кнопка удаления */}
+                            {filter.is_custom && (
+                                < Button
+                                    variant="outline"
+                                    size="sm"
+                                    className={createButtonStyle("danger")}
+                                    onClick={handleDeleteFilter}
+                                >
+                                    <Trash2 size={16} className="mr-1" />
+                                    Удалить
+                                </Button>
+                            )}
                         </div>
                     </div>
                 )}
@@ -236,6 +256,6 @@ export default function FilterCard({
                     </div>
                 )}
             </div>
-        </div>
+        </div >
     );
 }

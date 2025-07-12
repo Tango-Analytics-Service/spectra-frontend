@@ -3,14 +3,15 @@ import { cn } from "@/lib/cn";
 import { typography, spacing, animations } from "@/lib/design-system";
 import WebNavigation from "@/components/navigation/WebNavigation";
 import SidebarLink from "./SidebarLink";
-import { useAuthStore } from "@/auth/stores/useAuthStore";
+import { useAuth } from "@/auth/api/hooks";
 
 export interface WebLayoutProps {
     children: ReactNode;
 }
 
 export default function WebLayout({ children }: WebLayoutProps) {
-    const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+    const { data } = useAuth();
+    const isAuthenticated = data.token !== undefined;
 
     return (
         <div className="flex flex-col min-h-screen bg-[#041331] text-white">

@@ -3,7 +3,6 @@ import { Plus, Upload, AlertCircle, Copy, AlertTriangle, LoaderCircle } from "lu
 import { Button } from "@/ui/components/button";
 import { Textarea } from "@/ui/components/textarea";
 import ScrollArea from "@/ui/components/scroll-area/ScrollArea";
-import { toast } from "@/ui/components/use-toast";
 import { cn } from "@/lib/cn";
 import { Dialog } from "@/ui/components/dialog";
 import DialogContent from "@/ui/components/dialog/DialogContent";
@@ -14,7 +13,7 @@ import DialogTitle from "@/ui/components/dialog/DialogTitle";
 import { Label } from "@/ui/components/label";
 import { createButtonStyle, createCardStyle, createTextStyle, components, typography, spacing, textColors } from "@/lib/design-system";
 import ChannelPreviewItem from "./ChannelPreviewItem";
-import { useAddChannelsToSet } from "../api/hooks/channels-sets";
+import { useAddChannelsToSet } from "@/channels-sets/api/hooks";
 
 const MAX_CHANNELS_PER_SET = 20;
 
@@ -131,21 +130,9 @@ export default function AddChannelsDialog({ open, onOpenChange, setId, existingC
         if (validChannels.length === 0) return;
         setIsAdding(true);
         const usernames = validChannels.map((ch) => ch.username);
-        addChannelsToSet.mutate(usernames, {
-            onSuccess() {
-                onOpenChange(false);
-            },
-            onError() {
-                toast({
-                    title: "Ошибка",
-                    description: "Произошла ошибка при добавлении каналов",
-                    variant: "destructive",
-                });
-            },
-            onSettled() {
-                setIsAdding(false);
-            },
-        });
+        addChannelsToSet.mutate(usernames);
+        onOpenChange(false);
+        setIsAdding(false);
     };
 
     // Сброс при закрытии
