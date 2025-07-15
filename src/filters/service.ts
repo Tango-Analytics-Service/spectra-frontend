@@ -6,7 +6,7 @@ export const filtersService = {
      * Get available system filters
      */
     getSystemFilters() {
-        return httpClient.get<Filter[]>("/analysis/filters-system");
+        return httpClient.get<Filter[]>("/analysis/filters");
     },
 
     /**
