@@ -23,7 +23,7 @@ export default function CenteredAppHeader({
             )}
         >
             {/* scale up logo+badge */}
-            <div className="flex items-center transform scale-150">
+            <div className="flex items-center transform scale-100">
                 <span
                     className={cn(
                         gradients.logo,

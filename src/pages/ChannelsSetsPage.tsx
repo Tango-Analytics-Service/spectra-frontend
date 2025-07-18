@@ -24,6 +24,7 @@ import {
 import { cn } from "@/lib/cn";
 import { ChannelsSet } from "@/channels-sets/types";
 import { useChannelsSetsStore } from "@/channels-sets/stores/useChannelsSetsStore";
+import CreateRequestDialog from "@/channels-sets/components/CreateRequestDialog";
 
 export default function ChannelSetPage() {
     const navigate = useNavigate();
@@ -34,6 +35,7 @@ export default function ChannelSetPage() {
 
     // поиск
     const [searchQuery, setSearchQuery] = useState("");
+    const [dialogQuery, setDialogQuery] = useState("");
 
     // создание умного набора
     const [isCreateSmartSetOpen, setIsCreateSmartSetOpen] = useState(false);
@@ -50,6 +52,7 @@ export default function ChannelSetPage() {
 
     const handleFind = () => {
     // открываем диалог «умного» набора
+        setDialogQuery(searchQuery); // capture the latest value
         setIsCreateSmartSetOpen(true);
     };
 
@@ -172,9 +175,10 @@ export default function ChannelSetPage() {
             </main>
 
             {/* Диалог создания умного набора */}
-            <CreateSmartSetDialog
+            <CreateRequestDialog
                 open={isCreateSmartSetOpen}
                 onOpenChange={setIsCreateSmartSetOpen}
+                initialQuery={dialogQuery}
             />
 
             {/* Диалог подтверждения анализа */}
