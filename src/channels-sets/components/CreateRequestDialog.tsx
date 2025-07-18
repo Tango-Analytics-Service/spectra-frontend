@@ -6,10 +6,11 @@ import { Input } from "@/ui/components/input";
 import { Label } from "@/ui/components/label";
 import { Textarea } from "@/ui/components/textarea";
 import { Slider } from "@/ui/components/slider";
-import { LoaderCircle, Zap, Settings } from "lucide-react";
+import { LoaderCircle, Zap, Settings, X } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { toast } from "@/ui/components/use-toast";
 import { useChannelsSetsStore } from "@/channels-sets/stores/useChannelsSetsStore";
+import { useFiltersStore } from "@/filters/stores/useFiltersStore";
 import { SmartSetBuildCriteria } from "@/channels-sets/types";
 import {
     createCardStyle,
@@ -34,6 +35,9 @@ export default function CreateRequestDialog({
     initialQuery,
 }: CreateRequestDialogProps) {
     const createChannelsSet = useChannelsSetsStore((s) => s.createChannelsSet);
+    // Replace 'createFilter' with the correct method from FiltersStore, e.g., 'addFilter'
+    // Use the correct method from FiltersStore: 'createCustomFilter'
+    const createFilter = useFiltersStore((s) => s.createCustomFilter);
 
     // --- form state ---
     const [name, setName] = useState("");
@@ -41,6 +45,8 @@ export default function CreateRequestDialog({
     const [targetCount, setTargetCount] = useState([50]);
     const [isCreating, setIsCreating] = useState(false);
     const [subscribersCount, setSubscribersCount] = useState([1000]); // NEW: default 1000
+    const [categoriesInput, setCategoriesInput] = useState("");
+    const [categories, setCategories] = useState<string[]>([]);
 
     // reset form when dialog closes or initialQuery changes
     useEffect(() => {
@@ -51,23 +57,59 @@ export default function CreateRequestDialog({
         }
     }, [open, initialQuery]);
 
+    // Add tag on Enter or comma
+    const handleCategoriesKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Enter" || e.key === "," || e.key === "Tab") {
+            e.preventDefault();
+            const tag = categoriesInput.trim().replace(/^#/, "");
+            if (tag && !categories.includes(tag)) {
+                setCategories([...categories, tag]);
+            }
+            setCategoriesInput("");
+        }
+    };
+
+    // Remove tag
+    const handleRemoveCategory = (tag: string) => {
+        setCategories(categories.filter((c) => c !== tag));
+    };
+
     const handleCreate = async () => {
         if (!name.trim()) {
             toast({ title: "Ошибка", description: "Название не может быть пустым", variant: "destructive" });
             return;
         }
+        if (!request.trim()) {
+            toast({ title: "Ошибка", description: "Запрос не может быть пустым", variant: "destructive" });
+            return;
+        }
         setIsCreating(true);
         try {
+            // 1. Create a filter from the request field
+            const filter = await createFilter({
+                name: request.trim(),
+                criteria: request.trim(),
+                threshold: 0.7,
+                strictness: 1,
+            });
+
+            if (!filter?.id) {
+                toast({ title: "Ошибка", description: "Не удалось создать фильтр", variant: "destructive" });
+                setIsCreating(false);
+                return;
+            }
+
+            // 2. Use the new filter's ID in build_criteria
             const buildCriteria: SmartSetBuildCriteria = {
-                filter_ids: [],               // никакие фильтры в этом диалоге не выбираются
+                filter_ids: [filter.id],
                 target_count: targetCount[0],
-                acceptance_threshold: 0.7,    // фиксированное
-                batch_size: 20,               // фиксированное
+                acceptance_threshold: 0.7,
+                batch_size: 20,
             };
 
             const newSet = await createChannelsSet({
                 name: name.trim(),
-                description: request.trim(),  // сюда попадёт текст из поля «Запрос»
+                description: request.trim(),
                 is_public: false,
                 build_criteria: buildCriteria,
             });
@@ -142,7 +184,7 @@ export default function CreateRequestDialog({
                             <div className={`space-y-${spacing.md}`}>
                                 {/* целевое количество */}
                                 <div className={`space-y-${spacing.sm}`}>
-                                    <Label>Сколько каналов ищем?: {targetCount[0]}</Label>
+                                    <Label>Сколько каналов ищем: {targetCount[0]}</Label>
                                     <Slider
                                         value={targetCount}
                                         onValueChange={setTargetCount}
@@ -167,17 +209,45 @@ export default function CreateRequestDialog({
                                         От 100 до 100&nbsp;000 подписчиков
                                     </div>
                                 </div>
-                                {/* категории каналов (мокап) */}
-                                {/* <div className={`space-y-${spacing.sm}`}>
+                                {/* категории каналов */}
+                                <div className={`space-y-${spacing.sm}`}>
                                     <Label htmlFor="categories">Категории канала:</Label>
-                                    <Input
-                                        id="categories"
-                                        placeholder="#тег1 #тег2 #тег3"
-                                        value=""           // пока просто мокап, без логики
-                                        onChange={() => {}}
-                                        className={components.input.base}
-                                    />
-                                </div> */}
+                                    <div
+                                        className={cn(
+                                            "flex flex-wrap items-center gap-2 px-2 py-2 rounded border border-blue-500 bg-blue-950/40 focus-within:ring-2 focus-within:ring-blue-500",
+                                            components.input.base
+                                        )}
+                                    >
+                                        {categories.map((tag) => (
+                                            <span
+                                                key={tag}
+                                                className="flex items-center text-white px-2 py-1 rounded-full text-xs font-medium"
+                                                style={{ backgroundColor: "#1838D2" }}>
+                                                {tag}
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleRemoveCategory(tag)}
+                                                    className="ml-1 text-white/80 hover:text-white"
+                                                    aria-label={`Удалить ${tag}`}
+                                                >
+                                                    <X size={14} />
+                                                </button>
+                                            </span>
+                                        ))}
+                                        <input
+                                            id="categories"
+                                            type="text"
+                                            placeholder="Введите текст"
+                                            value={categoriesInput}
+                                            onChange={e => setCategoriesInput(e.target.value)}
+                                            onKeyDown={handleCategoriesKeyDown}
+                                            className={cn(
+                                                "bg-transparent outline-none border-none focus:ring-0 text-white placeholder:text-gray-300",
+                                                "min-w-[80px] flex-1"
+                                            )}
+                                        />
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
