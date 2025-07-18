@@ -9,9 +9,10 @@ import { isTelegramWebApp } from "@/telegram/utils";
 
 export interface MainLayoutProps {
     children: ReactNode;
+    hideHeader?: boolean; // Optional prop to hide the header
 }
 
-export default function MainLayout({ children }: MainLayoutProps) {
+export default function MainLayout({ children, hideHeader }: MainLayoutProps) {
     useTelegramNavigation();
 
     return (
@@ -44,7 +45,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
             </div>
 
             {/* App Header */}
-            <AppHeader />
+            {!hideHeader && <AppHeader />}
 
             {/* Основной контент */}
             <div className={cn("flex-1 pb-[70px]", animations.fadeIn)}>

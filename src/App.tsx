@@ -26,7 +26,7 @@ export default function App() {
                             path="/"
                             element={
                                 <AuthGuard>
-                                    <MainLayout>
+                                    <MainLayout hideHeader>
                                         <ChannelsSetsPage />
                                     </MainLayout>
                                 </AuthGuard>
