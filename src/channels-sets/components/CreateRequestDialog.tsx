@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Dialog } from "@/ui/components/dialog";
 import DialogContent from "@/ui/components/dialog/DialogContent";
 import { Button } from "@/ui/components/button";
@@ -41,21 +41,34 @@ export default function CreateRequestDialog({
 
     // --- form state ---
     const [name, setName] = useState("");
-    const [request, setRequest] = useState(initialQuery);
+    const [request, setRequest] = useState(() => initialQuery || "");
     const [targetCount, setTargetCount] = useState([50]);
     const [isCreating, setIsCreating] = useState(false);
-    const [subscribersCount, setSubscribersCount] = useState([1000]); // NEW: default 1000
+    const [subscribersCount, setSubscribersCount] = useState<[number, number]>([100, 100000]); // NEW: default 100, 100000
     const [categoriesInput, setCategoriesInput] = useState("");
     const [categories, setCategories] = useState<string[]>([]);
 
-    // reset form when dialog closes or initialQuery changes
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+    useEffect(() => {
+        console.log("initialQuery changed:", initialQuery);
+        setRequest(initialQuery || "");
+
+        // Прямое обновление значения DOM-элемента
+        if (textareaRef.current) {
+            textareaRef.current.value = initialQuery || "";
+        }
+    }, [initialQuery]);
+
+    // Оставьте существующий эффект для других сбросов
     useEffect(() => {
         if (open) {
-            setRequest(initialQuery || "");
+            console.log("Dialog opened, setting name and other fields");
             setName("");
             setTargetCount([50]);
+            setSubscribersCount([100, 100000]);
         }
-    }, [open, initialQuery]);
+    }, [open]);
 
     // Add tag on Enter or comma
     const handleCategoriesKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -75,10 +88,6 @@ export default function CreateRequestDialog({
     };
 
     const handleCreate = async () => {
-        if (!name.trim()) {
-            toast({ title: "Ошибка", description: "Название не может быть пустым", variant: "destructive" });
-            return;
-        }
         if (!request.trim()) {
             toast({ title: "Ошибка", description: "Запрос не может быть пустым", variant: "destructive" });
             return;
@@ -105,6 +114,8 @@ export default function CreateRequestDialog({
                 target_count: targetCount[0],
                 acceptance_threshold: 0.7,
                 batch_size: 20,
+                // subscribers_min: subscribersCount[0], // Добавляем минимум
+                // subscribers_max: subscribersCount[1], // Добавляем максимум
             };
 
             const newSet = await createChannelsSet({
@@ -128,44 +139,32 @@ export default function CreateRequestDialog({
                 className={cn(
                     createCardStyle(),
                     // responsive width + height
-                    "w-[90%] sm:w-[600px] max-h-[80vh]",
-                    // center horizontally and give some top margin
-                    "mx-auto mt-16",
+                    "w-[90%] sm:w-[600px] max-h-[100vh]", // увеличил max-h
+                    // убрал большой отступ сверху и поставил отступ как по бокам
+                    "mx-auto mt-6", // заменил mt-16 на mt-6
                     // layout
                     "flex flex-col p-0",
                 )}
             >
-                {/* Header */}
-                <div className="p-6 pb-0 flex-shrink-0">
+                {/* Header - одинаковый padding со всех сторон */}
+                <div className="p-4 pb-2 flex-shrink-0"> {/* уменьшили с p-6 на p-4 pb-2 */}
                     <h3 className={cn(typography.h3, "flex items-center gap-2")}>
                         <Zap size={20} className={textColors.accent} />
                         Новый запрос
                     </h3>
                 </div>
 
-                {/* Body */}
-                <div className="flex-1 overflow-auto px-6 pt-4">
-                    <div className={`space-y-${spacing.lg}`}>
+                {/* Body - уменьшили верхний отступ */}
+                <div className="flex-1 overflow-auto px-6 pt-0 pb-4"> {/* изменили py-4 на pt-0 pb-4 */}
+                    <div className={`space-y-${spacing.md}`}> {/* уменьшили space-y с lg на md */}
                         {/* Основная информация */}
                         <div className={`space-y-${spacing.md}`}>
-                            <h4 className={cn(typography.h4, textColors.primary)}>Основная информация</h4>
-
-                            <div className={`space-y-${spacing.sm}`}>
-                                <Label htmlFor="name">Название</Label>
-                                <Input
-                                    id="name"
-                                    placeholder="Название"
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    className={components.input.base}
-                                />
-                            </div>
-
                             <div className={`space-y-${spacing.sm}`}>
                                 <Label htmlFor="request">Запрос</Label>
                                 <Textarea
                                     id="request"
                                     placeholder="Запрос"
+                                    ref={textareaRef}
                                     value={request}
                                     onChange={(e) => setRequest(e.target.value)}
                                     className={cn(components.input.base, "min-h-[60px]")}
@@ -197,16 +196,40 @@ export default function CreateRequestDialog({
                                     </div>
                                 </div>
                                 <div className={`space-y-${spacing.sm}`}>
-                                    <Label>Кол-во подписчиков: {subscribersCount[0]}</Label>
-                                    <Slider
-                                        value={subscribersCount}
-                                        onValueChange={setSubscribersCount}
-                                        min={100}
-                                        max={100000}
-                                        step={100}
-                                    />
-                                    <div className={createTextStyle("tiny", "muted")}>
-                                        От 100 до 100&nbsp;000 подписчиков
+                                    <Label>Кол-во подписчиков:</Label>
+                                    <div className="flex items-center gap-2">
+                                        <div className="flex-1">
+                                            <div className={createTextStyle("tiny", "muted")}>От</div>
+                                            <Input
+                                                type="text"
+                                                pattern="[0-9]*"
+                                                inputMode="numeric"
+                                                placeholder="100"
+                                                value={subscribersCount[0]}
+                                                onChange={(e) => {
+                                                    const cleanValue = e.target.value.replace(/\D/g, "");
+                                                    const numValue = cleanValue ? parseInt(cleanValue) : 100;
+                                                    setSubscribersCount([numValue, subscribersCount[1] || 100000]);
+                                                }}
+                                                className={components.input.base}
+                                            />
+                                        </div>
+                                        <div className="flex-1">
+                                            <div className={createTextStyle("tiny", "muted")}>До</div>
+                                            <Input
+                                                type="text"
+                                                pattern="[0-9]*"
+                                                inputMode="numeric"
+                                                placeholder="100000"
+                                                value={subscribersCount[1] || 100000}
+                                                onChange={(e) => {
+                                                    const cleanValue = e.target.value.replace(/\D/g, "");
+                                                    const numValue = cleanValue ? parseInt(cleanValue) : 100000;
+                                                    setSubscribersCount([subscribersCount[0], numValue]);
+                                                }}
+                                                className={components.input.base}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                                 {/* категории каналов */}
@@ -254,19 +277,11 @@ export default function CreateRequestDialog({
                 </div>
 
                 {/* Footer */}
-                <div className={`flex flex-col-reverse pt-4 pb-6 flex-shrink-0 gap-${spacing.sm}`}>
-                    <Button
-                        variant="outline"
-                        onClick={() => onOpenChange(false)}
-                        className={createButtonStyle("secondary")}
-                        disabled={isCreating}
-                    >
-                        Отмена
-                    </Button>
+                <div className={`px-6 pt-4 pb-6 flex-shrink-0 space-y-${spacing.sm}`}>
                     <Button
                         onClick={handleCreate}
-                        className={createButtonStyle("primary")}
-                        disabled={isCreating || !name.trim()}
+                        className={cn(createButtonStyle("primary"), "w-full")}
+                        disabled={isCreating || !request.trim()}
                     >
                         {isCreating ? (
                             <>
@@ -279,6 +294,14 @@ export default function CreateRequestDialog({
                                 Запустить поиск
                             </>
                         )}
+                    </Button>
+                    <Button
+                        variant="outline"
+                        onClick={() => onOpenChange(false)}
+                        className={cn(createButtonStyle("secondary"), "w-full")}
+                        disabled={isCreating}
+                    >
+                        Отмена
                     </Button>
                 </div>
             </DialogContent>

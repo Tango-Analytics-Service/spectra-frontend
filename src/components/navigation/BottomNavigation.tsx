@@ -43,7 +43,7 @@ export default function BottomNavigation() {
                 <NavItem
                     to="/filters"
                     icon={<Search size={18} />}
-                    label="Фильтры"
+                    label="Запросы"
                     active={currentPath.startsWith("/filters")}
                 />
                 <NavItem

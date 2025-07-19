@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search } from "lucide-react";
 import { Button } from "@/ui/components/button";
@@ -46,13 +46,19 @@ export default function ChannelSetPage() {
     const [addChannelsDialogOpen, setAddChannelsDialogOpen] = useState(false);
     const [selectedSetForChannels, setSelectedSetForChannels] = useState<ChannelsSet | null>(null);
 
+    const searchQueryRef = useRef(searchQuery);
+
     useEffect(() => {
         fetchChannelsSets();
     }, [fetchChannelsSets]);
 
+    useEffect(() => {
+        searchQueryRef.current = searchQuery;
+    }, [searchQuery]);
+
     const handleFind = () => {
     // открываем диалог «умного» набора
-        setDialogQuery(searchQuery); // capture the latest value
+        setDialogQuery(searchQueryRef.current);
         setIsCreateSmartSetOpen(true);
     };
 
