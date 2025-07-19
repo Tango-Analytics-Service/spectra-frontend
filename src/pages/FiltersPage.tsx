@@ -1,29 +1,25 @@
 import { useState } from "react";
 import { Button } from "@/ui/components/button";
-import { Plus, Filter as FilterIcon, Settings } from "lucide-react";
-import FiltersList from "@/filters/components/FiltersList";
-import CreateFilterDialog from "@/filters/components/CreateFilterDialog";
+import { Plus, Search, Zap } from "lucide-react";
+import CreateRequestDialog from "@/channels-sets/components/CreateRequestDialog";
 import StatsCard from "@/ui/components/stats-card";
 import { cn } from "@/lib/cn";
 import { createButtonStyle, createCardStyle, typography, spacing, gradients, animations, textColors, createTextStyle } from "@/lib/design-system";
-import { useFiltersStore } from "@/filters/stores/useFiltersStore";
+import { useChannelsSetsStore } from "@/channels-sets/stores/useChannelsSetsStore";
+import SmartSetsList from "@/filters/components/SmartSetsList"; // Новый компонент
 
-export default function FiltersPage() {
-    const systemFilters = useFiltersStore(state => state.systemFilters);
-    const userFilters = useFiltersStore(state => state.userFilters);
-    const systemFiltersLoadStatus = useFiltersStore(state => state.systemFiltersLoadStatus);
-    const userFilterLoadStatus = useFiltersStore(state => state.userFiltersLoadStatus);
-    const fetchSystemFilters = useFiltersStore(state => state.fetchSystemFilters);
-    const fetchUserFilters = useFiltersStore(state => state.fetchUserFilters);
+export default function FiltersPage() {    
+    const channelsSets = useChannelsSetsStore(state => state.channelsSets);
+    const loadStatus = useChannelsSetsStore(state => state.loadStatus);
+    const fetchChannelsSets = useChannelsSetsStore(state => state.fetchChannelsSets);
 
-    const [showCreateDialog, setShowCreateDialog] = useState(false);
+    const [showCreateRequestDialog, setShowCreateRequestDialog] = useState(false);
 
-    fetchUserFilters();
-    fetchSystemFilters();
-
-    const totalFilters = systemFilters.length + userFilters.filter((f) => f.is_custom).length;
-    const systemFiltersCount = systemFilters.length;
-    const customFiltersCount = userFilters.filter((f) => f.is_custom).length;
+    // Загружаем наборы каналов
+    fetchChannelsSets();
+    
+    // Получаем только умные наборы (с build_criteria)
+    const smartSets = channelsSets.filter(set => set.build_criteria);
 
     return (
         <div
@@ -46,16 +42,16 @@ export default function FiltersPage() {
                 >
                     <div className="flex items-center justify-between mb-4">
                         <div>
-                            <h1 className={typography.h1}>Фильтры</h1>
+                            <h1 className={typography.h1}>Мои запросы</h1>
                             <p className={cn(createTextStyle("small", "secondary"), "mt-1")}>
-                                Управление фильтрами для анализа каналов
+                                Управление запросами для поиска каналов
                             </p>
                         </div>
 
                         {/* Кнопка создания на мобильных */}
                         <div className="sm:hidden">
                             <Button
-                                onClick={() => setShowCreateDialog(true)}
+                                onClick={() => setShowCreateRequestDialog(true)}
                                 className={cn(createButtonStyle("primary"), "h-10 w-10 p-0")}
                             >
                                 <Plus size={18} />
@@ -66,33 +62,29 @@ export default function FiltersPage() {
                     {/* Статистика */}
                     <div
                         className={cn(
-                            "grid grid-cols-3",
+                            "grid grid-cols-2",
                             `gap-${spacing.md}`,
                             animations.slideIn,
                         )}
                     >
                         <StatsCard
-                            title="Всего"
-                            value={systemFiltersLoadStatus !== "success" || userFilterLoadStatus !== "success" ? "—" : totalFilters}
-                            icon={<FilterIcon size={15} className={textColors.accent} />}
-                            loading={systemFiltersLoadStatus === "pending" || userFilterLoadStatus === "pending"}
+                            title="Всего запросов"
+                            value={loadStatus !== "success" ? "—" : smartSets.length}
+                            icon={<Search size={15} className={textColors.accent} />}
+                            loading={loadStatus === "pending"}
                         />
                         <StatsCard
-                            title="Системные"
-                            value={systemFiltersLoadStatus !== "success" ? "—" : systemFiltersCount}
-                            icon={<Settings size={15} className="text-purple-400" />}
-                            loading={systemFiltersLoadStatus === "pending"}
-                        />
-                        <StatsCard
-                            title="Мои фильтры"
-                            value={userFilterLoadStatus !== "success" ? "—" : customFiltersCount}
-                            icon={<Plus size={15} className="text-green-400" />}
-                            loading={userFilterLoadStatus === "pending"}
+                            title="В работе"
+                            value={loadStatus !== "success" 
+                                ? "—" 
+                                : smartSets.filter(set => set.build_status === "building").length}
+                            icon={<Zap size={15} className="text-yellow-400" />}
+                            loading={loadStatus === "pending"}
                         />
                     </div>
                 </div>
 
-                {/* Список фильтров */}
+                {/* Список запросов */}
                 <div
                     className={cn(
                         createCardStyle(),
@@ -102,30 +94,35 @@ export default function FiltersPage() {
                     )}
                 >
                     <div className="flex items-center justify-between mb-4">
-                        <h2 className={typography.h3}>Все фильтры</h2>
+                        <h2 className={typography.h3}>Мои запросы</h2>
 
                         {/* Кнопка создания на десктопе */}
-                        <div className="hidden sm:block">
+                        <div className="hidden sm:flex">
                             <Button
-                                onClick={() => setShowCreateDialog(true)}
+                                onClick={() => setShowCreateRequestDialog(true)}
                                 className={createButtonStyle("primary")}
                             >
-                                <Plus size={16} className={`mr-${spacing.sm}`} />
-                                Создать фильтр
+                                <Zap size={16} className={`mr-${spacing.sm}`} />
+                                Создать запрос
                             </Button>
                         </div>
                     </div>
 
+                    {/* Здесь подключаем компонент SmartSetsList */}
                     <div className="flex-1 overflow-hidden">
-                        <FiltersList height="h-full" showActions={true} />
+                        <SmartSetsList 
+                            smartSets={smartSets}
+                            isLoading={loadStatus === "pending"}
+                        />
                     </div>
                 </div>
             </main>
 
-            {/* Диалог создания фильтра */}
-            <CreateFilterDialog
-                open={showCreateDialog}
-                onOpenChange={setShowCreateDialog}
+            {/* Диалог создания запроса */}
+            <CreateRequestDialog
+                open={showCreateRequestDialog}
+                onOpenChange={setShowCreateRequestDialog}
+                initialQuery=""
             />
         </div>
     );

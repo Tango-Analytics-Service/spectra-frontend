@@ -152,7 +152,7 @@ export default function ChannelSetPage() {
                                 Нужны каналы про инвестиции, без крипты и рекламы
                             </li>
                             <li className={cn(createTextStyle("small"), "text-gray-400")}>
-                                Нужны блоги о путешествиях с хорошим охватом
+                                Найди мне блоги о путешествиях с хорошим охватом
                             </li>
                         </ul>
                     </div>

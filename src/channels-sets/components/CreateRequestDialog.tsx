@@ -21,6 +21,7 @@ import {
     components,
     textColors,
 } from "@/lib/design-system";
+import { NumericFormat } from "react-number-format";
 
 export interface CreateRequestDialogProps {
     open: boolean;
@@ -42,7 +43,7 @@ export default function CreateRequestDialog({
     // --- form state ---
     const [name, setName] = useState("");
     const [request, setRequest] = useState(() => initialQuery || "");
-    const [targetCount, setTargetCount] = useState([50]);
+    const [targetCount, setTargetCount] = useState([10]);
     const [isCreating, setIsCreating] = useState(false);
     const [subscribersCount, setSubscribersCount] = useState<[number, number]>([100, 100000]); // NEW: default 100, 100000
     const [categoriesInput, setCategoriesInput] = useState("");
@@ -200,33 +201,35 @@ export default function CreateRequestDialog({
                                     <div className="flex items-center gap-2">
                                         <div className="flex-1">
                                             <div className={createTextStyle("tiny", "muted")}>От</div>
-                                            <Input
-                                                type="text"
-                                                pattern="[0-9]*"
-                                                inputMode="numeric"
-                                                placeholder="100"
+                                            <NumericFormat
                                                 value={subscribersCount[0]}
-                                                onChange={(e) => {
-                                                    const cleanValue = e.target.value.replace(/\D/g, "");
-                                                    const numValue = cleanValue ? parseInt(cleanValue) : 100;
-                                                    setSubscribersCount([numValue, subscribersCount[1] || 100000]);
+                                                onValueChange={(values) => {
+                                                    const { value } = values;
+                                                    setSubscribersCount([parseInt(value) || 100, subscribersCount[1] || 100000]);
                                                 }}
+                                                thousandSeparator={false}
+                                                allowNegative={false}
+                                                allowLeadingZeros={false}
+                                                decimalScale={0}
+                                                placeholder="100"
+                                                customInput={Input}
                                                 className={components.input.base}
                                             />
                                         </div>
                                         <div className="flex-1">
                                             <div className={createTextStyle("tiny", "muted")}>До</div>
-                                            <Input
-                                                type="text"
-                                                pattern="[0-9]*"
-                                                inputMode="numeric"
-                                                placeholder="100000"
-                                                value={subscribersCount[1] || 100000}
-                                                onChange={(e) => {
-                                                    const cleanValue = e.target.value.replace(/\D/g, "");
-                                                    const numValue = cleanValue ? parseInt(cleanValue) : 100000;
-                                                    setSubscribersCount([subscribersCount[0], numValue]);
+                                            <NumericFormat
+                                                value={subscribersCount[1]}
+                                                onValueChange={(values) => {
+                                                    const { value } = values;
+                                                    setSubscribersCount([subscribersCount[0], parseInt(value) || 100000]);
                                                 }}
+                                                thousandSeparator={false}
+                                                allowNegative={false}
+                                                allowLeadingZeros={false}
+                                                decimalScale={0}
+                                                placeholder="100000"
+                                                customInput={Input}
                                                 className={components.input.base}
                                             />
                                         </div>
