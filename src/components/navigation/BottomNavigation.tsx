@@ -40,12 +40,12 @@ export default function BottomNavigation() {
                     label="Мои запросы"
                     active={currentPath.startsWith("/searches")}
                 />
-                <NavItem
+                {/* <NavItem
                     to="/analysis/tasks"
                     icon={<BarChart3 size={18} />}
                     label="Анализ"
                     active={currentPath.startsWith("/analysis")}
-                />
+                /> */}
                 <NavItem
                     to="/credits"
                     icon={<CreditCard size={18} />}

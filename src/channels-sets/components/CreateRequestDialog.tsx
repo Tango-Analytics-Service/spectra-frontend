@@ -45,9 +45,9 @@ export default function CreateRequestDialog({
     // --- form state ---
     const [name, setName] = useState("");
     const [request, setRequest] = useState(() => initialQuery || "");
-    const [targetCount, setTargetCount] = useState([10]);
+    const [targetCount, setTargetCount] = useState([10]); // ← дефолт 10 каналов
     const [isCreating, setIsCreating] = useState(false);
-    const [subscribersCount, setSubscribersCount] = useState<[number, number]>([100, 100000]); // NEW: default 100, 100000
+    const [subscribersCount, setSubscribersCount] = useState<[number, number]>([100, 100000]); // ← дефолт от 100 до 100000
     const [categoriesInput, setCategoriesInput] = useState("");
     const [categories, setCategories] = useState<string[]>([]);
 
@@ -68,8 +68,8 @@ export default function CreateRequestDialog({
         if (open) {
             console.log("Dialog opened, setting name and other fields");
             setName("");
-            setTargetCount([50]);
-            setSubscribersCount([100, 100000]);
+            setTargetCount([10]); // ← дефолт 10 каналов при открытии
+            setSubscribersCount([100, 100000]); // ← дефолт от 100 до 100000 при открытии
         }
     }, [open]);
 
@@ -246,7 +246,8 @@ export default function CreateRequestDialog({
                                             onChange={e => setCategoriesInput(e.target.value)}
                                             onKeyDown={handleCategoriesKeyDown}
                                             className={cn(
-                                                "bg-transparent outline-none border-none focus:ring-0 text-white placeholder:text-gray-300",
+                                                "bg-transparent outline-none border-none focus:ring-0",
+                                                createTextStyle("body", "muted"), // ← стиль как у 'Запрос'
                                                 "min-w-[80px] flex-1"
                                             )}
                                         />

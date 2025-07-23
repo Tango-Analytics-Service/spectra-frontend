@@ -60,7 +60,14 @@ export default function ChannelDetailsModal({ isOpen, selectedChannel, onClose }
                 animations.slideIn
             )}>
                 {/* Заголовок */}
-                <div className={cn("sticky top-0", createCardStyle(), `p-${spacing.md}`, "border-b border-slate-700/50")}>
+                <div className={cn(
+                    // Заголовок модалки
+                    "sticky top-0",
+                    createCardStyle(),
+                    `p-${spacing.md}`,
+                    "border-b border-slate-700/50",
+                    "bg-slate-900" // ← фон непрозрачный
+                )}>
                     <div className="flex items-center justify-between mb-2">
                         <h2 className={cn(typography.h3, textColors.primary)}>Детали канала</h2>
                         <button
@@ -72,7 +79,8 @@ export default function ChannelDetailsModal({ isOpen, selectedChannel, onClose }
                     </div>
                     <div className={cn(
                         "flex items-center px-3 py-1 rounded-full text-sm border inline-flex",
-                        statusConfig.bg, statusConfig.border, statusConfig.color
+                        statusConfig.bg, statusConfig.border, statusConfig.color,
+                        "bg-slate-900" // ← фон непрозрачный
                     )}>
                         <StatusIcon size={14} className="mr-1" />
                         {statusConfig.text}
@@ -83,7 +91,19 @@ export default function ChannelDetailsModal({ isOpen, selectedChannel, onClose }
                 <div className={cn(`p-${spacing.md}`, `space-y-${spacing.md}`)}>
                     {/* Информация о канале */}
                     <div>
-                        <h3 className={cn(typography.weight.medium, textColors.primary, "mb-2")}>@{selectedChannel.channel_username}</h3>
+                        {/* Никнейм теперь ссылка */}
+                        <a
+                            href={`https://t.me/${selectedChannel.channel_username}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={cn(
+                                typography.weight.medium,
+                                textColors.primary,
+                                "mb-2 block underline hover:underline" // добавлено underline
+                            )}
+                        >
+                            @{selectedChannel.channel_username}
+                        </a>
                         {selectedChannel.description && (
                             <p className={cn(createTextStyle("small", "muted"), "leading-relaxed")}>
                                 {selectedChannel.description}
@@ -98,8 +118,9 @@ export default function ChannelDetailsModal({ isOpen, selectedChannel, onClose }
                             {selectedChannel.filter_results.map((filter, index) => (
                                 <div key={index} className={cn("bg-slate-900/50 rounded-lg", `p-${spacing.sm}`)}>
                                     <div className="flex items-center justify-between mb-2">
-                                        <span className={cn(typography.weight.medium, textColors.primary, createTextStyle("small", "primary"))}>{filter.filter_name}</span>
-                                        <div className={cn("flex items-center", `space-x-${spacing.sm}`)}>
+                                        {/* Оценка справа */}
+                                        <div className="flex-1 flex items-center justify-end space-x-2">
+                                            <span className={cn(createTextStyle("small", "muted"))}>Оценка:</span>
                                             <span className={cn(typography.weight.bold, getScoreColor(filter.score))}>
                                                 {filter.score.toFixed(1)}
                                             </span>

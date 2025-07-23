@@ -39,7 +39,7 @@ export const useSearchStore = create<SearchStoreState>((set, get) => ({
             if (response.success) {
                 toast({
                     title: "Поиск запущен",
-                    description: "Результаты скоро появятся на этой странице.",
+                    description: "Отслеживайте прогресс в разделе 'Мои запросы'",
                 });
                 // Refresh the list to include the new session
                 await get().fetchSessions();
