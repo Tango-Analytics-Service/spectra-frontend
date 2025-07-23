@@ -174,7 +174,6 @@ export default function AnalysisResultsCard({ results, onRefresh, isRefreshing =
                                 {approvalRate}%
                             </span>
                         </div>
-                        <Progress value={approvalRate} className="h-2" />
                     </div>
                 </div>
 

@@ -49,7 +49,7 @@ export default function SearchSessionsList({ sessions, isLoading, onSessionSelec
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ duration: 0.3, delay: index * 0.05 }}
                 >
-                    <SearchSessionCard session={session} onSelect={onSessionSelect} />
+                    <SearchSessionCard session={session}/>
                 </motion.div>
             ))}
         </div>
