@@ -1,25 +1,48 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/ui/components/button";
 import { Plus, Search, Zap } from "lucide-react";
 import CreateRequestDialog from "@/channels-sets/components/CreateRequestDialog";
 import StatsCard from "@/ui/components/stats-card";
 import { cn } from "@/lib/cn";
 import { createButtonStyle, createCardStyle, typography, spacing, gradients, animations, textColors, createTextStyle } from "@/lib/design-system";
-import { useChannelsSetsStore } from "@/channels-sets/stores/useChannelsSetsStore";
-import SmartSetsList from "@/filters/components/SmartSetsList"; // Новый компонент
+import { useSearchStore } from "@/search/stores/useSearchStore";
+import SearchSessionsList from "@/search/components/SearchSessionsList";
+import { SearchSession } from "@/search/types";
 
-export default function FiltersPage() {    
-    const channelsSets = useChannelsSetsStore(state => state.channelsSets);
-    const loadStatus = useChannelsSetsStore(state => state.loadStatus);
-    const fetchChannelsSets = useChannelsSetsStore(state => state.fetchChannelsSets);
+export default function SearchesPage() {
+    const sessions = useSearchStore(state => state.sessions);
+    const loadStatus = useSearchStore(state => state.loadStatus);
+    const fetchSessions = useSearchStore(state => state.fetchSessions);
+    const refreshSession = useSearchStore(state => state.refreshSession);
 
     const [showCreateRequestDialog, setShowCreateRequestDialog] = useState(false);
+    const [selectedSession, setSelectedSession] = useState<SearchSession | null>(null);
+    const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
-    // Загружаем наборы каналов
-    fetchChannelsSets();
-    
-    // Получаем только умные наборы (с build_criteria)
-    const smartSets = channelsSets.filter(set => set.build_criteria);
+    useEffect(() => {
+        fetchSessions();
+    }, [fetchSessions]);
+
+    // Auto-refresh for processing sessions
+    useEffect(() => {
+        const processingSessions = sessions.filter(s => s.status === "processing" || s.status === "pending");
+        if (processingSessions.length === 0) return;
+
+        const interval = setInterval(() => {
+            processingSessions.forEach(session => {
+                refreshSession(session.search_session_id);
+            });
+        }, 5000); // Poll every 5 seconds
+
+        return () => clearInterval(interval);
+    }, [sessions, refreshSession]);
+
+    const handleSessionSelect = (session: SearchSession) => {
+        setSelectedSession(session);
+        setIsDetailsOpen(true);
+    };
+
+    const smartSets = sessions; // Use sessions now
 
     return (
         <div
@@ -77,7 +100,7 @@ export default function FiltersPage() {
                             title="В работе"
                             value={loadStatus !== "success" 
                                 ? "—" 
-                                : smartSets.filter(set => set.build_status === "building").length}
+                                : smartSets.filter(set => set.status === "processing").length}
                             icon={<Zap size={15} className="text-yellow-400" />}
                             loading={loadStatus === "pending"}
                         />
@@ -110,9 +133,10 @@ export default function FiltersPage() {
 
                     {/* Здесь подключаем компонент SmartSetsList */}
                     <div className="flex-1 overflow-hidden">
-                        <SmartSetsList 
-                            smartSets={smartSets}
+                        <SearchSessionsList 
+                            sessions={sessions}
                             isLoading={loadStatus === "pending"}
+                            onSessionSelect={handleSessionSelect}
                         />
                     </div>
                 </div>

@@ -52,6 +52,7 @@ export default function ChannelCard({ channel, onChannelClick }: ChannelCardProp
     return (
         <button
             className={cn(
+                "w-full",
                 createCardStyle(),
                 `p-${spacing.md}`,
                 "transition-all duration-200 active:scale-[0.98]",
@@ -61,46 +62,52 @@ export default function ChannelCard({ channel, onChannelClick }: ChannelCardProp
             )}
             onClick={onChannelClick}
         >
-            {/* Заголовок и действия */}
-            <div className={cn("flex items-center justify-between", `mb-${spacing.sm}`)}>
-                <div className={cn("flex items-center", `space-x-${spacing.sm}`)}>
-                    <div className={cn(
-                        "flex items-center px-2 py-1 rounded-full text-xs border",
-                        statusConfig.bg, statusConfig.border, statusConfig.color
-                    )}>
-                        <StatusIcon size={12} className="mr-1" />
-                        {statusConfig.text}
-                    </div>
+            {/* Верхняя строка: никнейм и статус справа */}
+            <div className="flex items-center justify-between mb-1">
+                {/* Никнейм слева */}
+                <h3
+                    className={cn(
+                        typography.weight.medium,
+                        textColors.primary,
+                        "text-left truncate"
+                    )}
+                    style={{ maxWidth: 180 }}
+                >
+                    @{channel.channel_username}
+                </h3>
+                {/* Статус справа */}
+                <div className={cn(
+                    "flex items-center px-2 py-1 rounded-full text-xs border whitespace-nowrap",
+                    statusConfig.bg, statusConfig.border, statusConfig.color
+                )}>
+                    <StatusIcon size={12} className="mr-1" />
+                    {statusConfig.text}
                 </div>
             </div>
 
-            {/* Название канала */}
-            <h3 className={cn(typography.weight.medium, textColors.primary, "mb-2")}>@{channel.channel_username}</h3>
-
-            {/* Описание (обрезанное) */}
-            {channel.description && (
-                <p className={cn(createTextStyle("small", "muted"), "mb-3 leading-relaxed")}>
-                    {truncateText(channel.description)}
-                </p>
-            )}
-
-            {/* Статистика фильтров */}
-            <div className="flex items-center justify-between">
-                <div className={cn("flex items-center", `space-x-${spacing.sm}`)}>
-                    <div className={createTextStyle("tiny", "muted")}>
-                        Фильтры: <span className={cn(
-                            typography.weight.medium,
-                            passRate >= 70 ? textColors.success :
-                                passRate >= 40 ? textColors.warning : textColors.error
-                        )}>
-                            {passedFilters}/{totalFilters}
-                        </span>
-                    </div>
-                    <div className={createTextStyle("tiny", "muted")}>
-                        {passRate}%
-                    </div>
+            {/* Описание и детали */}
+            <div className="flex items-start justify-between">
+                {/* Описание слева */}
+                <div className="flex-1 min-w-0 text-left">
+                    <p
+                        className={cn(createTextStyle("small", "muted"), "leading-relaxed")}
+                        style={{
+                            display: "-webkit-box",
+                            WebkitLineClamp: 3, // ← увеличено до 3 строк
+                            WebkitBoxOrient: "vertical",
+                            overflow: "hidden"
+                        }}
+                    >
+                        {truncateText(channel.filter_results[0].explanation, 120)} {/* ← увеличен лимит */}
+                    </p>
                 </div>
-                <Eye size={14} className={textColors.accent} />
+                {/* Детали справа, под статусом */}
+                {/* <div className="flex flex-col items-end ml-3">
+                    <div className="flex items-center gap-1 mt-1">
+                        <Eye size={16} className={textColors.accent} />
+                        <span className={cn("text-xs", textColors.accent)}>Детали</span>
+                    </div>
+                </div> */}
             </div>
         </button>
     );

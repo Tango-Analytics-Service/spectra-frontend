@@ -14,6 +14,7 @@ import ChannelCard from "./ChannelCard";
 import ChannelDetailsModal from "./ChannelDetailsModal";
 import MobileActionSheet from "./MobileActionSheet";
 import StatusBadge from "./StatusBadge";
+import {CheckCircle, Loader2} from "lucide-react";
 
 function formatDate(dateString?: string) {
     if (!dateString) return "";
@@ -76,7 +77,6 @@ export default function AnalysisResultsCard({ results, onRefresh, isRefreshing =
     const [showChannelDetails, setShowChannelDetails] = useState(false);
     const [showActionSheet, setShowActionSheet] = useState(false);
     const [selectedChannelForActions] = useState<ChannelResult | null>(null);
-    const [viewMode, setViewMode] = useState<"all" | "approved" | "rejected">("approved");
 
     if (!summary || !channelResults) {
         return (
@@ -99,50 +99,47 @@ export default function AnalysisResultsCard({ results, onRefresh, isRefreshing =
         ? Math.round((summary.approved_channels / summary.total_channels) * 100)
         : 0;
 
-    // Фильтрация каналов по статусу
-    const filteredChannels = channelResults?.filter(channel => {
-        if (viewMode === "approved") return channel.overall_status === "approved";
-        if (viewMode === "rejected") return channel.overall_status === "rejected";
-        return true;
-    }) || [];
+    // Сортировка каналов по рейтингу (по убыванию)
+    const sortedChannels = [...channelResults].sort((a, b) => {
+        // Вычисление среднего значения рейтинга для каждого канала
+        const scoreA = a.filter_results.reduce((sum, filter) => sum + filter.score, 0) / a.filter_results.length;
+        const scoreB = b.filter_results.reduce((sum, filter) => sum + filter.score, 0) / b.filter_results.length;
+        return scoreB - scoreA;
+    });
 
     const onChannelClick = (channel: ChannelResult) => {
         setSelectedChannel(channel);
         setShowChannelDetails(true);
     };
 
-    const viewFiters = [
-        { value: "all", label: "Все", count: summary.total_channels },
-        { value: "approved", label: "Подходящие", count: summary.approved_channels },
-        { value: "rejected", label: "Отклоненные", count: summary.rejected_channels },
-    ] satisfies { value: "all" | "approved" | "rejected", label: string, count: number }[];
-
     return (
         <Card className={cn(createCardStyle(), "overflow-hidden", animations.fadeIn)}>
-            <CardHeader className={cn("bg-slate-800/70", `pb-${spacing.sm}`)}>
-                <div className="flex justify-between items-center">
-                    <CardTitle className={typography.h3}>Результаты анализа</CardTitle>
-                    {onRefresh && (
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={onRefresh}
-                            disabled={isRefreshing || status === "completed"}
-                            className={createButtonStyle("secondary")}
-                        >
-                            {isRefreshing ? (
-                                <RefreshCw size={16} className="mr-1 animate-spin" />
-                            ) : (
-                                <RefreshCw size={16} className="mr-1" />
-                            )}
-                            Обновить
-                        </Button>
-                    )}
-                </div>
-
-                {/* Status badge */}
-                <div className="flex items-center mt-1">
-                    <StatusBadge status={status || "pending"} />
+            <CardHeader className={cn(`p-${spacing.md}`, "border-b border-slate-700/50")}>
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                        <div className={cn(
+                            "flex items-center px-2 py-1 rounded-full text-xs border",
+                            status === "completed" ? "bg-green-500/10 border-green-500/20 text-green-400" : "bg-yellow-500/10 border-yellow-500/20 text-yellow-400"
+                        )}>
+                            <CheckCircle size={12} className="mr-1" />
+                            {status === "completed" ? "Завершен" : "В процессе"}
+                        </div>
+                        {onRefresh && (
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={onRefresh}
+                                disabled={isRefreshing}
+                                className="text-gray-400 hover:text-white"
+                            >
+                                {isRefreshing ? (
+                                    <Loader2 size={14} className="animate-spin" />
+                                ) : (
+                                    <RefreshCw size={14} />
+                                )}
+                            </Button>
+                        )}
+                    </div>
                     <div className={cn("ml-4", createTextStyle("small", "secondary"))}>
                         {created_at && <div>Начат: {formatDate(created_at)}</div>}
                         {completed_at && <div>Завершен: {formatDate(completed_at)}</div>}
@@ -181,43 +178,28 @@ export default function AnalysisResultsCard({ results, onRefresh, isRefreshing =
                     </div>
                 </div>
 
-                {/* Фильтры просмотра */}
-                <div className={cn(`p-${spacing.md}`, "border-b border-slate-700/50")}>
-                    <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
-                        <div className="flex gap-2 min-w-max">
-                            {viewFiters.map((filter) => (
-                                <button
-                                    key={filter.value}
-                                    onClick={() => setViewMode(filter.value)}
-                                    className={cn(
-                                        "px-3 py-1 rounded-full text-sm whitespace-nowrap transition-all flex items-center space-x-1 flex-shrink-0",
-                                        viewMode === filter.value
-                                            ? "bg-blue-500 text-white"
-                                            : "bg-slate-700/50 text-gray-300 hover:bg-slate-600/50"
-                                    )}
-                                >
-                                    <span>{filter.label}</span>
-                                    <span className="text-xs opacity-75">({filter.count})</span>
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-
-                {/* Список каналов */}
+                {/* Список каналов - один канал на строку, по центру */}
                 <ScrollArea className="h-[400px]">
-                    <div className={`p-${spacing.md}`}>
-                        {filteredChannels.length === 0 ? (
+                    <div className={"p-0"}>
+                        {sortedChannels.length === 0 ? (
                             <div className={cn("text-center", `py-${spacing.xl}`)}>
                                 <Filter className={cn("mx-auto h-12 w-12 mb-3", textColors.muted)} />
                                 <p className={createTextStyle("small", "muted")}>
-                                    Нет каналов в выбранной категории
+                                    Нет каналов для отображения
                                 </p>
                             </div>
                         ) : (
                             <div className={`space-y-${spacing.sm}`}>
-                                {filteredChannels.map((channel, index) => (
-                                    <ChannelCard key={`${channel!.channel_id}-${index}`} channel={channel} onChannelClick={() => onChannelClick(channel)} />
+                                {sortedChannels.map((channel, index) => (
+                                    <div
+                                        key={`${channel!.channel_id}-${index}`}
+                                        className="w-full"
+                                    >
+                                        <ChannelCard
+                                            channel={channel}
+                                            onChannelClick={() => onChannelClick(channel)}
+                                        />
+                                    </div>
                                 ))}
                             </div>
                         )}

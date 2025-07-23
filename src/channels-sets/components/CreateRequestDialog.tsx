@@ -11,6 +11,7 @@ import { cn } from "@/lib/cn";
 import { toast } from "@/ui/components/use-toast";
 import { useChannelsSetsStore } from "@/channels-sets/stores/useChannelsSetsStore";
 import { useFiltersStore } from "@/filters/stores/useFiltersStore";
+import { useSearchStore } from "@/search/stores/useSearchStore";
 import { SmartSetBuildCriteria } from "@/channels-sets/types";
 import {
     createCardStyle,
@@ -39,6 +40,7 @@ export default function CreateRequestDialog({
     // Replace 'createFilter' with the correct method from FiltersStore, e.g., 'addFilter'
     // Use the correct method from FiltersStore: 'createCustomFilter'
     const createFilter = useFiltersStore((s) => s.createCustomFilter);
+    const startSearch = useSearchStore(state => state.startSearch);
 
     // --- form state ---
     const [name, setName] = useState("");
@@ -95,40 +97,16 @@ export default function CreateRequestDialog({
         }
         setIsCreating(true);
         try {
-            // 1. Create a filter from the request field
-            const filter = await createFilter({
-                name: request.trim(),
-                criteria: request.trim(),
-                threshold: 0.7,
-                strictness: 1,
+            await startSearch({
+                search_query: request.trim(),
+                categories: categories,
+                channel_limit: targetCount[0],
+                min_subscribers: subscribersCount[0],
+                max_subscribers: subscribersCount[1],
             });
-
-            if (!filter?.id) {
-                toast({ title: "Ошибка", description: "Не удалось создать фильтр", variant: "destructive" });
-                setIsCreating(false);
-                return;
-            }
-
-            // 2. Use the new filter's ID in build_criteria
-            const buildCriteria: SmartSetBuildCriteria = {
-                filter_ids: [filter.id],
-                target_count: targetCount[0],
-                acceptance_threshold: 0.7,
-                batch_size: 20,
-                // subscribers_min: subscribersCount[0], // Добавляем минимум
-                // subscribers_max: subscribersCount[1], // Добавляем максимум
-            };
-
-            const newSet = await createChannelsSet({
-                name: name.trim(),
-                description: request.trim(),
-                is_public: false,
-                build_criteria: buildCriteria,
-            });
-
-            if (newSet) {
-                onOpenChange(false);
-            }
+            onOpenChange(false); // Close dialog on success
+        } catch (error) {
+            // Error is handled in the store
         } finally {
             setIsCreating(false);
         }
