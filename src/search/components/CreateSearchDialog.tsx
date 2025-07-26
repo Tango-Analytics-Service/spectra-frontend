@@ -33,12 +33,12 @@ export interface CreateSearchDialogProps {
 
 // Доступные категории для выбора
 const AVAILABLE_CATEGORIES = [
-    "Blogs",
-    "News and media", 
-    "Humor and entertainment",
-    "Technologies",
-    "Economics",
-    "Business and startups"
+    "blogs",
+    "news and media", 
+    "humor and entertainment",
+    "technologies",
+    "economics",
+    "business and startups"
 ];
 
 export default function CreateSearchDialog({
