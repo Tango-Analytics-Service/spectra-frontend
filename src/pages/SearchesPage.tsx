@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/ui/components/button";
 import { Plus, Search, Zap } from "lucide-react";
-import CreateRequestDialog from "@/channels-sets/components/CreateRequestDialog";
+import CreateSearchDialog from "@/search/components/CreateSearchDialog";
 import StatsCard from "@/ui/components/stats-card";
 import { cn } from "@/lib/cn";
 import { createButtonStyle, createCardStyle, typography, spacing, gradients, animations, textColors, createTextStyle } from "@/lib/design-system";
@@ -143,7 +143,7 @@ export default function SearchesPage() {
             </main>
 
             {/* Диалог создания запроса */}
-            <CreateRequestDialog
+            <CreateSearchDialog
                 open={showCreateRequestDialog}
                 onOpenChange={setShowCreateRequestDialog}
                 initialQuery=""

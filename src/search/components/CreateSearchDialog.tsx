@@ -6,7 +6,7 @@ import { Input } from "@/ui/components/input";
 import { Label } from "@/ui/components/label";
 import { Textarea } from "@/ui/components/textarea";
 import { Slider } from "@/ui/components/slider";
-import { LoaderCircle, Zap, Settings, X } from "lucide-react";
+import { LoaderCircle, Zap, Settings, X, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { toast } from "@/ui/components/use-toast";
 import { useChannelsSetsStore } from "@/channels-sets/stores/useChannelsSetsStore";
@@ -24,18 +24,28 @@ import {
 } from "@/lib/design-system";
 import { NumericFormat } from "react-number-format";
 
-export interface CreateRequestDialogProps {
+export interface CreateSearchDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     /** Текст, который пользователь ввёл в поле «Найти» на главной странице */
     initialQuery: string;
 }
 
-export default function CreateRequestDialog({
+// Доступные категории для выбора
+const AVAILABLE_CATEGORIES = [
+    "Blogs",
+    "News and media", 
+    "Humor and entertainment",
+    "Technologies",
+    "Economics",
+    "Business and startups"
+];
+
+export default function CreateSearchDialog({
     open,
     onOpenChange,
     initialQuery,
-}: CreateRequestDialogProps) {
+}: CreateSearchDialogProps) {
     const createChannelsSet = useChannelsSetsStore((s) => s.createChannelsSet);
     // Replace 'createFilter' with the correct method from FiltersStore, e.g., 'addFilter'
     // Use the correct method from FiltersStore: 'createCustomFilter'
@@ -50,7 +60,8 @@ export default function CreateRequestDialog({
     const [subscribersCount, setSubscribersCount] = useState<[number, number]>([100, 100000]); // ← дефолт от 100 до 100000
     const [categoriesInput, setCategoriesInput] = useState("");
     const [categories, setCategories] = useState<string[]>([]);
-
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     useEffect(() => {
@@ -73,22 +84,37 @@ export default function CreateRequestDialog({
         }
     }, [open]);
 
-    // Add tag on Enter or comma
-    const handleCategoriesKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === "Enter" || e.key === "," || e.key === "Tab") {
-            e.preventDefault();
-            const tag = categoriesInput.trim().replace(/^#/, "");
-            if (tag && !categories.includes(tag)) {
-                setCategories([...categories, tag]);
+    // Закрытие выпадающего списка при клике вне его
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setIsDropdownOpen(false);
             }
-            setCategoriesInput("");
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
+
+    // Добавление категории
+    const handleAddCategory = (category: string) => {
+        if (!categories.includes(category)) {
+            setCategories([...categories, category]);
         }
+        setIsDropdownOpen(false);
     };
 
     // Remove tag
     const handleRemoveCategory = (tag: string) => {
         setCategories(categories.filter((c) => c !== tag));
     };
+
+    // Фильтрация доступных категорий (исключаем уже выбранные)
+    const availableCategories = AVAILABLE_CATEGORIES.filter(
+        category => !categories.includes(category)
+    );
 
     const handleCreate = async () => {
         if (!request.trim()) {
@@ -167,11 +193,11 @@ export default function CreateRequestDialog({
                                         value={targetCount}
                                         onValueChange={setTargetCount}
                                         min={10}
-                                        max={1000}
+                                        max={200}
                                         step={10}
                                     />
                                     <div className={createTextStyle("tiny", "muted")}>
-                                        От 10 до 1000 каналов
+                                        От 10 до 200 каналов
                                     </div>
                                 </div>
                                 <div className={`space-y-${spacing.sm}`}>
@@ -216,17 +242,20 @@ export default function CreateRequestDialog({
                                 {/* категории каналов */}
                                 <div className={`space-y-${spacing.sm}`}>
                                     <Label htmlFor="categories">Категории канала:</Label>
+                                    
+                                    {/* Выбранные категории */}
                                     <div
                                         className={cn(
-                                            "flex flex-wrap items-center gap-2 px-2 py-2 rounded border border-blue-500 bg-blue-950/40 focus-within:ring-2 focus-within:ring-blue-500",
+                                            "flex flex-wrap items-center gap-2 px-3 py-2 rounded border border-blue-500 bg-blue-950/40 min-h-[44px]",
                                             components.input.base
                                         )}
                                     >
                                         {categories.map((tag) => (
                                             <span
                                                 key={tag}
-                                                className="flex items-center text-white px-2 py-1 rounded-full text-xs font-medium"
-                                                style={{ backgroundColor: "#1838D2" }}>
+                                                className="flex items-center text-white px-2 py-1 rounded-md text-xs font-medium"
+                                                style={{ backgroundColor: "#1838D2" }}
+                                            >
                                                 {tag}
                                                 <button
                                                     type="button"
@@ -238,19 +267,42 @@ export default function CreateRequestDialog({
                                                 </button>
                                             </span>
                                         ))}
-                                        <input
-                                            id="categories"
-                                            type="text"
-                                            placeholder="Введите текст"
-                                            value={categoriesInput}
-                                            onChange={e => setCategoriesInput(e.target.value)}
-                                            onKeyDown={handleCategoriesKeyDown}
-                                            className={cn(
-                                                "bg-transparent outline-none border-none focus:ring-0",
-                                                createTextStyle("body", "muted"), // ← стиль как у 'Запрос'
-                                                "min-w-[80px] flex-1"
-                                            )}
-                                        />
+                                        
+                                        {/* Кнопка для открытия выпадающего списка */}
+                                        {availableCategories.length > 0 && (
+                                            <div className="relative" ref={dropdownRef}>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                                                    className={cn(
+                                                        "flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium border border-blue-400 text-blue-400 hover:bg-blue-950/60 transition-colors",
+                                                        isDropdownOpen && "bg-blue-950/60"
+                                                    )}
+                                                >
+                                                    Добавить категорию
+                                                    <ChevronDown size={12} className={cn(
+                                                        "transition-transform",
+                                                        isDropdownOpen && "rotate-180"
+                                                    )} />
+                                                </button>
+                                                
+                                                {/* Выпадающий список */}
+                                                {isDropdownOpen && (
+                                                    <div className="absolute top-full mt-1 left-0 z-50 w-64 max-h-48 overflow-y-auto bg-gray-900 border border-blue-500 rounded-md shadow-lg">
+                                                        {availableCategories.map((category) => (
+                                                            <button
+                                                                key={category}
+                                                                type="button"
+                                                                onClick={() => handleAddCategory(category)}
+                                                                className="w-full text-left px-3 py-2 text-sm text-white hover:bg-blue-950/60 transition-colors first:rounded-t-md last:rounded-b-md"
+                                                            >
+                                                                {category}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>

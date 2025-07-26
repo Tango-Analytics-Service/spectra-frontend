@@ -43,7 +43,17 @@ export default function SearchSessionCard({ session }: SearchSessionCardProps) {
                     <div className="flex justify-between items-start">
                         <div>
                             <div className="flex items-center gap-2 mb-1">
-                                <h3 className={cn(typography.h4, "text-white")}>
+                                <h3
+                                    className={cn(typography.h4, "text-white")}
+                                    style={{
+                                        display: "-webkit-box",
+                                        WebkitLineClamp: 3, // ограничить до 4 строк, можно изменить на 2-3 по желанию
+                                        WebkitBoxOrient: "vertical",
+                                        overflow: "hidden",
+                                        textOverflow: "ellipsis",
+                                        wordBreak: "break-word",
+                                    }}
+                                >
                                     {session.search_query}
                                 </h3>
                                 <StatusBadge status={session.status} />

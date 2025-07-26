@@ -24,7 +24,7 @@ import {
 import { cn } from "@/lib/cn";
 import { ChannelsSet } from "@/channels-sets/types";
 import { useChannelsSetsStore } from "@/channels-sets/stores/useChannelsSetsStore";
-import CreateRequestDialog from "@/channels-sets/components/CreateRequestDialog";
+import CreateSearchDialog from "@/search/components/CreateSearchDialog";
 
 export default function ChannelSetPage() {
     const navigate = useNavigate();
@@ -181,7 +181,7 @@ export default function ChannelSetPage() {
             </main>
 
             {/* Диалог создания умного набора */}
-            <CreateRequestDialog
+            <CreateSearchDialog
                 open={isCreateSmartSetOpen}
                 onOpenChange={setIsCreateSmartSetOpen}
                 initialQuery={dialogQuery}

@@ -106,17 +106,20 @@ export default function ChannelDetailsModal({ isOpen, selectedChannel, onClose }
                         <div className={cn(
                             "flex-1 flex flex-col gap-2 justify-center"
                         )}>
-                            <div className={cn(
-                                "flex items-center px-3 py-2 rounded-lg border",
-                                statusConfig.bg, statusConfig.border, statusConfig.color, "gap-2"
-                            )}>
+                            <div
+                                className={cn(
+                                    "flex flex-wrap items-center px-3 py-2 rounded-lg border",
+                                    statusConfig.bg, statusConfig.border, statusConfig.color, "gap-2"
+                                )}
+                                style={{ minWidth: 0 }}
+                            >
                                 <StatusIcon size={18} />
                                 <span className={cn(typography.weight.medium)}>{statusConfig.text}</span>
                             </div>
                             {/* Никнейм под вердиктом */}
                             <div
-                                className="flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-700/20 bg-slate-800/50 mt-1"
-                                style={{ minHeight: 36 }}
+                                className="flex flex-wrap items-center gap-2 px-3 py-2 rounded-lg border border-slate-700/20 bg-slate-800/50 mt-1"
+                                style={{ minHeight: 36, minWidth: 0 }}
                             >
                                 <Info size={18} className="text-slate-400" />
                                 <a
@@ -126,8 +129,10 @@ export default function ChannelDetailsModal({ isOpen, selectedChannel, onClose }
                                     className={cn(
                                         typography.weight.medium,
                                         textColors.primary,
-                                        "underline hover:underline"
+                                        "underline hover:underline truncate"
                                     )}
+                                    style={{ maxWidth: "160px" }}
+                                    title={`@${selectedChannel.channel_username}`}
                                 >
                                     @{selectedChannel.channel_username}
                                 </a>

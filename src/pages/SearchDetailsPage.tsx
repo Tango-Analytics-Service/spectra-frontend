@@ -57,7 +57,7 @@ export default function SearchDetailsPage() {
                     <ArrowLeft className="h-6 w-6 text-white" />
                 </button>
                 <div>
-                    <h1 className={typography.h1}>{session.search_query}</h1>
+                    <h1 className={typography.h3}>{session.search_query}</h1>
                     <p className={createTextStyle("small", "secondary")}>
                         Результаты поиска от {new Date(session.created_at).toLocaleString("ru-RU")}
                     </p>
