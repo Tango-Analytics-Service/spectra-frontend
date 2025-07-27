@@ -33,12 +33,19 @@ export interface CreateSearchDialogProps {
 
 // Доступные категории для выбора
 const AVAILABLE_CATEGORIES = [
-    "blogs",
-    "news and media", 
-    "humor and entertainment",
-    "technologies",
-    "economics",
-    "business and startups"
+    { value: "art", label: "Искусство" },
+    { value: "blogs", label: "Блоги" },
+    { value: "business", label: "Бизнес" },
+    { value: "crypto", label: "Криптовалюты" },
+    { value: "design", label: "Дизайн" },
+    { value: "economics", label: "Экономика" },
+    { value: "entertainment", label: "Развлечения" },
+    { value: "law", label: "Право" },
+    { value: "marketing-all", label: "Маркетинг" },
+    { value: "news", label: "Новости" },
+    { value: "psychology", label: "Психология" },
+    { value: "tech", label: "Технологии" },
+    { value: "travel", label: "Путешествия" },
 ];
 
 export default function CreateSearchDialog({
@@ -113,7 +120,7 @@ export default function CreateSearchDialog({
 
     // Фильтрация доступных категорий (исключаем уже выбранные)
     const availableCategories = AVAILABLE_CATEGORIES.filter(
-        category => !categories.includes(category)
+        category => !categories.includes(category.value)
     );
 
     const handleCreate = async () => {
@@ -256,7 +263,7 @@ export default function CreateSearchDialog({
                                                 className="flex items-center text-white px-2 py-1 rounded-md text-xs font-medium"
                                                 style={{ backgroundColor: "#1838D2" }}
                                             >
-                                                {tag}
+                                                {AVAILABLE_CATEGORIES.find(c => c.value === tag)?.label || tag}
                                                 <button
                                                     type="button"
                                                     onClick={() => handleRemoveCategory(tag)}
@@ -291,12 +298,12 @@ export default function CreateSearchDialog({
                                                     <div className="absolute top-full mt-1 left-0 z-50 w-64 max-h-48 overflow-y-auto bg-gray-900 border border-blue-500 rounded-md shadow-lg">
                                                         {availableCategories.map((category) => (
                                                             <button
-                                                                key={category}
+                                                                key={category.value}
                                                                 type="button"
-                                                                onClick={() => handleAddCategory(category)}
+                                                                onClick={() => handleAddCategory(category.value)}
                                                                 className="w-full text-left px-3 py-2 text-sm text-white hover:bg-blue-950/60 transition-colors first:rounded-t-md last:rounded-b-md"
                                                             >
-                                                                {category}
+                                                                {category.label}
                                                             </button>
                                                         ))}
                                                     </div>
