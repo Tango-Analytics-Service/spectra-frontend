@@ -26,6 +26,12 @@ import { ChannelsSet } from "@/channels-sets/types";
 import { useChannelsSetsStore } from "@/channels-sets/stores/useChannelsSetsStore";
 import CreateSearchDialog from "@/search/components/CreateSearchDialog";
 
+const searchExamples = [
+    "Хочу разрекламировать пылесос",
+    "Нужны каналы про инвестиции, без крипты и рекламы",
+    "Найди мне блоги о путешествиях с хорошим охватом",
+];
+
 export default function ChannelSetPage() {
     const navigate = useNavigate();
 
@@ -55,6 +61,39 @@ export default function ChannelSetPage() {
     useEffect(() => {
         searchQueryRef.current = searchQuery;
     }, [searchQuery]);
+
+    // Для анимации печати примеров поиска
+    const [currentExampleIdx, setCurrentExampleIdx] = useState(0);
+    const [displayedText, setDisplayedText] = useState("");
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    useEffect(() => {
+        const currentText = searchExamples[currentExampleIdx];
+        let timeout: NodeJS.Timeout;
+
+        if (!isDeleting && displayedText.length < currentText.length) {
+            // Печатаем букву
+            timeout = setTimeout(() => {
+                setDisplayedText(currentText.slice(0, displayedText.length + 1));
+            }, 60);
+        } else if (!isDeleting && displayedText.length === currentText.length) {
+            // Пауза после полного текста
+            timeout = setTimeout(() => setIsDeleting(true), 1200);
+        } else if (isDeleting && displayedText.length > 0) {
+            // Стираем букву
+            timeout = setTimeout(() => {
+                setDisplayedText(currentText.slice(0, displayedText.length - 1));
+            }, 30);
+        } else if (isDeleting && displayedText.length === 0) {
+            // Переход к следующему примеру
+            timeout = setTimeout(() => {
+                setIsDeleting(false);
+                setCurrentExampleIdx((prev) => (prev + 1) % searchExamples.length);
+            }, 300);
+        }
+
+        return () => clearTimeout(timeout);
+    }, [displayedText, isDeleting, currentExampleIdx]);
 
     const handleFind = () => {
     // открываем диалог «умного» набора
@@ -105,7 +144,7 @@ export default function ChannelSetPage() {
                     {/* <h1 className={cn(typography.h1, "text-center")}>Добро пожаловать!</h1> */}
                     <p
                         className={cn(
-                            createTextStyle("small", "secondary"),
+                            createTextStyle("body", "secondary"),
                             "mt-1",
                             "text-center"
                         )}
@@ -141,20 +180,24 @@ export default function ChannelSetPage() {
                     </Button>
 
                     <div className={`mt-${spacing.md}`}>
-                        <p className={cn(createTextStyle("small", "primary"))}>
-                            Что ищут:
+                        <p
+                            className={cn(
+                                createTextStyle("h4", "primary"),
+                                "mb-2"
+                            )}
+                        >
+                            Часто ищут:
                         </p>
-                        <ul className="mt-2 list-disc list-inside space-y-1">
-                            <li className={cn(createTextStyle("small"), "text-gray-400")}>
-                                Хочу разрекламировать пылесос
-                            </li>
-                            <li className={cn(createTextStyle("small"), "text-gray-400")}>
-                                Нужны каналы про инвестиции, без крипты и рекламы
-                            </li>
-                            <li className={cn(createTextStyle("small"), "text-gray-400")}>
-                                Найди мне блоги о путешествиях с хорошим охватом
-                            </li>
-                        </ul>
+                        <div
+                            className={cn(
+                                createTextStyle("h2"), // Очень крупно
+                                "text-gray-400 min-h-[2.5em] text-left"
+                            )}
+                            style={{ letterSpacing: "0.01em", minHeight: "2.5em" }}
+                        >
+                            {displayedText}
+                            <span className="animate-pulse">|</span>
+                        </div>
                     </div>
                 </div>
 
