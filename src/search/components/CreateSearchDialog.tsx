@@ -87,7 +87,6 @@ export default function CreateSearchDialog({
             console.log("Dialog opened, setting name and other fields");
             setName("");
             setTargetCount([10]); // ← дефолт 10 каналов при открытии
-            setSubscribersCount([100, 100000]); // ← дефолт от 100 до 100000 при открытии
         }
     }, [open]);
 
@@ -126,6 +125,14 @@ export default function CreateSearchDialog({
     const handleCreate = async () => {
         if (!request.trim()) {
             toast({ title: "Ошибка", description: "Запрос не может быть пустым", variant: "destructive" });
+            return;
+        }
+        if (categories.length === 0) {
+            toast({ title: "Ошибка", description: "Выберите хотя бы одну категорию для поиска", variant: "destructive" });
+            return;
+        }
+        if (!subscribersCount[0] || !subscribersCount[1]) {
+            toast({ title: "Ошибка", description: "Укажите количество подписчиков", variant: "destructive" });
             return;
         }
         setIsCreating(true);
@@ -218,11 +225,11 @@ export default function CreateSearchDialog({
                                                     const { value } = values;
                                                     setSubscribersCount([parseInt(value) || 100, subscribersCount[1] || 100000]);
                                                 }}
-                                                thousandSeparator={false}
+                                                thousandSeparator={true}
                                                 allowNegative={false}
                                                 allowLeadingZeros={false}
                                                 decimalScale={0}
-                                                placeholder="100"
+                                                // placeholder="100"
                                                 customInput={Input}
                                                 className={components.input.base}
                                             />
@@ -235,11 +242,11 @@ export default function CreateSearchDialog({
                                                     const { value } = values;
                                                     setSubscribersCount([subscribersCount[0], parseInt(value) || 100000]);
                                                 }}
-                                                thousandSeparator={false}
+                                                thousandSeparator={true}
                                                 allowNegative={false}
                                                 allowLeadingZeros={false}
                                                 decimalScale={0}
-                                                placeholder="100000"
+                                                // placeholder="100000"
                                                 customInput={Input}
                                                 className={components.input.base}
                                             />

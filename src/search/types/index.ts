@@ -14,7 +14,14 @@ export interface StartSearchResponse {
     message: string;
 }
 
-export type SearchStatus = "pending" | "processing" | "completed" | "failed";
+export type SearchStatus =
+    | "pending"
+    | "processing"
+    | "checking_channels"
+    | "parsing_channels"
+    | "starting_analysis"
+    | "completed"
+    | "failed";
 
 export interface SearchSession {
     search_session_id: string;

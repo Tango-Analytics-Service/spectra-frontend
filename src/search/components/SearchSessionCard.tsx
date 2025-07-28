@@ -35,38 +35,35 @@ export default function SearchSessionCard({ session }: SearchSessionCardProps) {
             tabIndex={isClickable ? 0 : -1}
             onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && handleClick()}
         >
-            <div className="flex items-start gap-4">
+            <div className="flex items-start gap-4 mb-3">
                 <div className="h-10 w-10 rounded-full bg-yellow-500/20 flex items-center justify-center flex-shrink-0">
                     <Zap size={18} className="text-yellow-400" />
                 </div>
-                <div className="flex-1 min-w-0">
-                    <div className="flex justify-between items-start">
-                        <div>
-                            <div className="flex items-center gap-2 mb-1">
-                                <h3
-                                    className={cn(typography.h4, "text-white")}
-                                    style={{
-                                        display: "-webkit-box",
-                                        WebkitLineClamp: 3, // ограничить до 4 строк, можно изменить на 2-3 по желанию
-                                        WebkitBoxOrient: "vertical",
-                                        overflow: "hidden",
-                                        textOverflow: "ellipsis",
-                                        wordBreak: "break-word",
-                                    }}
-                                >
-                                    {session.search_query}
-                                </h3>
-                                <StatusBadge status={session.status} />
-                            </div>
-                            <p className={cn(createTextStyle("small", "muted"))}>
-                                Запрос от {formatDate(session.created_at)}
-                            </p>
-                        </div>
-                    </div>
-                    {session.status === "failed" && session.error_message && (
-                        <p className={cn(createTextStyle("small", "error"), "mt-2")}>{session.error_message}</p>
-                    )}
+                <div className="flex-1"></div>
+                <div className="flex-shrink-0 flex flex-col items-end gap-2">
+                    <StatusBadge status={session.status} />
+                    <p className={cn(createTextStyle("small", "muted"), "text-right")}>
+                        {formatDate(session.created_at)}
+                    </p>
                 </div>
+            </div>
+            <div className="w-full">
+                <h3
+                    className={cn(typography.h4, "text-white mb-1")}
+                    style={{
+                        display: "-webkit-box",
+                        WebkitLineClamp: 3,
+                        WebkitBoxOrient: "vertical",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        wordBreak: "break-word",
+                    }}
+                >
+                    {session.search_query}
+                </h3>
+                {session.status === "failed" && session.error_message && (
+                    <p className={cn(createTextStyle("small", "error"), "mt-2")}>{session.error_message}</p>
+                )}
             </div>
         </div>
     );

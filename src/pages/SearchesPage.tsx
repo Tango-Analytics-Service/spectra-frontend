@@ -7,7 +7,7 @@ import { cn } from "@/lib/cn";
 import { createButtonStyle, createCardStyle, typography, spacing, gradients, animations, textColors, createTextStyle } from "@/lib/design-system";
 import { useSearchStore } from "@/search/stores/useSearchStore";
 import SearchSessionsList from "@/search/components/SearchSessionsList";
-import { SearchSession } from "@/search/types";
+import { SearchSession, SearchStatus } from "@/search/types";
 
 export default function SearchesPage() {
     const sessions = useSearchStore(state => state.sessions);
@@ -25,7 +25,14 @@ export default function SearchesPage() {
 
     // Auto-refresh for processing sessions
     useEffect(() => {
-        const processingSessions = sessions.filter(s => s.status === "processing" || s.status === "pending");
+        const processingStatuses: SearchStatus[] = [
+            "pending",
+            "processing",
+            "checking_channels",
+            "parsing_channels",
+            "starting_analysis",
+        ];
+        const processingSessions = sessions.filter(s => processingStatuses.includes(s.status));
         if (processingSessions.length === 0) return;
 
         const interval = setInterval(() => {
