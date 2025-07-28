@@ -25,6 +25,7 @@ import { cn } from "@/lib/cn";
 import { ChannelsSet } from "@/channels-sets/types";
 import { useChannelsSetsStore } from "@/channels-sets/stores/useChannelsSetsStore";
 import CreateSearchDialog from "@/search/components/CreateSearchDialog";
+import { Textarea } from "@/ui/components/textarea";
 
 const searchExamples = [
     "Хочу разрекламировать пылесос",
@@ -158,9 +159,9 @@ export default function ChannelSetPage() {
                     <div className="relative">
                         <Search
                             size={16}
-                            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                            className="absolute left-3 top-1/3 transform -translate-y-1/2 text-gray-400"
                         />
-                        <Input
+                        <Textarea
                             placeholder="Ваш запрос"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
