@@ -24,6 +24,7 @@ export interface CreditsStore {
     transactionsLoadStatus: LoadStatus;
     packagesLoadStatus: LoadStatus;
     costsLoadStatus: LoadStatus;
+    lastBalanceFetch: number | null;
     // Methods for managing credits
     fetchBalance: (force?: boolean) => Promise<void>;
     fetchTransactions: (options?: FetchTransactionsRequestOptions, force?: boolean) => Promise<void>;
@@ -42,39 +43,37 @@ const initialState = {
     transactionsLoadStatus: "idle" as LoadStatus,
     packagesLoadStatus: "idle" as LoadStatus,
     costsLoadStatus: "idle" as LoadStatus,
+    lastBalanceFetch: null,
 };
 
 export const useCreditsStore = create<CreditsStore>((set, getState) => ({
     ...initialState,
 
     fetchBalance: async (force = false) => {
-        const state = getState();
-        if (!force) {
-            if (state.balanceLoadStatus !== "idle") {
-                return;
-            }
+        const { balanceLoadStatus, lastBalanceFetch } = getState();
+        const now = Date.now();
+        const cacheDuration = 5 * 60 * 1000; // 5 minutes
+
+        if (
+            !force &&
+            balanceLoadStatus === "success" &&
+            lastBalanceFetch &&
+            now - lastBalanceFetch < cacheDuration
+        ) {
+            return;
         }
 
-        set(state => ({ ...state, balanceLoadStatus: "pending" }));
+        set({ balanceLoadStatus: "pending" });
         try {
             const data = await creditService.getCreditBalance();
-            set(state => ({
-                ...state,
+            set({
                 balance: data,
                 balanceLoadStatus: "success",
-            }));
+                lastBalanceFetch: now,
+            });
         } catch (error) {
             console.error("Error fetching credit balance:", error);
-            toast({
-                title: "Ошибка",
-                description: "Не удалось загрузить баланс кредитов",
-                variant: "destructive",
-            });
-            set(state => ({ ...state, balanceLoadStatus: "error" }));
-        } finally {
-            setTimeout(() => {
-                set(state => ({ ...state, balanceLoadStatus: "idle" }));
-            }, AUTO_REFRESH_TIMEOUT);
+            set({ balanceLoadStatus: "error" });
         }
     },
 

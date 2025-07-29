@@ -63,7 +63,7 @@ export interface AnalysisResults {
 export interface AnalysisTaskBasic {
     id: string;
     status: "pending" | "processing" | "completed" | "failed";
-    progress: number;
+    progress?: number;
     created_at: string;
     updated_at: string;
     completed_at?: string | null;

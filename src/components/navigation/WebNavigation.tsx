@@ -157,9 +157,9 @@ export default function WebNavigation() {
                             onClick={() => setMobileMenuOpen(false)}
                         />
                         <MobileNavLink
-                            to="/filters"
+                            to="/searches"
                             icon={<Settings size={18} />}
-                            label="Фильтры"
+                            label="Мои запросы"
                             onClick={() => setMobileMenuOpen(false)}
                         />
                         <MobileNavLink

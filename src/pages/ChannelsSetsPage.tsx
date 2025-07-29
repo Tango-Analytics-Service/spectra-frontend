@@ -1,133 +1,134 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, Plus, LoaderCircle, Zap } from "lucide-react";
+import { Search } from "lucide-react";
 import { Button } from "@/ui/components/button";
 import { Input } from "@/ui/components/input";
 import { Dialog } from "@/ui/components/dialog";
-import DialogContent from "@/ui/components/dialog/DialogContent";
-import DialogDescription from "@/ui/components/dialog/DialogDescription";
-import DialogFooter from "@/ui/components/dialog/DialogFooter";
-import DialogHeader from "@/ui/components/dialog/DialogHeader";
-import DialogTitle from "@/ui/components/dialog/DialogTitle";
-import { Label } from "@/ui/components/label";
-import { toast } from "@/ui/components/use-toast";
 import ChannelsSetCard from "@/channels-sets/components/ChannelsSetCard";
 import AnalysisConfirmDialog from "@/channels-sets/components/AnalysisConfirmDialog";
 import AddChannelsDialog from "@/channels-sets/components/AddChannelsDialog";
 import CreateSmartSetDialog from "@/channels-sets/components/CreateSmartSetDialog";
 import LoadingCard from "@/ui/components/loading/LoadingCard";
-import { createButtonStyle, createCardStyle, createTextStyle, spacing, typography, gradients, components, textColors, animations } from "@/lib/design-system";
+import CenteredAppHeader from "@/components/common/ChannelSetsHeader";
+import {
+    createCardStyle,
+    createTextStyle,
+    spacing,
+    typography,
+    gradients,
+    textColors,
+    components,
+    animations,
+    createButtonStyle,
+} from "@/lib/design-system";
 import { cn } from "@/lib/cn";
 import { ChannelsSet } from "@/channels-sets/types";
 import { useChannelsSetsStore } from "@/channels-sets/stores/useChannelsSetsStore";
+import CreateSearchDialog from "@/search/components/CreateSearchDialog";
+import { Textarea } from "@/ui/components/textarea";
+
+const searchExamples = [
+    "Найди каналы про ремонт iPhone",
+    "Ищу финансовые каналы с высокой вовлеченностью",
+    "Каналы о фитнесе и ЗОЖ c женской аудиторией",
+    "IT-каналы, без крипты",
+    "Нужны каналы про инвестиции, без крипты и рекламы скама",
+    "Бизнес-каналы, которые пишут про ИИ позитивно",
+    "Покажи только те каналы, где про Spectra.AI не скажут и плохого слова",
+    "Нужны каналы про машины, кчау",
+    "Найти работу: умею искать каналы телеграм",
+    "Ищу каналы, где нет негативных новостей, я устал ...",
+    "Каналы с ежедневными новостями города Москва",
+    "Лучшие кондитерские России",
+];
 
 export default function ChannelSetPage() {
     const navigate = useNavigate();
 
-    const channelsSets = useChannelsSetsStore(state => state.channelsSets);
-    const loadStatus = useChannelsSetsStore(state => state.loadStatus);
-    const fetchChannelsSets = useChannelsSetsStore(state => state.fetchChannelsSets);
-    const createChannelsSet = useChannelsSetsStore(state => state.createChannelsSet);
+    const channelsSets = useChannelsSetsStore((s) => s.channelsSets);
+    const loadStatus = useChannelsSetsStore((s) => s.loadStatus);
+    const fetchChannelsSets = useChannelsSetsStore((s) => s.fetchChannelsSets);
 
-    // Состояния
+    // поиск
     const [searchQuery, setSearchQuery] = useState("");
-    const [filteredSets, setFilteredSets] = useState<ChannelsSet[]>([]);
-    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [dialogQuery, setDialogQuery] = useState("");
+
+    // создание умного набора
     const [isCreateSmartSetOpen, setIsCreateSmartSetOpen] = useState(false);
-    const [createLoading, setCreateLoading] = useState(false);
+
+    // Анализ / добавление
     const [analysisDialogOpen, setAnalysisDialogOpen] = useState(false);
     const [selectedSetForAnalysis, setSelectedSetForAnalysis] = useState<ChannelsSet>();
     const [addChannelsDialogOpen, setAddChannelsDialogOpen] = useState(false);
     const [selectedSetForChannels, setSelectedSetForChannels] = useState<ChannelsSet | null>(null);
 
-    // Форма создания набора
-    const [newSetName, setNewSetName] = useState("");
-    const [newSetDescription, setNewSetDescription] = useState("");
-    const [newSetIsPublic, setNewSetIsPublic] = useState(false);
-
-    fetchChannelsSets();
+    const searchQueryRef = useRef(searchQuery);
 
     useEffect(() => {
-        if (!searchQuery.trim()) {
-            setFilteredSets(channelsSets);
-            return;
+        fetchChannelsSets();
+    }, [fetchChannelsSets]);
+
+    useEffect(() => {
+        searchQueryRef.current = searchQuery;
+    }, [searchQuery]);
+
+    // Для анимации печати примеров поиска
+    const [currentExampleIdx, setCurrentExampleIdx] = useState(0);
+    const [displayedText, setDisplayedText] = useState("");
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    useEffect(() => {
+        const currentText = searchExamples[currentExampleIdx];
+        let timeout: NodeJS.Timeout;
+
+        if (!isDeleting && displayedText.length < currentText.length) {
+            // Печатаем букву
+            timeout = setTimeout(() => {
+                setDisplayedText(currentText.slice(0, displayedText.length + 1));
+            }, 60);
+        } else if (!isDeleting && displayedText.length === currentText.length) {
+            // Пауза после полного текста
+            timeout = setTimeout(() => setIsDeleting(true), 1200);
+        } else if (isDeleting && displayedText.length > 0) {
+            // Стираем букву
+            timeout = setTimeout(() => {
+                setDisplayedText(currentText.slice(0, displayedText.length - 1));
+            }, 30);
+        } else if (isDeleting && displayedText.length === 0) {
+            // Переход к следующему примеру
+            timeout = setTimeout(() => {
+                setIsDeleting(false);
+                setCurrentExampleIdx((prev) => (prev + 1) % searchExamples.length);
+            }, 300);
         }
 
-        const query = searchQuery.toLowerCase();
-        const filtered = channelsSets.filter(
-            (set) =>
-                set.name.toLowerCase().includes(query) ||
-                set.description.toLowerCase().includes(query),
-        );
-        setFilteredSets(filtered);
-    }, [searchQuery, channelsSets]);
+        return () => clearTimeout(timeout);
+    }, [displayedText, isDeleting, currentExampleIdx]);
 
-    // Обработчики
-    const handleCreateNewSet = async () => {
-        if (!newSetName.trim()) {
-            toast({
-                title: "Ошибка",
-                description: "Название набора не может быть пустым",
-                variant: "destructive",
-            });
-            return;
-        }
-
-        setCreateLoading(true);
-        try {
-            const data = {
-                name: newSetName,
-                description: newSetDescription,
-                is_public: newSetIsPublic,
-            };
-
-            const newSet = await createChannelsSet(data);
-
-            if (newSet) {
-                setNewSetName("");
-                setNewSetDescription("");
-                setNewSetIsPublic(false);
-                setIsCreateModalOpen(false);
-
-                toast({
-                    title: "Успешно",
-                    description: "Набор каналов создан",
-                });
-            }
-        } finally {
-            setCreateLoading(false);
-        }
+    const handleFind = () => {
+    // открываем диалог «умного» набора
+        setDialogQuery(searchQueryRef.current);
+        setIsCreateSmartSetOpen(true);
     };
 
     const handleAnalyze = (setId: string) => {
-        const set = channelsSets.find((s) => s.id === setId);
-        if (set) {
-            setSelectedSetForAnalysis(set);
+        const s = channelsSets.find((c) => c.id === setId);
+        if (s) {
+            setSelectedSetForAnalysis(s);
             setAnalysisDialogOpen(true);
         }
     };
-
     const handleConfirmAnalysis = async (setId: string) => {
-        // TODO: Реализовать создание задачи анализа
-        console.log("Starting analysis for set:", setId);
-
-        // Имитация API вызова
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        toast({
-            title: "Анализ запущен",
-            description: "Задача создана и поставлена в очередь",
-        });
+    // тут ваша логика запуска анализа
+        await new Promise((r) => setTimeout(r, 1000));
     };
-
     const handleViewDetails = (setId: string) => {
         navigate(`/channel-sets/${setId}`);
     };
-
     const handleAddChannels = (setId: string) => {
-        const set = channelsSets.find((s) => s.id === setId);
-        if (set) {
-            setSelectedSetForChannels(set);
+        const s = channelsSets.find((c) => c.id === setId);
+        if (s) {
+            setSelectedSetForChannels(s);
             setAddChannelsDialogOpen(true);
         }
     };
@@ -137,178 +138,107 @@ export default function ChannelSetPage() {
             className={cn(
                 "flex flex-col w-full min-h-screen",
                 gradients.background,
-                "text-white",
+                "text-white"
             )}
         >
+            
+            <CenteredAppHeader />
             <main
                 className={cn(
                     "flex-1 overflow-hidden flex flex-col",
                     `px-${spacing.md} sm:px-${spacing.lg}`,
-                    `pb-${spacing.md} sm:pb-${spacing.lg}`,
+                    `pb-${spacing.md} sm:pb-${spacing.lg}`
                 )}
             >
-                {/* Заголовок */}
                 <div className={`mt-${spacing.sm} sm:mt-${spacing.md}`}>
-                    <h1 className={typography.h1}>Наборы каналов</h1>
-                    <p className={cn(createTextStyle("small", "secondary"), "mt-1")}>
-                        Управляйте группами каналов для аналитики (максимум 20 каналов в
-                        наборе)
+                    {/* <h1 className={cn(typography.h1, "text-center")}>Добро пожаловать!</h1> */}
+                    <p
+                        className={cn(
+                            createTextStyle("body", "secondary"),
+                            "mt-1",
+                            "text-center"
+                        )}
+                    >
+                        Подберем каналы под любые Ваши задачи
                     </p>
                 </div>
 
-                {/* Поиск */}
+                {/* Поиск + Найти */}
                 <div className={`mt-${spacing.md}`}>
                     <div className="relative">
                         <Search
                             size={16}
-                            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                            className="absolute left-3 top-1/3 transform -translate-y-1/2 text-gray-400"
                         />
-                        <Input
-                            placeholder="Поиск по наборам..."
+                        <Textarea
+                            placeholder="Ваш запрос"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className={cn(components.input.base, "pl-9")}
                         />
                     </div>
-                </div>
 
-                {/* Кнопки создания */}
-                <div className={cn("grid grid-cols-1 sm:grid-cols-2", `mt-${spacing.md}`, `gap-${spacing.sm}`)}>
                     <Button
-                        onClick={() => setIsCreateModalOpen(true)}
+                        onClick={handleFind}
                         className={cn(
                             createButtonStyle("primary"),
-                            `py-${spacing.md}`,
-                            "w-full",
-                            animations.scaleIn,
+                            `mt-${spacing.md}`,
+                            "w-full py-3"
                         )}
                     >
-                        <Plus size={18} className={`mr-${spacing.sm}`} />
-                        Создать обычный набор
+                        Найти
                     </Button>
 
-                    <Button
-                        onClick={() => setIsCreateSmartSetOpen(true)}
-                        className={cn(
-                            createButtonStyle("secondary"),
-                            `py-${spacing.md}`,
-                            "w-full border-2 border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/10",
-                            animations.scaleIn,
-                        )}
-                    >
-                        <Zap size={18} className={`mr-${spacing.sm}`} />
-                        Создать умный набор
-                    </Button>
+                    <div className={`mt-${spacing.md}`}>
+                        <p
+                            className={cn(
+                                createTextStyle("h4", "primary"),
+                                "mb-2"
+                            )}
+                        >
+                            Часто ищут:
+                        </p>
+                        <div
+                            className={cn(
+                                createTextStyle("h2"), // Очень крупно
+                                "text-gray-400 min-h-[2.5em] text-left"
+                            )}
+                            style={{ letterSpacing: "0.01em", minHeight: "2.5em" }}
+                        >
+                            {displayedText}
+                            <span className="animate-pulse">|</span>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Список наборов */}
-                <div className={`mt-${spacing.lg} flex-1`}>
+                {/* <div className={`mt-${spacing.lg} flex-1`}>
                     {loadStatus === "pending" ? (
                         <div className="space-y-4">
                             {[1, 2, 3].map((i) => (
                                 <LoadingCard key={i} text="Загрузка наборов..." />
                             ))}
                         </div>
-                    ) : filteredSets.length === 0 ? (
-                        <div
-                            className={cn(
-                                createCardStyle(),
-                                "text-center",
-                                `py-${spacing.xl}`,
-                                animations.fadeIn,
-                            )}
-                        >
-                            <h3 className={cn(typography.h3, textColors.primary, "mb-2")}>
-                                {searchQuery ? "Наборы не найдены" : "У вас пока нет наборов"}
-                            </h3>
-                            <p className={cn(createTextStyle("small", "muted"), "mb-4")}>
-                                {searchQuery
-                                    ? "Попробуйте изменить поисковый запрос"
-                                    : "Создайте первый набор каналов для анализа"}
-                            </p>
-                        </div>
                     ) : (
-                        <div className={cn(`space-y-${spacing.md}`, animations.fadeIn)}>
-                            {filteredSets.map((set) => (
-                                <ChannelsSetCard
-                                    key={set.id}
-                                    channelSet={set}
-                                    onAnalyze={handleAnalyze}
-                                    onViewDetails={handleViewDetails}
-                                    onAddChannels={handleAddChannels}
-                                />
-                            ))}
-                        </div>
+                        channelsSets.map((set) => (
+                            <ChannelsSetCard
+                                key={set.id}
+                                channelSet={set}
+                                onAnalyze={handleAnalyze}
+                                onViewDetails={handleViewDetails}
+                                onAddChannels={handleAddChannels}
+                            />
+                        ))
                     )}
-                </div>
+                </div> */}
             </main>
 
-            {/* Диалог создания набора */}
-            <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
-                <DialogContent className={createCardStyle()}>
-                    <DialogHeader>
-                        <DialogTitle className={typography.h3}>
-                            Создать новый набор
-                        </DialogTitle>
-                        <DialogDescription className={textColors.secondary}>
-                            Создайте набор каналов для анализа и мониторинга (максимум 20
-                            каналов)
-                        </DialogDescription>
-                    </DialogHeader>
-
-                    <div className={`space-y-${spacing.md} py-2`}>
-                        <div className="space-y-2">
-                            <Label htmlFor="name">Название</Label>
-                            <Input
-                                id="name"
-                                placeholder="Название набора"
-                                value={newSetName}
-                                onChange={(e) => setNewSetName(e.target.value)}
-                                className={components.input.base}
-                            />
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="description">Описание</Label>
-                            <Input
-                                id="description"
-                                placeholder="Краткое описание набора"
-                                value={newSetDescription}
-                                onChange={(e) => setNewSetDescription(e.target.value)}
-                                className={components.input.base}
-                            />
-                        </div>
-                    </div>
-
-                    <DialogFooter>
-                        <Button
-                            variant="outline"
-                            onClick={() => setIsCreateModalOpen(false)}
-                            className={createButtonStyle("secondary")}
-                            disabled={createLoading}
-                        >
-                            Отмена
-                        </Button>
-                        <Button
-                            onClick={handleCreateNewSet}
-                            className={cn(createButtonStyle("primary"), "mb-2")}
-                            disabled={createLoading}
-                        >
-                            {createLoading ? (
-                                <>
-                                    <LoaderCircle
-                                        size={16}
-                                        className={`mr-${spacing.sm} animate-spin`}
-                                    />
-                                    Создание...
-                                </>
-                            ) : (
-                                "Создать набор"
-                            )}
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+            {/* Диалог создания умного набора */}
+            <CreateSearchDialog
+                open={isCreateSmartSetOpen}
+                onOpenChange={setIsCreateSmartSetOpen}
+                initialQuery={dialogQuery}
+            />
 
             {/* Диалог подтверждения анализа */}
             <AnalysisConfirmDialog
@@ -326,12 +256,6 @@ export default function ChannelSetPage() {
                 existingChannels={
                     selectedSetForChannels?.channels?.map((ch) => ch.username) || []
                 }
-            />
-
-            {/* Диалог создания умного набора */}
-            <CreateSmartSetDialog
-                open={isCreateSmartSetOpen}
-                onOpenChange={setIsCreateSmartSetOpen}
             />
         </div>
     );

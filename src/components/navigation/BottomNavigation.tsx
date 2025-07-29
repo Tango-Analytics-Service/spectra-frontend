@@ -35,17 +35,17 @@ export default function BottomNavigation() {
                     active={currentPath === "/" || currentPath === "/home"}
                 />
                 <NavItem
+                    to="/searches"
+                    icon={<Search size={18} />}
+                    label="Мои запросы"
+                    active={currentPath.startsWith("/searches")}
+                />
+                {/* <NavItem
                     to="/analysis/tasks"
                     icon={<BarChart3 size={18} />}
                     label="Анализ"
                     active={currentPath.startsWith("/analysis")}
-                />
-                <NavItem
-                    to="/filters"
-                    icon={<Search size={18} />}
-                    label="Фильтры"
-                    active={currentPath.startsWith("/filters")}
-                />
+                /> */}
                 <NavItem
                     to="/credits"
                     icon={<CreditCard size={18} />}

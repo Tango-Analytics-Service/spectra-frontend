@@ -7,6 +7,8 @@ import { cn } from "@/lib/cn";
 import { useToast } from "@/ui/components/use-toast";
 import { gradients, typography, spacing, createCardStyle, animations } from "@/lib/design-system";
 import { useCreditsStore } from "@/credits/stores/useCreditsStore";
+import { usePaymentsStore } from "@/payments/stores/usePaymentsStore";
+import { useEffect } from "react";
 
 export default function CreditsPage() {
     // Get data and methods from context
@@ -23,24 +25,37 @@ export default function CreditsPage() {
     const fetchPackages = useCreditsStore(state => state.fetchPackages);
     const fetchCosts = useCreditsStore(state => state.fetchCosts);
 
+    // Payments store
+    const initiatePurchase = usePaymentsStore(state => state.initiatePurchase);
+    const paymentLoadStatus = usePaymentsStore(state => state.loadStatus);
+
     // Toast for notifications
     const { toast } = useToast();
 
-    fetchBalance();
-    fetchTransactions();
-    fetchPackages();
-    fetchCosts();
+    useEffect(() => {
+        fetchBalance(true);
+        fetchTransactions(undefined, true);
+        fetchPackages(true);
+        fetchCosts(true);
+    }, [fetchBalance, fetchTransactions, fetchPackages, fetchCosts]);
 
-    const handlePurchaseClick = (packageId: string) => {
+    const handlePurchaseClick = async (packageId: string) => {
         const pkg = packages.find((p) => p.id === packageId);
-        if (pkg) {
-            // Показываем заглушку вместо открытия модального окна
+        if (!pkg) {
             toast({
-                title: "Функция в разработке",
-                description: `Покупка пакета "${pkg.name}" временно недоступна. Мы работаем над внедрением платежной системы.`,
-                variant: "default",
+                title: "Ошибка",
+                description: "Пакет не найден",
+                variant: "destructive",
             });
+            return;
         }
+
+        // Инициируем покупку через новый store
+        await initiatePurchase({
+            package_id: packageId,
+            payment_methods: ["card", "sbp"], // Можно настроить
+            return_url: window.location.origin + "/credits", // Возврат на страницу кредитов
+        });
     };
 
     return (
@@ -90,30 +105,11 @@ export default function CreditsPage() {
                             <Loader2 className="h-8 w-8 animate-spin text-blue-400" />
                         </div>
                     ) : packages.length > 0 ? (
-                        <>
-                            {/* Уведомление о том, что функция в разработке */}
-                            <div className={cn(
-                                createCardStyle(),
-                                "p-4 mb-4 bg-amber-500/10 border-amber-500/20"
-                            )}>
-                                <div className="flex items-center gap-3">
-                                    <AlertCircle className="h-5 w-5 text-amber-400 flex-shrink-0" />
-                                    <div>
-                                        <div className="text-amber-400 font-medium text-sm">
-                                            Платежная система в разработке
-                                        </div>
-                                        <div className="text-amber-300/80 text-xs mt-1">
-                                            Функция покупки кредитов временно недоступна. Мы активно работаем над интеграцией платежных систем.
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <CreditsPackagesGrid
-                                packages={packages}
-                                onPurchase={handlePurchaseClick}
-                            />
-                        </>
+                        <CreditsPackagesGrid
+                            packages={packages}
+                            onPurchase={handlePurchaseClick}
+                            isLoading={paymentLoadStatus === "pending"}
+                        />
                     ) : (
                         <div className={cn(createCardStyle(), "p-6 text-center")}>
                             Нет доступных пакетов кредитов

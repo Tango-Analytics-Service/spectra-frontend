@@ -9,7 +9,8 @@ import { Badge } from "@/ui/components/badge";
 
 export interface CreditPackagesGridProps {
     packages: CreditPackage[];
-    onPurchase: (packageId: string) => void;
+    onPurchase: (packageId: string) => Promise<void>;
+    isLoading?: boolean;
 }
 
 // Функция для динамического определения цвета пакета
@@ -54,7 +55,7 @@ function getBgColorForPackage(packageId: number, type: "bar" | "button" | "badge
     }
 }
 
-export default function CreditPackagesGrid({ packages, onPurchase }: CreditPackagesGridProps) {
+export default function CreditPackagesGrid({ packages, onPurchase, isLoading = false }: CreditPackagesGridProps) {
     return (
         <Card className="bg-slate-800/50 border border-blue-500/20 text-white">
             <CardHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-1 sm:pb-2">
@@ -78,7 +79,7 @@ export default function CreditPackagesGrid({ packages, onPurchase }: CreditPacka
                                         variant="outline"
                                         className={`${getBgColorForPackage(index, "badge")} border-blue-500/20`}
                                     >
-                                        {pkg.price_per_credit.toFixed(3)} RUB / кредит
+                                        {pkg.price_per_credit.toFixed(2)} RUB / кредит
                                     </Badge>
                                 </div>
 
@@ -113,9 +114,10 @@ export default function CreditPackagesGrid({ packages, onPurchase }: CreditPacka
                                     </div>
                                     <Button
                                         onClick={() => onPurchase(pkg.id)}
+                                        disabled={isLoading}
                                         className={`${getBgColorForPackage(index, "button")} text-white`}
                                     >
-                                        Купить
+                                        {isLoading ? "Обработка..." : "Купить"}
                                     </Button>
                                 </div>
                             </CardContent>
