@@ -146,7 +146,8 @@ export default function CreateSearchDialog({
             });
             onOpenChange(false); // Close dialog on success
         } catch (error) {
-            // Error is handled in the store
+            // The store now handles all errors, so this should rarely be reached
+            console.error("Unexpected error in dialog:", error);
         } finally {
             setIsCreating(false);
         }

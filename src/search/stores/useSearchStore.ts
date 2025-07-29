@@ -48,12 +48,57 @@ export const useSearchStore = create<SearchStoreState>((set, get) => ({
             return null;
         } catch (error) {
             console.error("Failed to start search:", error);
-            toast({
-                title: "Ошибка",
-                description: "Не удалось запустить поиск.",
-                variant: "destructive",
-            });
-            return null;
+            
+            // Try to parse the error message as JSON
+            try {
+                const errorData = JSON.parse(error.message);
+                
+                // Check if it's an insufficient credits error
+                if (errorData?.error_code === "INSUFFICIENT_CREDITS") {
+                    const requiredCredits = errorData?.details?.required_credits || 0;
+                    const availableCredits = errorData?.details?.available_credits || 0;
+                    const shortage = errorData?.details?.shortage || 0;
+                    
+                    toast({
+                        title: "Недостаточно кредитов",
+                        description: `Для этой операции требуется ${requiredCredits} кредитов. У вас доступно: ${availableCredits}. Не хватает: ${shortage} кредитов.`,
+                        variant: "destructive"
+                    });
+                    return null;
+                } else {
+                    // Other API errors
+                    toast({
+                        title: "Ошибка",
+                        description: errorData?.message || "Не удалось запустить поиск.",
+                        variant: "destructive",
+                    });
+                    return null;
+                }
+            } catch (parseError) {
+                // If parsing fails, check if error object has the data directly
+                const errorData = error?.response?.data || error?.data || error;
+                
+                if (errorData?.error_code === "INSUFFICIENT_CREDITS") {
+                    const requiredCredits = errorData?.details?.required_credits || 0;
+                    const availableCredits = errorData?.details?.available_credits || 0;
+                    const shortage = errorData?.details?.shortage || 0;
+                    
+                    toast({
+                        title: "Недостаточно кредитов",
+                        description: `Для этой операции требуется ${requiredCredits} кредитов. У вас доступно: ${availableCredits}. Не хватает: ${shortage} кредитов.`,
+                        variant: "destructive"
+                    });
+                    return null;
+                }
+                
+                // Generic fallback error
+                toast({
+                    title: "Ошибка",
+                    description: "Не удалось запустить поиск.",
+                    variant: "destructive",
+                });
+                return null;
+            }
         }
     },
 
