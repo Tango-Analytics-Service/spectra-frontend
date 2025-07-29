@@ -79,7 +79,7 @@ export default function CreditPackagesGrid({ packages, onPurchase, isLoading = f
                                         variant="outline"
                                         className={`${getBgColorForPackage(index, "badge")} border-blue-500/20`}
                                     >
-                                        {pkg.price_per_credit.toFixed(3)} RUB / кредит
+                                        {pkg.price_per_credit.toFixed(2)} RUB / кредит
                                     </Badge>
                                 </div>
 
