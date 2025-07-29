@@ -1,11 +1,17 @@
-import { ReactNode } from "react";
+import { ReactNode, useState, useEffect } from "react";
 import BottomNavigation from "@/components/navigation/BottomNavigation";
 import { useTelegramNavigation } from "@/telegram/hooks/useTelegramNavigation";
 import { cn } from "@/lib/cn";
-import { gradients, typography, spacing, animations } from "@/lib/design-system";
+import {
+    gradients,
+    typography,
+    spacing,
+    animations,
+} from "@/lib/design-system";
 import AppHeader from "@/components/common/AppHeader";
 import PageTransition from "./PageTransition";
 import { isTelegramWebApp } from "@/telegram/utils";
+import Onboarding from "@/components/onboarding/Onboarding";
 
 export interface MainLayoutProps {
     children: ReactNode;
@@ -14,6 +20,35 @@ export interface MainLayoutProps {
 
 export default function MainLayout({ children, hideHeader }: MainLayoutProps) {
     useTelegramNavigation();
+    const [onboardingState, setOnboardingState] = useState<
+    "loading" | "hidden" | "first_view" | "second_view"
+    >("loading");
+
+    useEffect(() => {
+        const viewCount = localStorage.getItem("onboardingViewCount");
+        if (viewCount === null) {
+            setOnboardingState("first_view");
+        } else if (viewCount === "1") {
+            setOnboardingState("second_view");
+        } else {
+            setOnboardingState("hidden");
+        }
+    }, []);
+
+    const handleOnboardingComplete = () => {
+        const viewCount = localStorage.getItem("onboardingViewCount");
+        if (viewCount === "1") {
+            localStorage.setItem("onboardingViewCount", "2");
+        } else {
+            localStorage.setItem("onboardingViewCount", "1");
+        }
+        setOnboardingState("hidden");
+    };
+
+    const handleOnboardingSkip = () => {
+        localStorage.setItem("onboardingViewCount", "2");
+        setOnboardingState("hidden");
+    };
 
     return (
         <div
@@ -22,6 +57,13 @@ export default function MainLayout({ children, hideHeader }: MainLayoutProps) {
                 gradients.background,
             )}
         >
+            {onboardingState !== "loading" && onboardingState !== "hidden" && (
+                <Onboarding
+                    onComplete={handleOnboardingComplete}
+                    onSkip={handleOnboardingSkip}
+                    showSkipButton={onboardingState === "second_view"}
+                />
+            )}
             {/* Subtle background pattern */}
             <div className="absolute inset-0 overflow-hidden opacity-5 pointer-events-none">
                 <svg width="100%" height="100%">
